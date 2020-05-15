@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <title>SqlRun</title>
+    <link rel="stylesheet" type="text/css" href="../Scripts/jquery-easyui/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="../Scripts/jquery-easyui/themes/icon.css" />
+
+    <script type="text/javascript" src="../Scripts/jquery-easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="../Scripts/jquery-easyui/jquery.easyui.min.js"></script>
+
+
+    <script type="text/javascript" src="../Scripts/util/theme.js"></script>
+
+
+    <style type="text/css">
+    </style>
+
+    <script type="text/javascript">
+
+
+
+    </script>
+
+</head>
+<body>
+    <fieldset style="margin-bottom: 5px;">
+        <legend>批量导入数据</legend>
+        <form method='post' enctype='multipart/form-data' action='/sqler/DbPort/Import' target='_blank'>
+            <table>
+                <tr><td>type</td><td><input type='text' name='type' /></td></tr>
+                <tr><td>ConnectionString</td><td><textarea name='ConnectionString' cols="60" rows="4"></textarea></td></tr>
+                <tr><td>导入文件</td><td><input type='file' name='files' /></td></tr>
+                <tr><td>createTable</td><td><input type='checkbox' name='createTable' /></td></tr>
+                <tr><td>delete</td><td><input type='checkbox' name='delete' /></td></tr>
+                <tr><td>truncate</td><td><input type='checkbox' name='truncate' /></td></tr>
+
+            </table>
+            <input type='submit' value='导入' />
+        </form>
+        <pre>
+            <code>
+                type:               数据库类型，可为  mysql mssql sqlite
+                ConnectionString:   数据库连接字符串
+                file:               导入文件可为sqlite3、xls、xlsx等
+                createTable:        若指定(on)，则在导入数据前自动创建表结构
+                delete:             若指定(on)，则在导入数据前使用delete语句清空待操作的表
+                truncate:           若指定(on)，则在导入数据前使用truncate语句清空待操作的表
+            </code>
+    </pre>
+    </fieldset>
+    <fieldset style="margin-bottom: 5px;">
+        <legend>导出全库数据</legend>
+        <form method='post' enctype='multipart/form-data' action='/sqler/DbPort/Export' target='_blank'>
+            <table>
+                <tr><td>type</td><td><input type='text' name='type' /></td></tr>
+                <tr><td>ConnectionString</td><td><textarea name='ConnectionString' cols="60" rows="4"></textarea></td></tr>
+                <tr><td>导出类型</td>
+                    <td>
+                    <input type='radio' name='exportFileType' value="sqlite" checked="checked" />sqlite
+                    <input type='radio' name='exportFileType' value="excel" checked="checked" />excel
+                    </td>
+                </tr>
+            </table>
+            <input type='submit' value='导出数据' />
+        </form>
+        <pre>
+        <code>  
+                type:              数据库类型，可为  mysql mssql sqlite
+                ConnectionString:  数据库连接字符串 
+            </code>
+    </pre>
+    </fieldset>
+</body>
+</html>

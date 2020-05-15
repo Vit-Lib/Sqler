@@ -1,0 +1,48 @@
+{
+
+  "SqlRun": {
+
+    "Config": {
+      /* 数据库类型，可为  mysql mssql sqlite */
+      "type": "sqlite",
+      /* 连接字符串 */
+      "ConnectionString": "data source=Data\\db.sqlite3"
+    }
+  },
+
+
+
+
+  "SqlBackup": {
+
+    "SqlServerBackup": {
+
+      /* 备份文件所在文件夹的路径,若不指定则为当前路径下的"Data/SqlServerBackup"文件夹 */
+      "BackupPath": "",
+      /* mdf数据库文件所在文件夹的路径,若不指定则为sqlserver系统路径 */
+      "MdfPath": "",
+
+      /* 连接字符串 */
+      "ConnectionString": "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;"
+    }
+
+
+  },
+
+
+
+
+  "SqlVersion": {
+
+    "Config": {
+      /* 数据库类型，可为  mysql mssql sqlite */
+      "type": "sqlite",
+      /*连接字符串 */
+      "ConnectionString": "data source=Data\\db.sqlite3"
+    }
+
+
+  }
+
+
+}

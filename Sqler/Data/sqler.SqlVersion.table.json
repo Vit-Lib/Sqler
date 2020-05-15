@@ -1,0 +1,9 @@
+{
+  "initDb": {
+    "mssql": "if object_id(N'sqler_version', N'U') is null CREATE TABLE  sqler_version( [id] [int] IDENTITY(1,1) NOT NULL, [module] [nvarchar](100) NULL, [version] [int] NULL, [success] [int] NOT NULL, [result] [nvarchar](max) NULL, [code] [text] NULL, [exec_time] [datetime] NULL, [remarks] [nvarchar](max) NULL)",
+
+    "sqlite": "CREATE TABLE  if not exists  sqler_version(	[id] INTEGER PRIMARY KEY   autoincrement,	[module] [nvarchar](100) NULL,	[version] [int] NULL,	[success] [int] NOT NULL,	[result] [text] NULL,	[code] [text] NULL,	[exec_time] [datetime] NULL,	[remarks] [text] NULL) ;",
+
+    "mysql": ""
+  }
+}

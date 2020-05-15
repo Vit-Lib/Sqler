@@ -1,0 +1,307 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+
+    <!-- easyui -->
+    <link rel="stylesheet" type="text/css" href="Scripts/jquery-easyui/themes/gray/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="Scripts/jquery-easyui/themes/icon.css" />
+
+    <script type="text/javascript" src="Scripts/jquery-easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="Scripts/jquery-easyui/jquery.easyui.min.js"></script>
+
+    <script type="text/javascript" src="Scripts/EasyTab/ui.EasyTab.js"></script>
+    <style type="text/css">
+
+        .luEasyTab div div div {
+            overflow: hidden;
+        }
+
+        #dvC img, #MenuTree img {
+            border: 0;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        #MenuTree {
+            color: Red;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .north {
+            height: 60px;
+            background-color: #057008;
+        }
+
+        .south {
+            padding: 5px;
+            text-align: center;
+            color: White;
+            font-weight: bold;
+            font-size: 14px;
+            background-color: #1dc416;
+        }
+
+        #northDv a {
+            color: White;
+        }
+
+            #northDv a:hover /* 当有鼠标悬停在链接上 */ {
+                color: #008800;
+            }
+
+        img[mid] {
+            content: url(Scripts/jquery-easyui/themes/icons/tip.png);
+        }
+    </style>
+
+    <script type="text/javascript">
+
+        var jsMenu = [
+            {
+                "attributes": {
+                    "url": ""
+                },
+                "text": "<img mid='" + Math.random() + "' />SqlRun",
+                "iconCls": "icon-null",
+                "children": [
+                    {
+                        "attributes": {
+                            "url": "/autotemp/Scripts/autoTemp/item.html?apiRoute=/autotemp/data/Sqler_SqlRun_Config/{action}&mode=update&id=1"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />SqlRun配置",
+                        "iconCls": "icon-null"
+                    },
+                    {
+                        "attributes": {
+                            "url": "/sqler/SqlRun/index.html"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />SqlRun",
+                        "iconCls": "icon-null"
+                    }
+                ]
+            },
+
+            {
+                "attributes": {
+                    "url": ""
+                },
+                "text": "<img mid='" + Math.random() + "' />备份与还原",
+                "iconCls": "icon-null",
+                "children": [
+                    {
+                        "attributes": {
+                            "url": "/autotemp/Scripts/autoTemp/item.html?apiRoute=/autotemp/data/Sqler_SqlBackup_Config/{action}&mode=update&id=1"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />备份与还原配置",
+                        "iconCls": "icon-null"
+                    },
+                    {
+                        "attributes": {
+                            "url": "/autotemp/Scripts/autoTemp/list.html?apiRoute=/sqler/Sqler_SqlBackup_SqlServerBackup/{action}"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />SqlServer备份与还原",
+                        "iconCls": "icon-null"
+                    },
+                    {
+                        "attributes": {
+                            "url": ""
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />MySql备份与还原",
+                        "iconCls": "icon-null"
+                    }
+                ]
+            },
+            {
+                "attributes": {  "url": "/sqler/DbPort/DbPort.html"        },
+                "text": "<img mid='" + Math.random() + "' />导入导出工具",
+                "iconCls": "icon-null"
+            },
+            {
+                "attributes": {
+                    "url": ""
+                },
+                "text": "<img mid='" + Math.random() + "' />SqlVersion",
+                "iconCls": "icon-null",
+                "children": [
+                    {
+                        "attributes": {
+                            "url": "/autotemp/Scripts/autoTemp/item.html?apiRoute=/autotemp/data/Sqler_SqlVersion_Config/{action}&mode=update&id=1"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />SqlVersion配置",
+                        "iconCls": "icon-null"
+                    },
+                    {
+                        "attributes": {
+                            "url": "/autotemp/Scripts/autoTemp/list.html?apiRoute=/autotemp/data/Sqler_SqlVersion_Module/{action}"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />模块管理",
+                        "iconCls": "icon-null"
+                    },
+                    {
+                        "attributes": {
+                            "url": "/sqler/SqlVersion/index.html"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />Sql语句管理",
+                        "iconCls": "icon-null"
+                    },
+                    {
+                        "attributes": {
+                            "url": "/autotemp/Scripts/autoTemp/list.html?apiRoute=/autotemp/data/Sqler_SqlVersion_VersionInfo/{action}"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />升级记录",
+                        "iconCls": "icon-null"
+                    }
+                ]
+            },
+
+            {
+                "attributes": {
+                    "url": ""
+                },
+                "text": "<img mid='" + Math.random() + "' />DataEditor",
+                "iconCls": "icon-null",
+                "children": [
+                    {
+                        "attributes": {
+                            "url": "/autotemp/Scripts/autoTemp/item.html?apiRoute=/autotemp/data/Sqler_DataEditor_Config/{action}&mode=update&id=1"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />DataEditor配置",
+                        "iconCls": "icon-null"
+                    },
+                    {
+                        "attributes": {
+                            "url": "/autotemp/Scripts/autoTemp/list.html?apiRoute=/autotemp/data/Sqler_DataEditor_schema/{action}"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />Schema",
+                        "iconCls": "icon-null"
+                    },
+                    {
+                        "attributes": {
+                            "url": "/sqler/DataEditor/index.html"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />DataEditor",
+                        "iconCls": "icon-null"
+                    }
+                ]
+            }
+        ];
+
+
+
+
+
+        var tabs;
+
+        function resizeTab() {
+            var jqElem = $(window);
+            var jqTab = tabs.jqElem;
+            jqTab.tabs('resize', {
+                height: jqElem.height() - jqTab.offset().top - $('.south').height() - 20
+            });
+        }
+
+
+        function addTab(url, title, funcOnClose) {
+            /// <summary>添加tab页面(若没有tab页面，则 window.open)</summary>
+            /// <param name="url" type="string">要打开的页面的url</param>
+            /// <param name="title" type="string">添加的tab页的title的前缀</param>
+            /// <param name="funcOnClose" type="function">当tab页关闭时调用的回调函数</param>
+            /// <returns type="bool">true:调用 window.open新建窗口，false:调用parent.addTab添加tab页面</returns>
+            tabs.addTab(url, title, { onClose: funcOnClose });
+        }
+
+
+        //关闭当前tab页面
+        function closeTab() {
+            tabs.curTabClose();
+        }
+
+
+
+        //获取额外菜单
+        $.ajax({
+            type: 'GET',
+            url: '/autotemp/data/Sqler_DataEditor_Config/getModel?id=1',
+            dataType: "json",
+            success: function (apiReturn) {
+
+                try {
+                    var menu = eval('(' + apiReturn.data.menu + ')');
+                    if (menu)
+                        jsMenu = jsMenu.concat(menu);
+                } catch (e) {
+                }
+
+
+                $(function () {
+                    //加载对应树视图菜单
+                    $('#MenuTree').tree({
+                        checkbox: false,
+                        animate: true,
+                        onClick: function (node) {
+                            var url = node.attributes.url;
+                            if (!url) return;
+                            switch (node.attributes.target) {
+                                case 1: window.top.location = url; break;
+                                case 2: window.open(url); break;
+                                default: addTab(node.text, url);
+                            }
+                        },
+                        data: jsMenu
+                    });
+
+                });
+
+            }
+        });
+
+
+
+
+
+
+
+        $(function () {
+
+            //初始化tab控件
+            tabs = new ui.EasyTab($('#dvC'), { tools: '#qw_tabs_tools', border: false });
+
+            $(window).resize(resizeTab)
+            resizeTab();
+        });
+
+    </script>
+</head>
+<body class="easyui-layout">
+    <div region="north" border="false" class="north">
+        <h2 style="text-align:center;">Sqler</h2>
+
+        <div id="northDv" style="position: absolute; right: 50px; bottom: 1px; color: White;
+            font-size: 14px;">
+            欢迎您,系统维护员
+            <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-redo'" onclick='javascript:alert("退出");'>退出 </a>
+        </div>
+    </div>
+    <div region="west" split="true" title="菜单" style="width: 200px; background-color: #E0E0E0;">
+        <ul id="MenuTree">
+        </ul>
+    </div>
+    <div region="center" border="false">
+        <div id="dvC" style="width:100%;height:100%;">
+
+        </div>
+        <div id="qw_tabs_tools">
+            <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-undo'" onclick="javascript: tabs.switchTab(-1);"></a>
+            <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'" onclick="javascript: tabs.curTabRefresh();"></a>
+            <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-redo'" onclick="javascript: tabs.switchTab(1);"></a>
+            <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-cancel'" onclick="javascript: tabs.closeAllTabs();"></a>
+        </div>
+    </div>
+    <!--<div region="south" border="false" class="south">
+        lith软件出品 邮箱：sersms@163.com
+    </div>-->
+</body>
+</html>

@@ -1,0 +1,437 @@
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ComponentModel.Query;
+using Vit.Linq.Query;
+using Vit.Extensions;
+using Vit.Core.Util.ComponentModel.SsError;
+using System.Linq;
+using Vit.Core.Module.Log;
+using System;
+using Sqler.Module.Sqler.Logical;
+using static Vit.Orm.Dapper.DbMng.MsDbMng;
+using Vit.Orm.Dapper.DbMng;
+
+namespace Sqler.Module.Sqler.Controllers.SqlBackup
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    [Route("sqler/Sqler_SqlBackup_SqlServerBackup")] 
+    [ApiController]
+    public class SqlServerBackupController : ControllerBase
+    {
+
+        #region autoTemp      
+
+        #region (x.1) getControllerConfig
+        /// <summary>
+        /// GET autotemp/getConfig
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("getConfig")]
+        public ApiReturn getControllerConfig()
+        {
+
+            var data = @"{
+                dependency: {
+                    css: [],
+                    js: []
+                },       
+
+                 idField: 'id',   
+
+                /* 添加、修改、查看、删除 等权限,可不指定。 默认值均为true  */
+                'permit':{
+                    insert:false,
+                    update:true,
+                    show:false,
+                    delete:true                 
+                },
+
+                list:{
+                    rowButtons:[                            
+                            {text:'还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/Restore?fileName={id}'    }     },
+                            {text:'远程还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/RemoteRestore?fileName={id}'    }     }
+                    ]
+                },
+
+                fields: [                  
+                    {  'ig-class': 'TextArea', field: 'fileName', title: '文件名', list_width: 400,editable:true },
+                    { field: 'size', title: '大小(MB)', list_width: 80,editable:false },
+                    { field: 'size_kb', title: '大小(KB)', list_width: 80,editable:false },
+                    { field: 'createTime', title: '创建时间', list_width: 150,editable:false }
+                ],
+ 
+                filterFields: [
+                    { field: 'fileName', title: '文件名',filterOpt:'Contains' }
+                ]
+            }";
+            var controllerConfig = data.Deserialize<JObject>();
+
+
+
+            #region (x.1)获取数据库状态
+            EDataBaseState dbState;
+            int processCount=0;
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                dbState =dbMng.GetDataBaseState();
+                if(dbState== EDataBaseState.online) processCount = dbMng.GetProcessCount();
+            }
+            #endregion            
+
+
+
+         
+            #region (x.2)list.title
+            var title = $"Sql Server数据库管理工具（Sqler_SqlBackup_SqlServerBackup）-- 数据库状态：{ dbState }";
+            if (dbState == EDataBaseState.online) title += " -- 连接数：" + processCount;
+            controllerConfig["list"]["title"] = title;
+            #endregion
+
+
+            #region (x.3)list.buttons
+            var buttons =  new JArray();
+            controllerConfig["list"]["buttons"] = buttons;
+
+            #region (x.x.1)CreateDataBase
+            if (Array.IndexOf(new[] { EDataBaseState.none, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'创建数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/CreateDataBase'    }     }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
+
+            #region (x.x.2)DropDataBase
+            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'删除数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/DropDataBase'    }     }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
+
+            #region (x.x.3)AttachDataBase
+            if (Array.IndexOf(new[] { EDataBaseState.offline, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'附加数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/AttachDataBase'    }     }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
+
+
+            #region (x.x.4)DetachDataBase
+            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'分离数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/DetachDataBase'    }     }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
+
+            #region (x.x.5)KillProcess
+            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'强制关闭数据库连接进程',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/KillProcess'    }     }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
+
+
+            #region (x.x.6)Backup
+            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'备份数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/Backup'    }     }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
+
+
+            #region (x.x.8)RemoteBackup
+            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'远程备份数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/RemoteBackup'    }     }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
+
+            
+
+            #endregion
+
+
+            return new ApiReturn<JObject>(controllerConfig);
+        }
+
+        #endregion
+
+
+        #region (x.2) getList
+        /// <summary>
+        /// GET autotemp/getList
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("getList")]
+        public ApiReturn getList([FromQuery]string page, [FromQuery]string filter, [FromQuery]string sort, [FromQuery]string arg)
+        {
+            try
+            {
+                var page_ = page.Deserialize<PageInfo>();
+                var filter_ = filter.Deserialize<List<DataFilter>>() ?? new List<DataFilter>();
+                var sort_ = sort.Deserialize<SortItem[]>();
+
+
+                List<BackupFileInfo> backupFiles;
+
+                using (var conn= SqlerHelp.SqlServerBackup_CreateDbConnection())
+                {
+                    var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                    backupFiles=dbMng.BackupFile_GetFileInfos();
+                }
+                var queryable = backupFiles.AsQueryable();
+
+                var pageData = queryable.Where(filter_).Sort(sort_).Select(m => m.ConvertBySerialize<JObject>()).ToPageData(page_);
+
+                pageData.rows.ForEach(model =>
+                {
+                    model["id"] = model["fileName"];
+                    float size = model["size"].Value<float>();
+                    model["size_kb"] = (size * 1024).ToString("f2");
+                    model["size"] = size.ToString("f2");
+                });
+
+                return new ApiReturn<object> { data = pageData };
+            }
+            catch (System.Exception ex)
+            {
+                return (SsError)ex.GetBaseException();
+            }
+        }
+
+        #endregion
+
+
+        #region (x.3) getModel
+        /// <summary>
+        /// GET autotemp/getModel
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("getModel")]
+        public ApiReturn<object> getModel([FromQuery]string id)
+        {
+            try
+            {
+                List<BackupFileInfo> backupFiles;
+
+                using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+                {
+                    var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                    backupFiles = dbMng.BackupFile_GetFileInfos();
+                }
+
+                var model = backupFiles.AsQueryable().Where(m=>m.fileName==id).FirstOrDefault()?.ConvertBySerialize<JObject>();
+                model["id"] = model["fileName"];
+                float size = model["size"].Value<float>();
+                model["size_kb"] = (size * 1024).ToString("f2");
+                model["size"] = size.ToString("f2");
+                return model;
+            }
+            catch (System.Exception ex)
+            {
+                return (SsError)ex.GetBaseException();
+            }
+        }
+        #endregion
+
+        #region (x.5) update
+        /// <summary>
+        /// PUT autotemp/update
+        /// </summary>
+        /// <returns></returns>
+        [HttpPut("update")]
+        public ApiReturn update([FromBody]JObject model)
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                dbMng.BackupFile_Rename(model["id"].ConvertToString(), model["fileName"].ConvertToString());
+            }
+            return true;
+        }
+        #endregion
+
+
+        #region (x.6) delete
+        /// <summary>
+        /// DELETE autotemp/delete
+        /// </summary>
+        /// <returns></returns>
+        [HttpDelete("delete")]
+        public ApiReturn delete([FromBody]JObject arg)
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                string fileName = arg["id"].Value<string>();
+                dbMng.BackupFile_Del(fileName);
+            }
+            return true;
+        }
+        #endregion
+
+
+        #endregion
+
+
+        #region opt
+        ///  所有操作： 创建、删除
+        ///             附加、分离
+        ///             强关所有连接
+        ///             备份、还原
+        ///             
+        #region (x.1) CreateDataBase        
+
+        [HttpPost("CreateDataBase")]
+        public ApiReturn CreateDataBase()
+        {             
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                dbMng.CreateDataBase();
+                Logger.Info("Sqler-CreateDataBase");
+            }
+            return new ApiReturn();
+        }
+        #endregion
+
+
+        #region (x.2) DropDataBase        
+
+        [HttpPost("DropDataBase")]
+        public ApiReturn DropDataBase()
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                dbMng.DropDataBase();
+                Logger.Info("[Sqler]MsDbMng-DropDataBase");
+            }
+            return new ApiReturn();
+        }
+        #endregion
+
+
+
+        #region (x.3) AttachDataBase        
+
+        [HttpPost("AttachDataBase")]
+        public ApiReturn AttachDataBase()
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                dbMng.Attach();
+                Logger.Info("[Sqler]MsDbMng-AttachDataBase");
+            }
+            return new ApiReturn();
+        }
+        #endregion
+
+        #region (x.4) DetachDataBase
+        [HttpPost("DetachDataBase")]
+        public ApiReturn DetachDataBase()
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                dbMng.Detach();
+                Logger.Info("[Sqler]MsDbMng-DetachDataBase");
+            }
+            return new ApiReturn();
+        }
+        #endregion
+
+
+        #region (x.5) KillProcess
+        [HttpPost("KillProcess")]
+        public ApiReturn KillProcess()
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                dbMng.KillProcess();
+                Logger.Info("[Sqler]MsDbMng-KillProcess");
+            }
+            return new ApiReturn();
+        }
+        #endregion
+
+
+
+
+        #region (x.6) Backup
+        [HttpPost("Backup")]
+        public ApiReturn Backup()
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var filePath = dbMng.Backup();
+                Logger.Info("[Sqler]MsDbMng-Backup,filePath:"+ filePath);
+            }
+            return new ApiReturn();
+        }
+        #endregion
+
+
+        #region (x.7) Restore
+        [HttpPost("Restore")]
+        public ApiReturn Restore([FromQuery]string fileName)
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var filePath = dbMng.RestoreByFileName(fileName);
+                Logger.Info("[Sqler]MsDbMng-Restore,filePath:" + filePath);
+            }
+            return new ApiReturn();
+        }
+        #endregion
+
+
+
+        #region (x.8) RemoteBackup
+        [HttpPost("RemoteBackup")]
+        public ApiReturn RemoteBackup()
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var filePath = dbMng.RemoteBackup();
+                Logger.Info("[Sqler]MsDbMng-RemoteBackup,filePath:" + filePath);
+            }
+            return new ApiReturn();
+        }
+        #endregion
+
+
+
+        #region (x.9) RemoteRestore
+        [HttpPost("RemoteRestore")]
+        public ApiReturn RemoteRestore([FromQuery]string fileName)
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var filePath = dbMng.RemoteRestoreByFileName(fileName);
+                Logger.Info("[Sqler]MsDbMng-RemoteRestore,filePath:" + filePath);
+            }
+            return new ApiReturn();
+        }
+        #endregion
+
+        #endregion
+
+    }
+}

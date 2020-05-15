@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+
+    <script type="text/javascript" src="../Scripts/jquery-easyui/jquery.min.js"></script>
+
+    <script src="../Scripts/util/theme.js"></script>
+
+
+    <script type="text/javascript">
+
+        function onGetTemplateList(apiRet) {
+            if (!theme.alertApiReturn(apiRet)) {
+                return;
+            }
+
+            $(function () {
+
+                var templateList = apiRet.data;
+
+                var html = '';
+
+                for (t in templateList) {
+                    var template = templateList[t];
+                    html += t + '. <a href="#" src="/autotemp/Scripts/autoTemp/list.html?apiRoute=/autotemp/data/' + template + '/{action}">' + template + '</a><br /><br />';
+                }
+
+                $('#templateList').html(html);
+                $('#templateList a').click(onJump);
+            });
+        }
+
+
+        $(function () {
+            $('#templateDemo a').click(onJump);
+        });
+
+
+
+        function onJump() {
+            theme.addTab($(this).attr('src'), $(this).text());
+        }
+
+
+        //获取所有的模板列表
+        $.ajax({ url: '/sqler/DataEditor/templateList', type: 'GET', success: onGetTemplateList });
+    </script>
+</head>
+<body class="grid_main">
+
+    <div style="width:100%;height:1px; background-color:#dbe5e7;margin-top: 10px;margin-bottom: 10px;"></div>
+    <div id='templateDemo'>
+        <a href="#" src="/autotemp/Scripts/autoTemp/list.html?dataProvider=LocalStorageProvider&tree=false">LocalStorage list</a><br /><br />
+        <a href="#" src="/autotemp/Scripts/autoTemp/list.html?dataProvider=LocalStorageProvider">LocalStorage tree</a><br /><br />
+        <!--<a href="#" src="/autotemp/Scripts/autoTemp/list.html?apiRoute=/autotemp/data/demo_list/{action}">demo_list</a><br /><br />
+        <a href="#" src="/autotemp/Scripts/autoTemp/list.html?apiRoute=/autotemp/data/demo_tree/{action}">demo_tree</a><br /><br />-->
+    </div>
+    <div id='templateList'>
+    </div>
+</body>
+</html>
