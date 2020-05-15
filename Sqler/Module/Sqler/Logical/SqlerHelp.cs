@@ -2,6 +2,7 @@
 using Sqler.Module.Sqler.Logical.DataEditor;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.ConfigurationManager;
 using Vit.Extensions;
@@ -46,11 +47,11 @@ namespace Sqler.Module.Sqler.Logical
             if (di.Exists)
             {
                 SqlDataPath = di.FullName;
-                Logger.Info("[Sqler] Data文件夹路径:"+ SqlDataPath);
+                Logger.Info("[Sqler] Data Directory:" + SqlDataPath);
             }
             else 
             {
-                throw new Exception("指定的Data文件夹路径（"+ dataDirectoryPath + "）不存在");
+                throw new Exception("Data Directory(" + dataDirectoryPath + ") does not exist");
             }
         }
         #endregion
@@ -69,6 +70,7 @@ namespace Sqler.Module.Sqler.Logical
         #region static Init
         public static void Init()
         {
+            Logger.Info("init Sqler...");
             #region init member        
             sqlerConfig = new JsonFile(GetDataFilePath("sqler.json"));
 
@@ -80,7 +82,7 @@ namespace Sqler.Module.Sqler.Logical
 
 
 
-            DataEditorHelp.Init();
+          
 
 
             #region SqlRun
@@ -94,9 +96,18 @@ namespace Sqler.Module.Sqler.Logical
 
             #region DataEditor
             {
-                //config
-                AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
-                    new global::Sqler.Module.Sqler.Logical.DataEditor.ConfigRepository().ToDataProvider("Sqler_DataEditor_Config"));
+                Task.Run(()=>{
+
+                    Logger.Info("init Sqler-DataEditor...");
+                    //init
+                    DataEditorHelp.Init();
+
+                    //RegistDataProvider
+                    AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                        new global::Sqler.Module.Sqler.Logical.DataEditor.ConfigRepository().ToDataProvider("Sqler_DataEditor_Config"));
+
+                    Logger.Info("init Sqler-DataEditor succeed!");
+                });
             }
             #endregion
 
@@ -110,7 +121,9 @@ namespace Sqler.Module.Sqler.Logical
 
 
             // SqlVersion
-            SqlVersion.SqlVersionHelp.Init();             
+            SqlVersion.SqlVersionHelp.Init();
+
+            Logger.Info("inited Sqler!");
 
         }
         #endregion

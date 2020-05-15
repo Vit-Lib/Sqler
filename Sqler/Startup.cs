@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,7 @@ namespace Sqler
             services.AddMvc(options =>
             {
                 //使用自定义异常处理器
-                options.Filters.Add<Sers.Serslot.ExceptionFilter.ExceptionFilter>();
+                //options.Filters.Add<Sers.Serslot.ExceptionFilter.ExceptionFilter>();
             })
             .AddJsonOptions(options =>
             {
@@ -106,7 +107,8 @@ namespace Sqler
 
 
             //SqlerHelp
-            Sqler.Module.Sqler.Logical.SqlerHelp.Init();
+            Task.Run(Sqler.Module.Sqler.Logical.SqlerHelp.Init);
+            //Sqler.Module.Sqler.Logical.SqlerHelp.Init();
 
         }
     }

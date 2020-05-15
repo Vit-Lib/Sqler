@@ -11,6 +11,8 @@ namespace Sqler
         {
             try
             {
+                Logger.Info("[Sqler] version: "+ System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion );
+
                 Sqler.Module.Sqler.Logical.SqlerHelp.InitSqlDataPath(args);
                 CreateWebHostBuilder(args).Build().Run();
             }
@@ -23,7 +25,7 @@ namespace Sqler
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-            .UseSerslot()
+            //.UseSerslot()
             .UseUrls(Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<string[]>("server.urls"))
             .UseStartup<Startup>()
             .UseVitConfig()

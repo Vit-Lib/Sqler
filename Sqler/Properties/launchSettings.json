@@ -8,25 +8,16 @@
     }
   },
   "profiles": {
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "launchUrl": "sqler/index.html",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "Console": {
+    "web": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "sqler/index.html",
       "applicationUrl": "http://localhost:4570/"
     },
-    "Web": {
+    "console": {
       "commandName": "Project",
-      "launchBrowser": true,
-      "launchUrl": "sqler/index.html",
-      "applicationUrl": "http://localhost:4570/"
+      "launchBrowser": false
     }
+
   }
 }
