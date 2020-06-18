@@ -18,12 +18,20 @@ namespace Sqler.Module.Sqler.Logical.DataEditor
     {
 
         #region static Init
-        public static void Init()
+        public static bool Init()
         {
             //(x.1) init conn
             {
+                var connInfo = dataEditorConfig.GetByPath<ConnectionInfo>("Db");
+
+
+                if (connInfo == null || string.IsNullOrEmpty(connInfo.type) || string.IsNullOrEmpty(connInfo.ConnectionString))
+                {
+                    return false;
+                }
+
                 efDbFactory =
-                    new DbContextFactory<AutoMapDbContext>().Init(dataEditorConfig.GetByPath<ConnectionInfo>("Db"));
+                new DbContextFactory<AutoMapDbContext>().Init(connInfo);
             }
 
 
@@ -52,7 +60,7 @@ namespace Sqler.Module.Sqler.Logical.DataEditor
                 }               
             }
 
-           
+            return true;
 
         }
         #endregion

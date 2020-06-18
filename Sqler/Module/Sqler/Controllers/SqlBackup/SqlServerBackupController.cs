@@ -294,13 +294,8 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
 
         [HttpPost("CreateDataBase")]
         public ApiReturn CreateDataBase()
-        {             
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                dbMng.CreateDataBase();
-                Logger.Info("Sqler-CreateDataBase");
-            }
+        {
+            SqlServerLogical.CreateDataBase();
             return new ApiReturn();
         }
         #endregion
@@ -311,12 +306,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
         [HttpPost("DropDataBase")]
         public ApiReturn DropDataBase()
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                dbMng.DropDataBase();
-                Logger.Info("[Sqler]MsDbMng-DropDataBase");
-            }
+            SqlServerLogical.DropDataBase();
             return new ApiReturn();
         }
         #endregion
@@ -328,12 +318,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
         [HttpPost("AttachDataBase")]
         public ApiReturn AttachDataBase()
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                dbMng.Attach();
-                Logger.Info("[Sqler]MsDbMng-AttachDataBase");
-            }
+            SqlServerLogical.AttachDataBase();
             return new ApiReturn();
         }
         #endregion
@@ -342,12 +327,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
         [HttpPost("DetachDataBase")]
         public ApiReturn DetachDataBase()
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                dbMng.Detach();
-                Logger.Info("[Sqler]MsDbMng-DetachDataBase");
-            }
+            SqlServerLogical.DetachDataBase();
             return new ApiReturn();
         }
         #endregion
@@ -357,12 +337,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
         [HttpPost("KillProcess")]
         public ApiReturn KillProcess()
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                dbMng.KillProcess();
-                Logger.Info("[Sqler]MsDbMng-KillProcess");
-            }
+            SqlServerLogical.KillProcess();
             return new ApiReturn();
         }
         #endregion
@@ -374,12 +349,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
         [HttpPost("Backup")]
         public ApiReturn Backup()
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                var filePath = dbMng.Backup();
-                Logger.Info("[Sqler]MsDbMng-Backup,filePath:"+ filePath);
-            }
+            SqlServerLogical.Backup();
             return new ApiReturn();
         }
         #endregion
@@ -389,12 +359,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
         [HttpPost("Restore")]
         public ApiReturn Restore([FromQuery]string fileName)
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                var filePath = dbMng.RestoreByFileName(fileName);
-                Logger.Info("[Sqler]MsDbMng-Restore,filePath:" + filePath);
-            }
+            SqlServerLogical.Restore(fileName);
             return new ApiReturn();
         }
         #endregion
@@ -405,12 +370,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
         [HttpPost("RemoteBackup")]
         public ApiReturn RemoteBackup()
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                var filePath = dbMng.RemoteBackup();
-                Logger.Info("[Sqler]MsDbMng-RemoteBackup,filePath:" + filePath);
-            }
+            SqlServerLogical.RemoteBackup();
             return new ApiReturn();
         }
         #endregion
@@ -421,12 +381,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
         [HttpPost("RemoteRestore")]
         public ApiReturn RemoteRestore([FromQuery]string fileName)
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                var filePath = dbMng.RemoteRestoreByFileName(fileName);
-                Logger.Info("[Sqler]MsDbMng-RemoteRestore,filePath:" + filePath);
-            }
+            SqlServerLogical.RemoteRestore(fileName);
             return new ApiReturn();
         }
         #endregion

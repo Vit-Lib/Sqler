@@ -4,6 +4,6 @@ dotnet Sqler.dll
 
 
 :: 可以指定 Data文件夹路径 如：
-:: dotnet Sqler.dll "E:\temp\Data"
+:: dotnet Sqler.dll --DataPath "E:\temp\Data"
 
  

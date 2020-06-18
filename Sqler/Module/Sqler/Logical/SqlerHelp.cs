@@ -21,15 +21,8 @@ namespace Sqler.Module.Sqler.Logical
         /// </summary>
         public static string SqlDataPath { get; private set; }
 
-        public static void InitSqlDataPath(string[] args)
-        {
-            string dataDirectoryPath = null;
-
-            //(x.1) from Commend args
-            if (args != null && args.Length >= 1)
-            {
-                dataDirectoryPath = args[0];
-            }
+        public static void InitSqlDataPath(string dataDirectoryPath=null)
+        {             
 
             //(x.2)from appsettings.json
             if (string.IsNullOrWhiteSpace(dataDirectoryPath))
@@ -100,7 +93,11 @@ namespace Sqler.Module.Sqler.Logical
 
                     Logger.Info("init Sqler-DataEditor...");
                     //init
-                    DataEditorHelp.Init();
+                    if (!DataEditorHelp.Init()) 
+                    {
+                        Logger.Info("Sqler-DataEditor not config Database Connnection,not inited.");
+                        return;
+                    }
 
                     //RegistDataProvider
                     AutoTemp.Controllers.AutoTempController.RegistDataProvider(

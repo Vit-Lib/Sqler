@@ -41,28 +41,8 @@ namespace Sqler
                 //不更改元数据的key的大小写
                 options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
             })
-            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-       
-
-
-
-            #region 配置Swagger
-            //定义一个和多个Swagger 文档
-            //services.AddSwaggerGen(options =>
-            //{
-            //    options.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "SwaggerDoc", Version = "v1" });
-
-            //    // 设置SWAGER JSON和UI的注释路径。
-            //    try
-            //    {
-            //        foreach (System.IO.FileInfo fi in new System.IO.DirectoryInfo(AppContext.BaseDirectory).GetFiles("*.xml"))
-            //        {
-            //            options.IncludeXmlComments(fi.FullName);
-            //        }
-            //    }
-            //    catch { }
-            //});
-            #endregion
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);     
+ 
 
         }
 
@@ -88,27 +68,15 @@ namespace Sqler
             else
             {
                 app.UseHsts();
-            }
-
-            #region 启用Swagger
-            //地址为 /swagger/index.html
-            //启用中间件服务生成Swagger作为JSON终结点
-            //app.UseSwagger();
-            ////启用中间件服务对swagger-ui，指定Swagger JSON终结点
-            //app.UseSwaggerUI(c =>
-            //{
-            //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-            //});
-            #endregion
+            } 
 
           
             //app.UseHttpsRedirection();
             app.UseMvc();
 
-
             //SqlerHelp
             Task.Run(Sqler.Module.Sqler.Logical.SqlerHelp.Init);
-            //Sqler.Module.Sqler.Logical.SqlerHelp.Init();
+            //Sqler.Module.Sqler.Logical.SqlerHelp.Init(); 
 
         }
     }

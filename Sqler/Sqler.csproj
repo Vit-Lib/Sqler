@@ -19,15 +19,14 @@
  
  
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <!--<PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />--> 
+    <PackageReference Include="Microsoft.AspNetCore.App" /> 
   </ItemGroup>
 
   <ItemGroup> 
-    <PackageReference Include="Vit.Db" Version="2.1.1.345" />   
-    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.345" />
-    <PackageReference Include="Vit.Orm.Dapper" Version="2.1.1.345" />
-    <PackageReference Include="Vit.WebHost" Version="2.1.1.345" />
+    <PackageReference Include="Vit.Db" Version="2.1.1.352" />   
+    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.352" />
+    <PackageReference Include="Vit.Orm.Dapper" Version="2.1.1.352" />
+    <PackageReference Include="Vit.WebHost" Version="2.1.1.352" />
   </ItemGroup>  
   
   
@@ -45,7 +44,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
  
-    <Content Update="Data\sqler.DataEditor.json">
+    <Content Update="Data\sqler.DataEditor_.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
  
