@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Linq;
-using Vit.Core.Util.Common;
 using Sqler.Module.AutoTemp.Logical.Repository;
 using Sqler.Module.AutoTemp.Logical;
 using Microsoft.EntityFrameworkCore;
@@ -19,52 +18,12 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
         static RespositoryDataProvider<SqlCodeModel>[] sqlCodeDataProviders = null;
 
         #region static Init
-        public static void Init()
-        {         
-           
+        public static void InitEnvironment()
+        {
 
-            //(x.1)取消注册
-            if (sqlCodeDataProviders != null)
-            {
-                AutoTemp.Controllers.AutoTempController.UnRegistDataProvider(sqlCodeDataProviders);
-                sqlCodeDataProviders = null;
-            }
+          
 
-            #region (x.2)创建 moduleModels
-            {
-                DirectoryInfo dir = new DirectoryInfo(SqlerHelp.GetDataFilePath("SqlVersion"));
-                if (dir.Exists)
-                {
-                    var sqlCodeRepositorys = dir.GetFiles("*.json")
-                        .Select(file => Path.GetFileNameWithoutExtension(file.Name))
-                        //.Select(file => file.Name)
-                        .Select(name => new global::Sqler.Module.Sqler.Logical.SqlVersion.SqlCodeRepository(name))
-                                .ToArray();
-
-                    sqlCodeDataProviders = sqlCodeRepositorys.Select( repository =>
-                                repository.ToDataProvider("Sqler_SqlVersion_Module_" + repository.moduleName))
-                                .ToArray();
-
-                    moduleModels = sqlCodeRepositorys.AsQueryable()
-                        .Select(rep => new SqlVersionModuleModel(rep) { id= Path.GetFileNameWithoutExtension(rep.fileName)   }).ToArray();
-                }
-            }
-            #endregion
-
-
-
-            //(x.3)注册config           
-            AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
-                new global::Sqler.Module.Sqler.Logical.SqlVersion.ConfigRepository().ToDataProvider("Sqler_SqlVersion_Config"));
-
-            //(x.4)注册 ModuleMng            
-            AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
-                                new ModuleRepository().ToDataProvider("Sqler_SqlVersion_Module"));
-
-            //(x.5)注册 VersionMng list
-            AutoTemp.Controllers.AutoTempController.RegistDataProvider(sqlCodeDataProviders);
-
-            #region (x.6)初始化 DbFactory
+            #region (x.1)初始化 DbFactory
             {
                 efDbFactory = new DbContextFactory<VersionResultDbContext>().Init(SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlVersion.Config"));
 
@@ -82,16 +41,57 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
             #endregion
 
 
+        }
 
-            #region (x.7)注册 VersionResult( from database)
+
+
+        public static void InitAutoTemp()
+        {
+            //(x.1)取消注册
+            if (sqlCodeDataProviders != null)
             {
+                AutoTemp.Controllers.AutoTempController.UnRegistDataProvider(sqlCodeDataProviders);
+                sqlCodeDataProviders = null;
+            }
 
-                
+            #region (x.2)创建 moduleModels sqlCodeDataProviders
+            {
+                DirectoryInfo dir = new DirectoryInfo(SqlerHelp.GetDataFilePath("SqlVersion"));
+                if (dir.Exists)
+                {
+                    var sqlCodeRepositorys = dir.GetFiles("*.json")
+                        .Select(file => Path.GetFileNameWithoutExtension(file.Name))
+                        //.Select(file => file.Name)
+                        .Select(name => new global::Sqler.Module.Sqler.Logical.SqlVersion.SqlCodeRepository(name))
+                                .ToArray();
 
+                    sqlCodeDataProviders = sqlCodeRepositorys.Select(repository =>
+                               repository.ToDataProvider("Sqler_SqlVersion_Module_" + repository.moduleName))
+                                .ToArray();
+
+                    moduleModels = sqlCodeRepositorys.AsQueryable()
+                        .Select(rep => new SqlVersionModuleModel(rep) { id = Path.GetFileNameWithoutExtension(rep.fileName) }).ToArray();
+                }
+            }
+            #endregion
+
+            //(x.3)注册config           
+            AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                new global::Sqler.Module.Sqler.Logical.SqlVersion.ConfigRepository().ToDataProvider("Sqler_SqlVersion_Config"));
+
+            //(x.4)注册 ModuleMng            
+            AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                                new ModuleRepository().ToDataProvider("Sqler_SqlVersion_Module"));
+
+            //(x.5)注册 VersionMng list 
+            AutoTemp.Controllers.AutoTempController.RegistDataProvider(sqlCodeDataProviders);
+
+            #region (x.6)注册 VersionResult( from database)
+            {
                 EfDataProvider.DelCreateDbContext CreateDbContext = (out DbContext context) =>
                 {
                     var scope = efDbFactory.CreateDbContext(out var dbContext);
-                    context = dbContext;                  
+                    context = dbContext;
                     return scope;
                 };
 
@@ -115,15 +115,24 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
 
             }
             #endregion
+
         }
+
+
+        public static void InitEnvironmentAndAutoTemp()
+        {
+            InitEnvironment();
+            InitAutoTemp();
+        }
+
         #endregion
 
 
 
 
         #region DbFactory
-        public static DbContextFactory<VersionResultDbContext> efDbFactory { get; private set; } 
-        public static Func<System.Data.IDbConnection> CreateOpenedDbConnection { get; private set; }    
+        public static DbContextFactory<VersionResultDbContext> efDbFactory { get; private set; }
+        public static Func<System.Data.IDbConnection> CreateOpenedDbConnection { get; private set; }
 
         #endregion
 
@@ -132,7 +141,7 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
 
         #region VersionResult
 
-  
+
 
 
         public class VersionResultDbContext : DbContext

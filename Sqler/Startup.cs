@@ -75,7 +75,7 @@ namespace Sqler
             app.UseMvc();
 
             //SqlerHelp
-            Task.Run(Sqler.Module.Sqler.Logical.SqlerHelp.Init);
+            Task.Run(Sqler.Module.Sqler.Logical.SqlerHelp.InitAutoTemp);
             //Sqler.Module.Sqler.Logical.SqlerHelp.Init(); 
 
         }

@@ -1,7 +1,7 @@
 ﻿using Sqler.Module.Sqler.Logical;
 using Vit.Core.Module.Log;
 
-namespace Sqler.Module.Sqler.Controllers.SqlBackup
+namespace Sqler.Module.Sqler.Logical.SqlBackup
 {
     public static class SqlServerLogical
     {
@@ -109,12 +109,23 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
                 Logger.Info("[Sqler]MsDbMng-Restore,filePath:" + filePath);
             }   
         }
+
+
+        public static void RestoreByFilePath(string filePath)
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                filePath = dbMng.Restore(filePath);
+                Logger.Info("[Sqler]MsDbMng-Restore,filePath:" + filePath);
+            }
+        }
         #endregion
 
 
 
         #region (x.8) RemoteBackup
- 
+
         public static void RemoteBackup()
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())

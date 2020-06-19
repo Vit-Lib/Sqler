@@ -30,7 +30,7 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
             data.Replace(m.ConvertBySerialize<JToken>());
             SqlerHelp.sqlerConfig.SaveToFile();
 
-            SqlVersionHelp.Init();
+            SqlVersionHelp.InitEnvironmentAndAutoTemp();
 
             return m;
         }

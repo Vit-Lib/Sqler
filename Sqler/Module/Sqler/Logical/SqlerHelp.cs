@@ -14,131 +14,36 @@ namespace Sqler.Module.Sqler.Logical
     public class SqlerHelp
     {
 
-        #region SqlDataPath        
+         
+
+        #region (Member.1)DataPath        
 
         /// <summary>
         /// Data文件夹绝对路径。
         /// </summary>
-        public static string SqlDataPath { get; private set; }
+        public static string DataPath { get; private set; }
 
-        public static void InitSqlDataPath(string dataDirectoryPath=null)
-        {             
-
-            //(x.2)from appsettings.json
-            if (string.IsNullOrWhiteSpace(dataDirectoryPath))
-            {
-                dataDirectoryPath = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetStringByPath("Sqler.DataPath");
-            }
-
-            //(x.3)默认
-            if (string.IsNullOrWhiteSpace(dataDirectoryPath))
-            {
-                dataDirectoryPath = "Data";
-            }
-
-            DirectoryInfo di = new DirectoryInfo(dataDirectoryPath);
-            if (di.Exists)
-            {
-                SqlDataPath = di.FullName;
-                Logger.Info("[Sqler] Data Directory:" + SqlDataPath);
-            }
-            else 
-            {
-                throw new Exception("Data Directory(" + dataDirectoryPath + ") does not exist");
-            }
-        }
-        #endregion
-
-
-
-
-        public static string GetDataFilePath(params string[] path) 
-        {      
-            return Path.Combine(SqlDataPath, Path.Combine(path)); 
+        public static string GetDataFilePath(params string[] path)
+        {
+            return Path.Combine(DataPath, Path.Combine(path));
             //return CommonHelp.GetAbsPathByRealativePath(Path.Combine(path))
         }
-
-
-
-        #region static Init
-        public static void Init()
-        {
-            Logger.Info("init Sqler...");
-            #region init member        
-            sqlerConfig = new JsonFile(GetDataFilePath("sqler.json"));
-
-            SqlServerBackup_CreateDbConnection =
-            //Vit.Orm.Dapper.ConnectionFactory.GetConnectionCreator(new ConnectionInfo { type = "mssql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") });
-            () => Vit.Orm.Dapper.ConnectionFactory.GetConnection(new ConnectionInfo { type = "mssql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") });
-
-            #endregion
-
-
-
-          
-
-
-            #region SqlRun
-            {
-                //config
-                AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
-                    new global::Sqler.Module.Sqler.Logical.SqlRun.ConfigRepository().ToDataProvider("Sqler_SqlRun_Config"));
-            }
-            #endregion
-
-
-            #region DataEditor
-            {
-                Task.Run(()=>{
-
-                    Logger.Info("init Sqler-DataEditor...");
-                    //init
-                    if (!DataEditorHelp.Init()) 
-                    {
-                        Logger.Info("Sqler-DataEditor not config Database Connnection,not inited.");
-                        return;
-                    }
-
-                    //RegistDataProvider
-                    AutoTemp.Controllers.AutoTempController.RegistDataProvider(
-                        new global::Sqler.Module.Sqler.Logical.DataEditor.ConfigRepository().ToDataProvider("Sqler_DataEditor_Config"));
-
-                    Logger.Info("init Sqler-DataEditor succeed!");
-                });
-            }
-            #endregion
-
-            #region SqlBackup
-            {
-                //config
-                AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
-                    new global::Sqler.Module.Sqler.Logical.SqlBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_Config"));
-            }
-            #endregion
-
-
-            // SqlVersion
-            SqlVersion.SqlVersionHelp.Init();
-
-            Logger.Info("inited Sqler!");
-
-        }
         #endregion
 
+
+        /// <summary>
+        /// (Member.2)
+        /// </summary>
         public static JsonFile sqlerConfig { get; private set; }
 
+        #region (Member.3)SqlServerBackup     
 
-
-        #region SqlServerBackup     
-
-        public static Func<System.Data.IDbConnection> SqlServerBackup_CreateDbConnection { get; private set; } 
-        
-
+        public static Func<System.Data.IDbConnection> SqlServerBackup_CreateDbConnection { get; private set; }
 
         public static MsDbMng SqlServerBackup_CreateMsDbMng(System.Data.IDbConnection conn)
         {
             var BackupPath = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.BackupPath");
-            if (string.IsNullOrWhiteSpace(BackupPath)) 
+            if (string.IsNullOrWhiteSpace(BackupPath))
             {
                 BackupPath = GetDataFilePath("SqlServerBackup");
             }
@@ -148,6 +53,119 @@ namespace Sqler.Module.Sqler.Logical
         #endregion
 
 
+        #region InitEnvironment      
+
+        public static void InitEnvironment(string dataDirectoryPath = null)
+        {
+            Logger.Info("[Sqler]init ...");
+
+            #region (x.1)DataPath
+
+            //(x.x.1)from appsettings.json
+            if (string.IsNullOrWhiteSpace(dataDirectoryPath))
+            {
+                dataDirectoryPath = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetStringByPath("Sqler.DataPath");
+            }
+
+            //(x.x.2)默认
+            if (string.IsNullOrWhiteSpace(dataDirectoryPath))
+            {
+                dataDirectoryPath = "Data";
+            }
+
+            DirectoryInfo di = new DirectoryInfo(dataDirectoryPath);
+            if (di.Exists)
+            {
+                DataPath = di.FullName;
+                Logger.Info("[Sqler]Data Directory:  " + DataPath);
+            }
+            else
+            {
+                throw new Exception("[Sqler]Data Directory(" + dataDirectoryPath + ") does not exist");
+            }
+            #endregion
+                                           
+
+            #region init member        
+            sqlerConfig = new JsonFile(GetDataFilePath("sqler.json"));
+
+            SqlServerBackup_CreateDbConnection =
+            //Vit.Orm.Dapper.ConnectionFactory.GetConnectionCreator(new ConnectionInfo { type = "mssql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") });
+            () => Vit.Orm.Dapper.ConnectionFactory.GetConnection(new ConnectionInfo { type = "mssql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") });
+
+            #endregion
+
+            SqlVersion.SqlVersionHelp.InitEnvironment();
+
+            Logger.Info("[Sqler]inited!");
+        }
+        #endregion
+
+
+        #region InitAutoTemp
+        public static void InitAutoTemp()
+        {
+            Logger.Info("[Sqler.AutoTemp]init ...");
+            #region AutoTemp SqlRun
+            {
+                //config
+                AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                    new global::Sqler.Module.Sqler.Logical.SqlRun.ConfigRepository().ToDataProvider("Sqler_SqlRun_Config"));
+            }
+            #endregion
+
+
+            #region AutoTemp DataEditor
+            {
+                Task.Run(()=>{
+
+                    Logger.Info("[Sqler.AutoTemp][DataEditor]init ...");
+                    //init
+                    if (!DataEditorHelp.Init()) 
+                    {
+                        Logger.Info("[Sqler.AutoTemp][DataEditor] not config Database Connnection,not inited.");
+                        return;
+                    }
+
+                    //RegistDataProvider
+                    AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                        new global::Sqler.Module.Sqler.Logical.DataEditor.ConfigRepository().ToDataProvider("Sqler_DataEditor_Config"));
+
+                    Logger.Info("[Sqler.AutoTemp][DataEditor]init succeed!");                 
+                });
+            }
+            #endregion
+
+            #region AutoTemp SqlBackup
+            {
+                //config
+                AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
+                    new global::Sqler.Module.Sqler.Logical.SqlBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_Config"));
+                Logger.Info("[Sqler.AutoTemp]inited SqlBackup!");
+            }
+            #endregion
+
+
+            // SqlVersion
+            SqlVersion.SqlVersionHelp.InitAutoTemp();
+            Logger.Info("[Sqler.AutoTemp]inited SqlVersion!");
+
+
+            Logger.Info("[Sqler.AutoTemp]init succeed!");
+
+        }
+        #endregion
+
+
+
+
+
+  
+
+         
+
+
+ 
 
     }
 }

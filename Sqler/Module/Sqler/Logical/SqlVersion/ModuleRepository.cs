@@ -26,7 +26,7 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
         public ApiReturn Delete(SqlVersionModuleModel m)
         {
             File.Delete(SqlerHelp.GetDataFilePath("SqlVersion", m.fileName));
-            SqlVersionHelp.Init();
+            SqlVersionHelp.InitEnvironmentAndAutoTemp();
             return true;
         }
 
@@ -48,7 +48,7 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
         {
             new JsonFile(SqlerHelp.GetDataFilePath("SqlVersion", m.fileName)).SaveToFile();
 
-            SqlVersionHelp.Init();
+            SqlVersionHelp.InitEnvironmentAndAutoTemp();
             return m;
         }
 
@@ -62,7 +62,7 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
             FileInfo fi = new FileInfo(SqlerHelp.GetDataFilePath("SqlVersion", mFromDb.fileName));  
             fi.MoveTo(SqlerHelp.GetDataFilePath("SqlVersion", m.fileName ));
 
-            SqlVersionHelp.Init();
+            SqlVersionHelp.InitEnvironmentAndAutoTemp();
             return m;
         }
 

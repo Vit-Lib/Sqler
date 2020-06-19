@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using System;
-using System.Threading.Tasks;
 using Vit.ConsoleUtil;
 using Vit.Core.Module.Log;
 using Vit.Extensions;
@@ -16,10 +15,13 @@ namespace Sqler
             //(x.1) 初始化Sqler
             try
             {
+                Logger.OnLog = (level, msg) => { Console.WriteLine((level == Level.INFO ? "" : "[" + level + "]") + msg); };
+
+
                 Logger.Info("[Sqler] version: "+ System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion );
 
                 string dataDirectoryPath = ConsoleHelp.GetArg(args, "--DataPath");
-                Sqler.Module.Sqler.Logical.SqlerHelp.InitSqlDataPath(dataDirectoryPath);
+                Sqler.Module.Sqler.Logical.SqlerHelp.InitEnvironment(dataDirectoryPath);
               
             }
             catch (System.Exception ex)
@@ -30,14 +32,14 @@ namespace Sqler
 
 
 
-            //var arg = new System.Collections.Generic.List<string>() { "ImportTilesetFile","--entityFromFileName" };
-            //arg.AddRange(new[] { "--filePath", @"W:\code\1910赛扬\模型\2020-04-03\处理\宁波阪急（电气）1F_1_3_1.zip" });           
-            //args = arg.ToArray();
+            var arg = new System.Collections.Generic.List<string>() { "help", "--entityFromFileName" };
+            arg.AddRange(new[] { "--filePath", @"W:\code\1910赛扬\模型\2020-04-03\处理\宁波阪急（电气）1F_1_3_1.zip" });
+            args = arg.ToArray();
 
             if (args != null && args.Length >= 1   &&  false==args[0]?.StartsWith("-") )
             {
-                //Logger.OnLog = (level, msg) => { Console.Write("[" + level + "]" + msg); };
-                Vit.ConsoleUtil.ConsoleHelp.Log = (msg) => { Console.WriteLine(msg); Logger.Info(msg);  };
+               
+                Vit.ConsoleUtil.ConsoleHelp.Log = (msg) => { Logger.Info(msg);  };
                 Vit.ConsoleUtil.ConsoleHelp.Exec(args);
                 return;
             }
