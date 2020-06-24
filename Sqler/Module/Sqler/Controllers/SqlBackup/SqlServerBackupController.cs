@@ -358,7 +358,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
         [HttpPost("Restore")]
         public ApiReturn Restore([FromQuery]string fileName)
         {
-            SqlServerLogical.Restore(fileName);
+            SqlServerLogical.Restore(fileName: fileName);
             return new ApiReturn();
         }
         #endregion
@@ -380,7 +380,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
         [HttpPost("RemoteRestore")]
         public ApiReturn RemoteRestore([FromQuery]string fileName)
         {
-            SqlServerLogical.RemoteRestore(fileName);
+            SqlServerLogical.RemoteRestore(fileName: fileName);
             return new ApiReturn();
         }
         #endregion

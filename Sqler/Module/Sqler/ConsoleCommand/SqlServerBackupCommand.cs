@@ -56,19 +56,9 @@ namespace Sqler.Module.Sqler.ConsoleCommand
             string fileName = ConsoleHelp.GetArg(args, "-fn") ?? ConsoleHelp.GetArg(args, "--fileName");
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
-           
 
-            if (string.IsNullOrEmpty(filePath))
-            {
-                //Restore by filePath
-                SqlServerLogical.RestoreByFilePath(filePath);
-            }
-            else if (string.IsNullOrEmpty(fileName))
-            {
-                //Restore by FileName
-                SqlServerLogical.Restore(fileName);
-            } 
-           
+            SqlServerLogical.Restore(filePath: filePath, fileName: fileName);
+
             ConsoleHelp.Log("操作成功");
         }
         #endregion
@@ -99,17 +89,7 @@ namespace Sqler.Module.Sqler.ConsoleCommand
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
 
-
-            if (string.IsNullOrEmpty(filePath))
-            {
-                //Restore by filePath
-                SqlServerLogical.RemoteRestoreByFilePath(filePath);
-            }
-            else if (string.IsNullOrEmpty(fileName))
-            {
-                //Restore by FileName
-                SqlServerLogical.RemoteRestore(fileName);
-            }
+            SqlServerLogical.RemoteRestore(filePath: filePath, fileName: fileName);
 
             ConsoleHelp.Log("操作成功");
         }

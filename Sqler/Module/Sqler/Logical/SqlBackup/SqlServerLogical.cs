@@ -93,7 +93,7 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
 
-                if (string.IsNullOrEmpty(filePath))
+                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
                 {
                     filePath = Path.Combine(dbMng.BackupPath, fileName);
                 }
@@ -107,26 +107,21 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup
 
         #region (x.7) Restore
     
-        public static void Restore(string fileName)
+        public static void Restore( string filePath=null, string fileName = null)
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                var filePath = dbMng.RestoreByFileName(fileName);
+
+                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
+                {
+                    filePath = Path.Combine(dbMng.BackupPath, fileName);
+                }
+                filePath = dbMng.Restore(filePath);
+
                 Logger.Info("[Sqler]MsDbMng-Restore,filePath:" + filePath);
             }   
-        }
-
-
-        public static void RestoreByFilePath(string filePath)
-        {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                filePath = dbMng.Restore(filePath);
-                Logger.Info("[Sqler]MsDbMng-Restore,filePath:" + filePath);
-            }
-        }
+        } 
         #endregion
 
 
@@ -138,12 +133,13 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                if (string.IsNullOrEmpty(filePath))
+                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
                 {
                     filePath = Path.Combine(dbMng.BackupPath, fileName);
                 }                
 
                 filePath = dbMng.RemoteBackup(filePath);
+
                 Logger.Info("[Sqler]MsDbMng-RemoteBackup,filePath:" + filePath);
             }       
         }
@@ -153,27 +149,22 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup
 
         #region (x.9) RemoteRestore
      
-        public static void RemoteRestore(string fileName)
+        public static void RemoteRestore(string filePath = null, string fileName = null)
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                var filePath = dbMng.RemoteRestoreByFileName(fileName);
+
+                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
+                {
+                    filePath = Path.Combine(dbMng.BackupPath, fileName);
+                }
+
+                filePath = dbMng.RemoteRestore(filePath);
+
                 Logger.Info("[Sqler]MsDbMng-RemoteRestore,filePath:" + filePath);
             }          
-        }
-
-
-        public static void RemoteRestoreByFilePath(string filePath)
-        {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                dbMng.RemoteRestore(filePath);
-                Logger.Info("[Sqler]MsDbMng-RemoteRestore,filePath:" + filePath);
-            }
-        }
-
+        }  
         #endregion
 
 
