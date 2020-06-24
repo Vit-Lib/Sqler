@@ -5,7 +5,7 @@
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject /> 
-    <Version>2.1.18.2</Version>
+    <Version>2.19.15</Version>
     <Description>https://github.com/sersms/Sqler</Description>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <PreserveCompilationContext>true</PreserveCompilationContext>
@@ -44,7 +44,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
  
-    <Content Update="Data\sqler.DataEditor_.json">
+    <Content Update="Data\sqler.DataEditor.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
  

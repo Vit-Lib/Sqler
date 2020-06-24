@@ -120,16 +120,19 @@ namespace Sqler.Module.Sqler.Logical
                 Task.Run(()=>{
 
                     Logger.Info("[Sqler.AutoTemp][DataEditor]init ...");
+
+                    //RegistDataProvider
+                    AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                        new global::Sqler.Module.Sqler.Logical.DataEditor.ConfigRepository().ToDataProvider("Sqler_DataEditor_Config"));
+
+
                     //init
                     if (!DataEditorHelp.Init()) 
                     {
                         Logger.Info("[Sqler.AutoTemp][DataEditor] not config Database Connnection,not inited.");
                         return;
                     }
-
-                    //RegistDataProvider
-                    AutoTemp.Controllers.AutoTempController.RegistDataProvider(
-                        new global::Sqler.Module.Sqler.Logical.DataEditor.ConfigRepository().ToDataProvider("Sqler_DataEditor_Config"));
+                   
 
                     Logger.Info("[Sqler.AutoTemp][DataEditor]init succeed!");                 
                 });

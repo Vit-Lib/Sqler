@@ -1,4 +1,5 @@
 ﻿using Sqler.Module.Sqler.Logical;
+using System.IO;
 using Vit.Core.Module.Log;
 
 namespace Sqler.Module.Sqler.Logical.SqlBackup
@@ -86,12 +87,18 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup
 
         #region (x.6) Backup
  
-        public static void Backup()
+        public static void Backup(string filePath = null,string fileName=null)
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                var filePath = dbMng.Backup();
+
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    filePath = Path.Combine(dbMng.BackupPath, fileName);
+                }
+
+                filePath = dbMng.Backup(filePath);
                 Logger.Info("[Sqler]MsDbMng-Backup,filePath:" + filePath);
             }
         }
@@ -126,12 +133,17 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup
 
         #region (x.8) RemoteBackup
 
-        public static void RemoteBackup()
+        public static void RemoteBackup(string filePath = null, string fileName = null)
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                var filePath = dbMng.RemoteBackup();
+                if (string.IsNullOrEmpty(filePath))
+                {
+                    filePath = Path.Combine(dbMng.BackupPath, fileName);
+                }                
+
+                filePath = dbMng.RemoteBackup(filePath);
                 Logger.Info("[Sqler]MsDbMng-RemoteBackup,filePath:" + filePath);
             }       
         }
@@ -150,6 +162,20 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup
                 Logger.Info("[Sqler]MsDbMng-RemoteRestore,filePath:" + filePath);
             }          
         }
+
+
+        public static void RemoteRestoreByFilePath(string filePath)
+        {
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                dbMng.RemoteRestore(filePath);
+                Logger.Info("[Sqler]MsDbMng-RemoteRestore,filePath:" + filePath);
+            }
+        }
+
         #endregion
+
+
     }
 }

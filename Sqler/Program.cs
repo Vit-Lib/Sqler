@@ -11,6 +11,11 @@ namespace Sqler
     {
         public static void Main(string[] args)
         {
+            //var arg = new System.Collections.Generic.List<string>() { };
+            //arg.AddRange(new[] { "--DataPath", @"W:\code\Data" });
+            //args = arg.ToArray();
+
+
 
             //(x.1) 初始化Sqler
             try
@@ -32,9 +37,7 @@ namespace Sqler
 
 
 
-            var arg = new System.Collections.Generic.List<string>() { "help", "--entityFromFileName" };
-            arg.AddRange(new[] { "--filePath", @"W:\code\1910赛扬\模型\2020-04-03\处理\宁波阪急（电气）1F_1_3_1.zip" });
-            args = arg.ToArray();
+         
 
             if (args != null && args.Length >= 1   &&  false==args[0]?.StartsWith("-") )
             {
