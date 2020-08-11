@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Vit.Core.Module.Log;
+using Vit.Core.Util.Common;
 using Vit.Core.Util.ConfigurationManager;
 using Vit.Extensions;
 using Vit.Orm.Dapper;
@@ -47,7 +48,14 @@ namespace Sqler.Module.Sqler.Logical
             {
                 BackupPath = GetDataFilePath("SqlServerBackup");
             }
-            return new MsDbMng(conn, BackupPath, sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.MdfPath"));
+
+            string MdfPath = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.MdfPath");
+            if (!string.IsNullOrEmpty(MdfPath)) 
+            {
+                MdfPath = CommonHelp.GetAbsPath(MdfPath);
+            }
+
+            return new MsDbMng(conn, BackupPath, MdfPath);
         }
 
         #endregion

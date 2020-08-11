@@ -2,13 +2,18 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Extensions;
 
 namespace Sqler
-{
+{ 
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -29,7 +34,7 @@ namespace Sqler
             services.AddMvc(options =>
             {
                 //使用自定义异常处理器
-                //options.Filters.Add<Sers.Serslot.ExceptionFilter.ExceptionFilter>();
+                options.Filters.Add<ExceptionFilter>();
             })
             .AddJsonOptions(options =>
             {
@@ -80,4 +85,49 @@ namespace Sqler
 
         }
     }
+
+
+
+
+
+
+    #region ExceptionFilter
+    /// <summary>
+    /// 
+    /// </summary>
+    public class ExceptionFilter : Microsoft.AspNetCore.Mvc.Filters.IExceptionFilter
+    {
+        /// <summary>
+        /// 发生异常时进入
+        /// </summary>
+        /// <param name="context"></param>
+        public void OnException(Microsoft.AspNetCore.Mvc.Filters.ExceptionContext context)
+        {
+            if (context.ExceptionHandled == false)
+            {
+                ApiReturn apiRet = (SsError)context.Exception;
+
+                context.Result = new ContentResult
+                {
+                    Content = apiRet.Serialize(),//这里是把异常抛出。也可以不抛出。
+                    StatusCode = StatusCodes.Status200OK,
+                    //ContentType = "text/html;charset=utf-8"
+                };
+            }
+            context.ExceptionHandled = true;
+        }
+
+        /// <summary>
+        /// 异步发生异常时进入
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public Task OnExceptionAsync(ExceptionContext context)
+        {
+            OnException(context);
+            return Task.CompletedTask;
+        }
+
+    }
+    #endregion
 }

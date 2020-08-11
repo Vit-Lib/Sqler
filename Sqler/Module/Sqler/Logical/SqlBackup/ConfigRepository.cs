@@ -81,9 +81,9 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup
 
 
         /// <summary>
-        /// SqlServer数据库文件所在文件夹。例：@"C:\Program Files (x86)\Microsoft SQL Server\MSSQL\data"。若不指定则为系统默认路径
+        /// SqlServer数据库文件所在文件夹。例："..\DataBaseFile" 、 "C:\Program Files (x86)\Microsoft SQL Server\MSSQL\data"。若不指定则为系统默认路径
         /// 
-        /// [field:title=&lt;span title='SqlServer数据库文件所在文件夹。例：@"C:\Program Files (x86)\Microsoft SQL Server\MSSQL\data"。若不指定则为系统默认路径'&gt;Ms数据库路径&lt;/span&gt;]
+        /// [field:title=&lt;span title='SqlServer数据库文件所在文件夹。例："..\DataBaseFile" 、 "C:\Program Files (x86)\Microsoft SQL Server\MSSQL\data"。若不指定则为系统默认路径'&gt;Ms数据库路径&lt;/span&gt;]
         /// [field:ig-class=TextArea]
         /// </summary>
         public String MdfPath { get; set; }
