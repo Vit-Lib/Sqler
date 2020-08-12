@@ -20,7 +20,7 @@ namespace Sqler.Module.Sqler.ConsoleCommand
 
             #region SqlBackup.SqlServerBackup.ConnectionString
             string connStr = ConsoleHelp.GetArg(args, "-ConnStr") ?? ConsoleHelp.GetArg(args, "--ConnectionString");
-            if (string.IsNullOrEmpty(connStr))
+            if (!string.IsNullOrEmpty(connStr))
             {
                 SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "SqlServerBackup", "ConnectionString");                
             }
@@ -47,7 +47,7 @@ namespace Sqler.Module.Sqler.ConsoleCommand
 
             #region (x.1) arg SqlBackup.SqlServerBackup.ConnectionString
             string connStr = ConsoleHelp.GetArg(args, "-ConnStr") ?? ConsoleHelp.GetArg(args, "--ConnectionString");
-            if (string.IsNullOrEmpty(connStr))
+            if (!string.IsNullOrEmpty(connStr))
             {
                 SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "SqlServerBackup", "ConnectionString");
             }
@@ -79,7 +79,7 @@ namespace Sqler.Module.Sqler.ConsoleCommand
 
             #region (x.1) arg SqlBackup.SqlServerBackup.ConnectionString
             string connStr = ConsoleHelp.GetArg(args, "-ConnStr") ?? ConsoleHelp.GetArg(args, "--ConnectionString");
-            if (string.IsNullOrEmpty(connStr))
+            if (!string.IsNullOrEmpty(connStr))
             {
                 SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "SqlServerBackup", "ConnectionString");
             }
@@ -112,7 +112,7 @@ namespace Sqler.Module.Sqler.ConsoleCommand
 
             #region (x.1) arg SqlBackup.SqlServerBackup.ConnectionString
             string connStr = ConsoleHelp.GetArg(args, "-ConnStr") ?? ConsoleHelp.GetArg(args, "--ConnectionString");
-            if (string.IsNullOrEmpty(connStr))
+            if (!string.IsNullOrEmpty(connStr))
             {
                 SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "SqlServerBackup", "ConnectionString");
             }
@@ -144,7 +144,7 @@ namespace Sqler.Module.Sqler.ConsoleCommand
 
             #region (x.1) arg SqlBackup.SqlServerBackup.ConnectionString
             string connStr = ConsoleHelp.GetArg(args, "-ConnStr") ?? ConsoleHelp.GetArg(args, "--ConnectionString");
-            if (string.IsNullOrEmpty(connStr))
+            if (!string.IsNullOrEmpty(connStr))
             {
                 SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "SqlServerBackup", "ConnectionString");
             }
