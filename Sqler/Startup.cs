@@ -83,6 +83,9 @@ namespace Sqler
             Task.Run(Sqler.Module.Sqler.Logical.SqlerHelp.InitAutoTemp);
             //Sqler.Module.Sqler.Logical.SqlerHelp.Init(); 
 
+
+            Module.FileMng.FileMngHelp.InitAutoTemp();
+
         }
     }
 
