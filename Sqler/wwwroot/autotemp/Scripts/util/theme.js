@@ -249,34 +249,24 @@
         return getTopMessager().show(param);
     };
 
-    theme.progressStart = function (msg, isTop, id) {
-        var msger = (isTop ? getTopMessager() : $.messager);
-        if (id) {
-            if (true === id) id = msg;
-
-            if (!msger.msgs) {
-                msger.msgs = {};
-            }
-            msger.msgs[id] = msger.progress({ title: '请稍侯...', msg: msg, text: '请稍侯...' });
-            return;
+    theme.progressStart = function (msg, isTop,hasProgress) {
+        var msger = theme.progressStop(isTop);
+        if (hasProgress) {
+            return msger.progress({ title: '请稍侯...', msg: msg, interval: 0});
         }
-        else {
-            msger.progress({ title: '请稍侯...', msg: msg, text: '请稍侯...' });
-        }
+        return msger.progress({ title: '请稍侯...', msg: msg, text: '请稍侯...' });   
     };
 
-    theme.progressStop = function (isTop, id) {
+    theme.progressStop = function (isTop) {
         var msger = (isTop ? getTopMessager() : $.messager);
-        if (id) {
-            var msgs, msgBar;
-            if ((msgs=msger.msgs) && (msgBar = msgs[id])) {
-                delete msgs[id];
-                msgBar.window('close');
-            }
-            return;
-        } else {
-            msger.progress('close');
-        }
+        msger.progress('close');
+        return msger;
+    };
+
+    theme.progressValue = function (progressValue, isTop) {
+        var msger = (isTop ? getTopMessager() : $.messager);
+        var bar = msger.progress('bar');
+        bar.progressbar('setValue', progressValue);
     };
 
    

@@ -158,45 +158,7 @@
     };
 
 
-
- 
-
-
-    obj.loadJs = function (jsSrc) {
-        /// <summary>载入js文件。在文档加载过程中或已经加载完成后载入js文件。</summary>
-        /// <param name="jsSrc" type="string">例如："/Scripts/jquery-easyui/jquery.easyui.min.js"</param>
-
-        if (document.readyState == "loading") {
-            loadJs_BeforeDocumentLoaded(jsSrc);
-        } else {
-            loadJs_AfterDocumentLoaded(jsSrc);
-        }
-
-
-        function loadJs_BeforeDocumentLoaded(jsSrc) {
-            /// <summary>载入js文件。在文档加载过程中载入js文件。</summary>
-            /// <param name="jsSrc" type="string">例如："/Scripts/jquery-easyui/jquery.easyui.min.js"</param>
-
-            // <script type="text/javascript" src="/Scripts/jquery-easyui/jquery.easyui.min.js"></script>
-
-            document.write('<script type="text/javascript" src="' + toXmlStr('' + jsSrc) + '"></script>');
-        }
-
-        function loadJs_AfterDocumentLoaded(jsSrc) {
-            /// <summary>载入js文件。在文档已经加载完成后载入js文件。</summary>
-            /// <param name="jsSrc" type="string">例如："/Scripts/jquery-easyui/jquery.easyui.min.js"</param>     
-
-            var eJs = document.createElement('script');
-            eJs.type = 'text/javascript';
-            eJs.language = 'javascript';
-            eJs.src = jsSrc;
-            document.getElementsByTagName("head")[0].appendChild(eJs);
-        }
-
-    };
-
-
-
+    
     obj.loadCss = function (cssSrc) {
         /// <summary>载入css文件。在文档加载过程中或已经加载完成后载入css文件。</summary>
         /// <param name="cssSrc" type="string">例如："/Scripts/jquery-easyui/themes/icon.css"</param>

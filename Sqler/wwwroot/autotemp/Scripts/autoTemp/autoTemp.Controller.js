@@ -9,23 +9,6 @@
 ; (function (scope) {
 
 
-
-    function createAtFields(fieldConfigs) {
-        if (!fieldConfigs || fieldConfigs.length == 0) return [];
-
-        var atFields = [];
-        for (var t in fieldConfigs) {
-            var config = fieldConfigs[t];
-            try {                
-                var field = new autoTemp.Field(config);
-                atFields.push(field);
-            } catch (e) {
-            }
-        }
-        return atFields;
-    }
-
-
     function getOptHtml(row, controller) {
         var html = '';
         var id = row[controller.controllerConfig.idField];
@@ -137,8 +120,6 @@
                 controller.addRowButton({
                     text: button.text,
                     onclick: function (id) {
-                        //<<<<
-
                         //(x.1)执行js
                         if (button.handler) {
                             //button   {text:'查看id',    handler:'function(callback,id){  callback();alert(id); }'    },
@@ -174,8 +155,7 @@
 
                             });
                         }
-
-                        //>>>>
+ 
                     }
                 });
             });
@@ -215,6 +195,9 @@
     scope.Controller = function (controllerConfig) {
         var self = this;
 
+        //(x.1) fire event list.controller.beforeCreate
+        autoTemp.eventListener.fireEvent('list.controller.beforeCreate', [self, controllerConfig]);
+
         self.controllerConfig = controllerConfig;
 
         self.rowButtons = [ ]
@@ -231,9 +214,8 @@
         };
 
 
+        self.list_init = function () {           
 
-        //init
-        (function () {
             if (!controllerConfig.idField) controllerConfig.idField = 'id';
             if (!controllerConfig.pidField) controllerConfig.pidField = 'pid';
 
@@ -290,20 +272,31 @@
                 });
             }
 
+            //(x.5)创建 atFields
+            self.atFields = scope.Controller.createAtFields(self.controllerConfig.fields);
 
-        })();
-
-
-        //创建 atFields
-        self.atFields = createAtFields(self.controllerConfig.fields);
-
-
-        self.list_init = function () {
-            //buildGridConfig
+            //(x.6)buildGridConfig
             return buildGridConfig(self);
         };
     };
 
-    scope.Controller.createAtFields = createAtFields;
+
+
+
+    scope.Controller.createAtFields = function createAtFields(fieldConfigs) {
+        if (!fieldConfigs || fieldConfigs.length == 0) return [];
+
+        var atFields = [];
+        for (var t in fieldConfigs) {
+            var config = fieldConfigs[t];
+            try {
+                var field = new autoTemp.Field(config);
+                atFields.push(field);
+            } catch (e) {
+            }
+        }
+        return atFields;
+    };
+
 
 })(autoTemp);

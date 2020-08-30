@@ -84,7 +84,7 @@ namespace Sqler
             //Sqler.Module.Sqler.Logical.SqlerHelp.Init(); 
 
 
-            Module.FileMng.FileMngHelp.InitAutoTemp();
+            Module.FileMng.FileMngHelp.InitAutoTemp(app);
 
         }
     }

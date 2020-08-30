@@ -27,6 +27,8 @@ namespace Sqler.Module.FileMng.Controllers
             /// [controller:permit.update=true] 
             /// [controller:permit.show=false]
             /// [controller:permit.delete=true] 
+            /// 
+            /// [controller:dependency.js=\x5B '/fileMng/vit.ChunkUpload.js','/fileMng/autoTemp.fileMng.js' \x5D] 
             /// </summary>      
             public string id { get; set; }
 
@@ -78,10 +80,10 @@ namespace Sqler.Module.FileMng.Controllers
         #region DataSource
  
 
-        static string BasePath = "O:\\Program Files\\";
+        static string BasePath = "..\\..\\";
 
 
-        static string GetFilePathById(string id) 
+        public static string GetFilePathById(string id) 
         {
             if (string.IsNullOrEmpty(id)) return BasePath;
 

@@ -14,10 +14,13 @@
 
     <script type="text/javascript" src="../My97DatePicker/WdatePicker.js"></script>
 
+    <script src="../vit/vit.EventListener.js"></script>
+
     <script src="../util/theme.js"></script>
 
     <link rel="stylesheet" type="text/css" href="autoTemp.css" />
     <script src="autoTemp.js"></script>
+    <script src="autoTemp.eventListener.js"></script>
     <script src="autoTemp.Controller.js"></script>
     <script src="autoTemp.dataProvider.LocalStorageProvider.js"></script>
     <script src="autoTemp.dataProvider.ApiProvider.js"></script>
@@ -48,9 +51,12 @@
 
     <script type="text/javascript">
 
+        var controllerConfig;
         var controller;
         var template;
         var dataProvider = autoTemp.createDataPrivider();
+
+     
 
         //获取配置
         dataProvider.getControllerConfig(null, function (apiRet) {
@@ -58,15 +64,44 @@
                 return;
             }
 
-            $(function () {
+            controllerConfig = apiRet.data;
 
-                var controllerConfig = apiRet.data;
+            //(x.1) load dependency
+            if (controllerConfig.dependency) {
+                if (controllerConfig.dependency.css) {
+                    for (var src of controllerConfig.dependency.css) {
+                        document.loadCss(src);
+                    }
+                }
+
+                if (controllerConfig.dependency.js) {                
+                    for (var src of controllerConfig.dependency.js) {
+                        dependencyCount++;
+                        $.getScript(src, function (response, status) {
+                            dependencyCount--;
+                            doAfterLoadedDependency();
+                        });                                        
+                    }
+                }
+            }
+
+            //(x.2)
+            doAfterLoadedDependency();
+
+        });
+
+        var dependencyCount = 0;
+
+        function doAfterLoadedDependency() {
+            if (dependencyCount != 0) return;
+
+            $(function () {
 
                 controller = new autoTemp.Controller(controllerConfig);
 
                 var gridConfig = controller.list_init();
 
-                var filterAtFields = autoTemp.Controller.createAtFields(controllerConfig.filterFields);
+
 
                 if (controllerConfig.treeField) {
                     template = new TemplateTree();
@@ -76,28 +111,31 @@
 
 
                 //(x.1)初始化筛选条件
-                var html = '';             
-                for (var t in filterAtFields) {
-                    var atField = filterAtFields[t];
+                var html = '';
+                var filterAtFields = autoTemp.Controller.createAtFields(controllerConfig.filterFields);
+                for (var atField of filterAtFields) {
                     html += atField.build_infoGet_Html();
                 }
                 $('#igFilter').html(html);
-                $.parser.parse();               
+                $.parser.parse();
                 infoGet.parse();
-                               
+
                 //(x.2)grid
-                template.init({
+                var templateConfig = {
                     controllerConfig: controllerConfig,
                     gridConfig: gridConfig,
                     jqGrid: $('#dl'),
                     dataProvider: dataProvider,
                     filterAtFields: filterAtFields
-                });
+                };
 
-               
+                autoTemp.eventListener.fireEvent('list.template.beforeInit', [template, templateConfig]);
+
+                template.init(templateConfig);
+
             });
 
-        });
+        }
     </script>
 
 
@@ -105,7 +143,7 @@
     <script type="text/javascript">
 
 
- 
+
 
         function outSpan(value) {
             if (value == null || 'undefined' == typeof (value)) value = '';
