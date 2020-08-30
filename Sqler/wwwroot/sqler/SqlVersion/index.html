@@ -23,7 +23,7 @@
 
                 for (t in templateList) {
                     var template = templateList[t];
-                    html += t + '. <a href="#" src="/autotemp/Scripts/autoTemp/list.html?apiRoute=/autotemp/data/' + template + '/{action}">SqlVersion_' + template.substring(24) + '</a><br /><br />';
+                    html += t + '. <a href="#" src="/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/' + template + '/{action}">SqlVersion_' + template.substring(24) + '</a><br /><br />';
                 }
 
                 $('#templateList').html(html);

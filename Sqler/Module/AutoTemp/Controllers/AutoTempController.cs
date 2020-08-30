@@ -12,8 +12,8 @@ using Sqler.Module.AutoTemp.Logical.Repository;
 
 namespace Sqler.Module.AutoTemp.Controllers
 {
-    // apiRoute=/autotemp/data/{template}/{action}
-    [Route("autotemp/data")]
+    // apiRoute=/autoTemp/data/{template}/{action}
+    [Route("autoTemp/data")]
     [ApiController]
     public class AutoTempController : ControllerBase
     {
@@ -71,7 +71,7 @@ namespace Sqler.Module.AutoTemp.Controllers
 
         #region (x.1) getConfig
         /// <summary>
-        /// GET autotemp/getConfig
+        /// GET autoTemp/getConfig
         /// </summary>
         /// <returns></returns>
         [HttpGet("{template}/getConfig")]
@@ -94,7 +94,7 @@ namespace Sqler.Module.AutoTemp.Controllers
 
         #region (x.2) getList
         /// <summary>
-        /// GET autotemp/getList
+        /// GET autoTemp/getList
         /// </summary>
         /// <returns></returns>
         [HttpGet("{template}/getList")]
@@ -123,7 +123,7 @@ namespace Sqler.Module.AutoTemp.Controllers
 
         #region (x.3) getModel
         /// <summary>
-        /// GET autotemp/getModel
+        /// GET autoTemp/getModel
         /// </summary>
         /// <returns></returns>
         [HttpGet("{template}/getModel")]
@@ -147,7 +147,7 @@ namespace Sqler.Module.AutoTemp.Controllers
 
         #region (x.4) insert
         /// <summary>
-        /// POST autotemp/insert
+        /// POST autoTemp/insert
         /// </summary>
         /// <returns></returns>
         [HttpPost("{template}/insert")]
@@ -171,7 +171,7 @@ namespace Sqler.Module.AutoTemp.Controllers
 
         #region (x.5) update
         /// <summary>
-        /// PUT autotemp/update
+        /// PUT autoTemp/update
         /// </summary>
         /// <returns></returns>
         [HttpPut("{template}/update")]
@@ -194,7 +194,7 @@ namespace Sqler.Module.AutoTemp.Controllers
 
         #region (x.6) delete
         /// <summary>
-        /// DELETE autotemp/delete
+        /// DELETE autoTemp/delete
         /// </summary>
         /// <returns></returns>
         [HttpDelete("{template}/delete")]

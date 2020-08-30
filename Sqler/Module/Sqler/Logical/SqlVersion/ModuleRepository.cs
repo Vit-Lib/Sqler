@@ -94,7 +94,7 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
         /// <summary>
         /// [field:visiable=false]
         /// [controller:list.rowButtons=\x5B
-        /// {text:'管理',handler:'function(callback,id){  callback();theme.addTab("/autotemp/Scripts/autoTemp/list.html?apiRoute=/autotemp/data/Sqler_SqlVersion_Module_"+id+"/{action}","SqlVersion_"+id); }' } 
+        /// {text:'管理',handler:'function(callback,id){  callback();theme.addTab("/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/Sqler_SqlVersion_Module_"+id+"/{action}","SqlVersion_"+id); }' } 
         /// ,{text:'升级至最新',handler:'function(callback,id){  callback();window.open("/sqler/SqlVersion/upgrade?version=-1&amp;module="+id); }' }  
         /// ,{text:'下载sql',handler:'function(callback,id){  callback();window.open("/sqler/SqlVersion/download?module="+id); }' }  
         /// \x5D]

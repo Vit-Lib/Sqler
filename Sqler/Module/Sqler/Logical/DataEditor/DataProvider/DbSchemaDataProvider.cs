@@ -48,7 +48,7 @@ namespace Sqler.Module.Sqler.Logical.DataEditor.DataProvider
             }).ToList();
             #endregion
 
-            #region (x.2)从autotemp.json获取表字段描述           
+            #region (x.2)autoTemp.json获取表字段描述           
             foreach (var table in DataEditorHelp.dataEditorConfig?.Get<JObject>("dbComment") ??new JObject() )
             {
                 try

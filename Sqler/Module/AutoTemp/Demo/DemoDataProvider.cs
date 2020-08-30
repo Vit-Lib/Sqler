@@ -81,14 +81,14 @@ namespace Sqler.Module.AutoTemp.Demo
                 rootPidValue:'0',   
 
                 list:{
-                    title:'autotemp-demo',
+                    title:'autoTemp-demo',
                     buttons:[
                             {text:'执行js',    handler:'function(callback){  setTimeout(callback,5000); }'    },
-                            {text:'调用接口',  ajax:{ type:'GET',url:'/autotemp/data/demo_list/getConfig'    }     }
+                            {text:'调用接口',  ajax:{ type:'GET',url:'/autoTemp/data/demo_list/getConfig'    }     }
                     ],
                     rowButtons:[
                             {text:'查看id',    handler:'function(callback,id){  callback();alert(id); }'    },
-                            {text:'调用接口',  ajax:{ type:'GET',url:'/autotemp/data/demo_list/getConfig?name={id}'    }     }
+                            {text:'调用接口',  ajax:{ type:'GET',url:'/autoTemp/data/demo_list/getConfig?name={id}'    }     }
                     ]
                 },
 

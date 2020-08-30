@@ -26,7 +26,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
 
         #region (x.1) getControllerConfig
         /// <summary>
-        /// GET autotemp/getConfig
+        /// GET autoTemp/getConfig
         /// </summary>
         /// <returns></returns>
         [HttpGet("getConfig")]
@@ -168,7 +168,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
 
         #region (x.2) getList
         /// <summary>
-        /// GET autotemp/getList
+        /// GET autoTemp/getList
         /// </summary>
         /// <returns></returns>
         [HttpGet("getList")]
@@ -213,7 +213,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
 
         #region (x.3) getModel
         /// <summary>
-        /// GET autotemp/getModel
+        /// GET autoTemp/getModel
         /// </summary>
         /// <returns></returns>
         [HttpGet("getModel")]
@@ -245,7 +245,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
 
         #region (x.5) update
         /// <summary>
-        /// PUT autotemp/update
+        /// PUT autoTemp/update
         /// </summary>
         /// <returns></returns>
         [HttpPut("update")]
@@ -263,7 +263,7 @@ namespace Sqler.Module.Sqler.Controllers.SqlBackup
 
         #region (x.6) delete
         /// <summary>
-        /// DELETE autotemp/delete
+        /// DELETE autoTemp/delete
         /// </summary>
         /// <returns></returns>
         [HttpDelete("delete")]
