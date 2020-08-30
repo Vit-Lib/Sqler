@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script type="text/javascript" src="../../Scripts/jquery-easyui/jquery.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../../Scripts/jquery-easyui/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="../../Scripts/jquery-easyui/themes/icon.css" />
+    <script type="text/javascript" src="../../Scripts/jquery-easyui/jquery.easyui.min.js"></script>
+
+    <script type="text/javascript" src="../infoGet.js"></script>
+    <script type="text/javascript" src="../infoGet.widget.Text.js"></script>
+    <script type="text/javascript" src="../infoGet.widget.TextArea.js"></script>
+
+    <script type="text/javascript">
+        var widget;
+
+        $(function () {
+
+
+            var w1 = new infoGet.widget.Text($('*[ig-id=txt]'));
+
+            var w2 = new infoGet.widget.TextArea($('*[ig-id=TextArea]'));
+
+            widget = w2;
+
+            widget.setValue('test1');
+            var v = widget.getValue();
+
+            widget.disable();
+            widget.enable();
+
+            widget.setMode('show');
+            widget.setMode('edit');
+
+        });
+
+    </script>
+</head>
+<body>
+    单行文本:<input type="text" ig-class='Text'  ig-id='Text' style="width:150px;height:22px;" /> <br />
+    多行文本:<textarea cols="40" rows="3" ig-class='TextArea' ig-id='TextArea' ></textarea> <br />
+
+    <p>&nbsp;</p>
+
+</body>
+</html>
