@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Extensions;
 
 namespace Sqler.Module.FileMng
@@ -26,7 +27,14 @@ namespace Sqler.Module.FileMng
 
             app.UseChunkUpload("/fileMng/uploadChunkFile", (fileContent, fileName, content) => {
 
-                var dirPath = FileMngRepository.GetFilePathById(content.Request.Form["id"].ToString());
+                var id = content.Request.Form["id"].ToString();
+
+                if (FileMngRepository.GetFileModel(id)?.data?.type != "文件夹")
+                {
+                    return new SsError{errorMessage="只能上传文件到文件夹内" };
+                }
+
+                var dirPath = FileMngRepository.GetFilePathById(id);
 
                 string filePath=Path.Combine(dirPath,fileName);
 
@@ -34,6 +42,7 @@ namespace Sqler.Module.FileMng
                 {
                     File.Delete(filePath);
                 }
+               
 
                 File.WriteAllBytesAsync(filePath, fileContent);
                 return true;

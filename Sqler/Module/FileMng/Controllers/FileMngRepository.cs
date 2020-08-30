@@ -43,7 +43,7 @@ namespace Sqler.Module.FileMng.Controllers
             /// <summary>
             /// &lt;span title="文件名"&gt;文件名&lt;/span&gt;
             /// [treeField]      
-            /// [field:list_width=500] 
+            /// [field:list_width=480] 
             /// [filter:,Contains]
             /// </summary>
             public string name { get; set; }
@@ -57,13 +57,22 @@ namespace Sqler.Module.FileMng.Controllers
             /// </summary>
             public string type { get; set; }
 
+
+
             /// <summary>
-            /// 大小(kb)
+            /// 大小(MB)
             /// [field:list_width=80] 
             /// [field:editable=false]
             /// </summary>
-            public string size { get; set; }
+            public string size_MB => (float.Parse(size_KB??"0")/1024).ToString("f2");
 
+
+            /// <summary>
+            /// 大小(KB)
+            /// [field:list_width=80] 
+            /// [field:editable=false]
+            /// </summary>
+            public string size_KB { get; set; }
 
             /// <summary>
             /// [fieldIgnore] 
@@ -121,24 +130,27 @@ namespace Sqler.Module.FileMng.Controllers
 
                 //文件 
                 list.AddRange(dir.GetFiles().Select(m => {
-                    return new Model { id = encode(m.FullName.Replace(BasePath, "")), pid = encode(pid), name = m.Name, type = "文件",size=(""+(m.Length/1024.0).ToString("f2")) };
+                    return new Model { id = encode(m.FullName.Replace(BasePath, "")), pid = encode(pid), name = m.Name, type = "文件", size_KB = (""+(m.Length/ 1024.0).ToString("f3")) };
                 }));                
             }
 
             return list;
         }
 
-        
+
         #endregion
 
-
         public ApiReturn<Model> GetModel(string id)
+        {
+            return GetFileModel(id);
+        }
+        public static ApiReturn<Model> GetFileModel(string id)
         {
             var filePath = GetFilePathById(id);
             if (File.Exists(filePath))
             {
                 var m = new FileInfo(filePath);
-                return new Model { id = encode(m.FullName.Replace(BasePath, "")), name = m.Name, type = "文件", size = ("" + (m.Length / 1024.0).ToString("f2")) };
+                return new Model { id = encode(m.FullName.Replace(BasePath, "")), name = m.Name, type = "文件", size_KB = ("" + (m.Length / 1024.0).ToString("f3")) };
             }
             else if (Directory.Exists(filePath))
             {
