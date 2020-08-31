@@ -1,6 +1,6 @@
 ﻿/*
  * autoTemp 扩展  
- * Date   : 2020-01-09
+ * Date   : 2020-08-31
  * Version: 2.0
  * author : Lith
  * email  : sersms@163.com
@@ -203,6 +203,13 @@
         self.rowButtons = [ ]
 
 
+        if (!controllerConfig.idField) controllerConfig.idField = 'id';
+        if (!controllerConfig.pidField) controllerConfig.pidField = 'pid';
+
+        //创建 atFields
+        self.atFields = scope.Controller.createAtFields(self.controllerConfig.fields);
+
+
         self.addRowButton = function (btnConfig) {
             self.rowButtons.push(btnConfig);
         };     
@@ -214,13 +221,10 @@
         };
 
 
-        self.list_init = function () {           
 
-            if (!controllerConfig.idField) controllerConfig.idField = 'id';
-            if (!controllerConfig.pidField) controllerConfig.pidField = 'pid';
+        self.list_init = function () {
 
-
-            //(x.2)添加row-opt 查看
+            //(x.1)添加row-opt 查看
             if (self.getPermit('show')) {
                 self.addRowButton({
                     text: '查看',
@@ -233,7 +237,7 @@
                 });
             }
 
-            //(x.3)添加row-opt 修改
+            //(x.2)添加row-opt 修改
             if (self.getPermit('update')) {
                 self.addRowButton({
                     text: '修改',
@@ -253,7 +257,7 @@
                 });
             }
 
-            //(x.4)添加row-opt 删除
+            //(x.3)添加row-opt 删除
             if (self.getPermit('delete')) {
                 self.addRowButton({
                     text: '删除',
@@ -270,12 +274,9 @@
                         });
                     }
                 });
-            }
+            }         
 
-            //(x.5)创建 atFields
-            self.atFields = scope.Controller.createAtFields(self.controllerConfig.fields);
-
-            //(x.6)buildGridConfig
+            //(x.4)buildGridConfig
             return buildGridConfig(self);
         };
     };

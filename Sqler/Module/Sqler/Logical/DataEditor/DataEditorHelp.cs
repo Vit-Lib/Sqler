@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sqler.Module.AutoTemp.Controllers;
-using Sqler.Module.AutoTemp.Logical;
+using Sqler.Module.Sqler.AutoTemp.Logical;
 using Sqler.Module.Sqler.Logical.DataEditor.DataProvider;
 using System;
 using System.Collections.Generic;

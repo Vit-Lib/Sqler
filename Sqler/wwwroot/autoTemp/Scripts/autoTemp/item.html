@@ -14,10 +14,13 @@
 
     <script type="text/javascript" src="../My97DatePicker/WdatePicker.js"></script>
 
+    <script src="../vit/vit.EventListener.js"></script>
+
     <script src="../util/theme.js"></script>
 
     <link rel="stylesheet" type="text/css" href="autoTemp.css" />
     <script src="autoTemp.js"></script>
+    <script src="autoTemp.eventListener.js"></script>
     <script src="autoTemp.Controller.js"></script>
     <script src="autoTemp.dataProvider.LocalStorageProvider.js"></script>
     <script src="autoTemp.dataProvider.ApiProvider.js"></script>
@@ -31,7 +34,7 @@
     <script type="text/javascript">
 
         //insert  update show disable(禁用控件 的编辑模式)
-      
+
         var mode = document.url_GetCurArg('mode') || 'update';
         var id = document.url_GetCurArg('id');
         var pid = document.url_GetCurArg('pid');
@@ -49,22 +52,44 @@
                 return;
             }
 
-
             controllerConfig = apiRet.data;
-            controller = new autoTemp.Controller(controllerConfig);
 
-            atFields = controller.atFields;
+            //(x.1) load dependency
+            if (controllerConfig.dependency) {
+                if (controllerConfig.dependency.css) {
+                    for (var src of controllerConfig.dependency.css) {
+                        document.loadCss(src);
+                    }
+                }
 
-            initCtrl();
+                if (controllerConfig.dependency.js) {
+                    for (var src of controllerConfig.dependency.js) {
+                        dependencyCount++;
+                        $.getScript(src, function (response, status) {
+                            dependencyCount--;
+                            doAfterLoadedDependency();
+                        });
+                    }
+                }
+            }
+
+            //(x.2)
+            doAfterLoadedDependency();
+
         });
 
 
+        var dependencyCount = 0;
 
+        function doAfterLoadedDependency() {
+            if (dependencyCount != 0) return;
 
-
-        function initCtrl() {
+            //initCtrl
             $(function () {
 
+                controller = new autoTemp.Controller(controllerConfig);
+
+                atFields = controller.atFields;
 
                 var html = '';
                 for (var t in atFields) {
@@ -77,30 +102,28 @@
                 infoGet.parse();
 
 
-                 if (mode != 'insert') {
-                     dataProvider.getModel(id, function (apiRet) {
-                        if (!theme.alertApiReturn(apiRet,null,'获取数据失败，请重试')) {
+                if (mode != 'insert') {
+                    dataProvider.getModel(id, function (apiRet) {
+                        if (!theme.alertApiReturn(apiRet, null, '获取数据失败，请重试')) {
                             return;
                         }
 
                         model = apiRet.data;
                         autoTemp.Field.setValue(atFields, model);
-                     });             
+                    });
                 }
 
-                
-              
+
+
                 if (mode == 'show') {
-                    infoGet.setMode('show');                          
+                    infoGet.setMode('show');
                     $('#btnSave').hide();
                 }
 
-                if (mode == 'disable') {                       
-                    infoGet.disable();                    
+                if (mode == 'disable') {
+                    infoGet.disable();
                     $('#btnSave').hide();
                 }
-
-                
 
             });
         }
@@ -112,7 +135,7 @@
                 return;
             }
 
-            if (mode=='update'){
+            if (mode == 'update') {
                 model[controllerConfig.idField] = id;
 
                 dataProvider.update(model, function (apiRet) {
@@ -121,7 +144,7 @@
                         theme.closeWin();
                     }
                 });
-            } else if (mode=='insert'){
+            } else if (mode == 'insert') {
 
                 if (pid && controllerConfig.pidField)
                     model[controllerConfig.pidField] = pid;

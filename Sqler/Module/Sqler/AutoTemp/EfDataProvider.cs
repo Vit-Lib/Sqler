@@ -13,8 +13,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Vit.Orm.Dapper.Schema;
+using Sqler.Module.AutoTemp.Logical;
 
-namespace Sqler.Module.AutoTemp.Logical
+namespace Sqler.Module.Sqler.AutoTemp.Logical
 {
 
     public class EfDataProvider : IDataProvider 

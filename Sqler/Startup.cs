@@ -54,7 +54,7 @@ namespace Sqler
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            #region 使用跨域            
+            #region 允许跨域            
             app.UseCors(builder => builder
                        .AllowAnyOrigin()
                        .AllowAnyMethod()
@@ -86,9 +86,6 @@ namespace Sqler
 
             //SqlerHelp
             Task.Run(Sqler.Module.Sqler.Logical.SqlerHelp.InitAutoTemp);          
-
-            //FileMng
-            Module.FileMng.FileMngHelp.InitAutoTemp(app);
 
         }
     }

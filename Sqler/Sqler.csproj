@@ -5,7 +5,7 @@
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject /> 
-    <Version>2.22.3.78</Version>
+    <Version>2.22.4.80</Version>
     <Description>https://github.com/sersms/Sqler</Description>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <PreserveCompilationContext>true</PreserveCompilationContext>
@@ -25,7 +25,6 @@
 
   <ItemGroup> 
     <PackageReference Include="Vit.Db" Version="2.1.1.389" /> 
-    <PackageReference Include="Vit.Http.ChunkUpload" Version="2.1.1.389" />   
     <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.389" />
     <PackageReference Include="Vit.Orm.Dapper" Version="2.1.1.389" />
     <PackageReference Include="Vit.WebHost" Version="2.1.1.389" />
@@ -39,7 +38,7 @@
     </Content>
  
     <Content Update="contentTypeMap.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
  
     <Content Update="Data\sqler.SqlVersion.table.json">

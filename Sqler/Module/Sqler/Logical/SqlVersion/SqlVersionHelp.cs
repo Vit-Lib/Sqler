@@ -7,6 +7,7 @@ using Vit.Orm.EntityFramework;
 using Sqler.Module.AutoTemp.Controllers;
 using Vit.Extensions;
 using System;
+using Sqler.Module.Sqler.AutoTemp.Logical;
 
 namespace Sqler.Module.Sqler.Logical.SqlVersion
 {
@@ -50,7 +51,7 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
             //(x.1)取消注册
             if (sqlCodeDataProviders != null)
             {
-                AutoTemp.Controllers.AutoTempController.UnRegistDataProvider(sqlCodeDataProviders);
+                global::Sqler.Module.AutoTemp.Controllers.AutoTempController.UnRegistDataProvider(sqlCodeDataProviders);
                 sqlCodeDataProviders = null;
             }
 
@@ -76,15 +77,15 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
             #endregion
 
             //(x.3)注册config           
-            AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+            global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
                 new global::Sqler.Module.Sqler.Logical.SqlVersion.ConfigRepository().ToDataProvider("Sqler_SqlVersion_Config"));
 
             //(x.4)注册 ModuleMng            
-            AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+            global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
                                 new ModuleRepository().ToDataProvider("Sqler_SqlVersion_Module"));
 
             //(x.5)注册 VersionMng list 
-            AutoTemp.Controllers.AutoTempController.RegistDataProvider(sqlCodeDataProviders);
+            global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(sqlCodeDataProviders);
 
             #region (x.6)注册 VersionResult( from database)
             {

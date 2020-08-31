@@ -117,7 +117,7 @@ namespace Sqler.Module.Sqler.Logical
             #region AutoTemp SqlRun
             {
                 //config
-                AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
                     new global::Sqler.Module.Sqler.Logical.SqlRun.ConfigRepository().ToDataProvider("Sqler_SqlRun_Config"));
             }
             #endregion
@@ -130,7 +130,7 @@ namespace Sqler.Module.Sqler.Logical
                     Logger.Info("[Sqler.AutoTemp][DataEditor]init ...");
 
                     //RegistDataProvider
-                    AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                    global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
                         new global::Sqler.Module.Sqler.Logical.DataEditor.ConfigRepository().ToDataProvider("Sqler_DataEditor_Config"));
 
 
@@ -150,7 +150,7 @@ namespace Sqler.Module.Sqler.Logical
             #region AutoTemp SqlBackup
             {
                 //config
-                AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
+                global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
                     new global::Sqler.Module.Sqler.Logical.SqlBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_Config"));
                 Logger.Info("[Sqler.AutoTemp]inited SqlBackup!");
             }
