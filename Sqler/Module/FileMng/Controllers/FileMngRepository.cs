@@ -89,7 +89,7 @@ namespace Sqler.Module.FileMng.Controllers
         #region DataSource
  
 
-        static string BasePath = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetStringByPath("FileMng.BasePath")?? "wwwroot\\";
+        static string BasePath = new DirectoryInfo(Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetStringByPath("FileMng.BasePath")?? "wwwroot//").FullName;
 
 
         public static string GetFilePathById(string id) 

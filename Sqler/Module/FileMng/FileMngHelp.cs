@@ -49,7 +49,14 @@ namespace Sqler.Module.FileMng
                     }
 
 
-                    File.WriteAllBytesAsync(filePath, fileContent);
+                    //File.WriteAllBytesAsync(filePath, fileContent);
+                    using (var  file = new FileStream(filePath,FileMode.CreateNew))
+                    {
+                        foreach (var item in fileContent)
+                        {                           
+                            file.Write(item);
+                        }
+                    }
                     return true;
                     //ApiReturn apiRet = (ApiReturn<string>)("/file/" + fileName);
                     //return apiRet;

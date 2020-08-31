@@ -1,6 +1,6 @@
 ﻿/*
- * Date   : 2020-01-20
- * Version: 2.0.2
+ * Date   : 2020-08-31
+ * Version: 2.0.3
  * author : Lith
  * email  : sersms@163.com
 
@@ -267,6 +267,12 @@
         var msger = (isTop ? getTopMessager() : $.messager);
         var bar = msger.progress('bar');
         bar.progressbar('setValue', progressValue);
+    };
+
+    theme.progressText = function (progressText, isTop) {
+        var msger = (isTop ? getTopMessager() : $.messager);
+        var bar = msger.progress('bar');
+        bar.progressbar('options').text = progressText;
     };
 
    
