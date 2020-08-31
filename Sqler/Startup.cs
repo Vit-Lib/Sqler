@@ -64,7 +64,11 @@ namespace Sqler
 
 
             //配置静态文件
-            app.UseStaticFiles(Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<Vit.WebHost.StaticFilesConfig>("server.staticFiles"));
+            foreach (var config in Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<Vit.WebHost.StaticFilesConfig[]>("server.staticFiles"))
+            {
+                app.UseStaticFiles(config);
+            }
+         
 
             if (env.IsDevelopment())
             {
@@ -79,11 +83,11 @@ namespace Sqler
             //app.UseHttpsRedirection();
             app.UseMvc();
 
+
             //SqlerHelp
-            Task.Run(Sqler.Module.Sqler.Logical.SqlerHelp.InitAutoTemp);
-            //Sqler.Module.Sqler.Logical.SqlerHelp.Init(); 
+            Task.Run(Sqler.Module.Sqler.Logical.SqlerHelp.InitAutoTemp);          
 
-
+            //FileMng
             Module.FileMng.FileMngHelp.InitAutoTemp(app);
 
         }
