@@ -4,7 +4,7 @@ using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.Query;
 using Vit.Linq.Query;
 
-namespace Sqler.Module.AutoTemp.Logical
+namespace App.Module.AutoTemp.Logical
 {
     public interface IDataProvider
     {

@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
-using Sqler.Module.Sqler.Logical;
+using App.Module.Sqler.Logical;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.Common;
 using Vit.Core.Util.ComponentModel.Data;
@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
-namespace Sqler.Module.Sqler.Controllers.SqlRun
+namespace App.Module.Sqler.Controllers.SqlRun
 {
     /// <summary>
     /// 

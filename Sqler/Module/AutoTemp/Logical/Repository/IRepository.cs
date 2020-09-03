@@ -3,7 +3,7 @@ using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.Query;
 using Vit.Linq.Query;
 
-namespace Sqler.Module.AutoTemp.Logical.Repository
+namespace App.Module.AutoTemp.Logical.Repository
 {
     public interface IRepository<T>
     {

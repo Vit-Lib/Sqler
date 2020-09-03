@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Sqler.Module.AutoTemp.Controllers;
-using Sqler.Module.Sqler.AutoTemp.Logical;
-using Sqler.Module.Sqler.Logical.DataEditor.DataProvider;
+using App.Module.AutoTemp.Controllers;
+using App.Module.Sqler.AutoTemp.Logical;
+using App.Module.Sqler.Logical.DataEditor.DataProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ using Vit.Orm.Dapper.Schema;
 using Vit.Orm.EntityFramework;
 using Vit.Orm.EntityFramework.Dynamic;
 
-namespace Sqler.Module.Sqler.Logical.DataEditor
+namespace App.Module.Sqler.Logical.DataEditor
 {
     public class DataEditorHelp
     {

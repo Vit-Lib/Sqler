@@ -4,14 +4,13 @@ using Vit.Core.Util.ComponentModel.Query;
 using Vit.Extensions;
 using Vit.Linq.Query;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
-using Sqler.Module.AutoTemp.Logical.Repository;
+using App.Module.AutoTemp.Logical.Repository;
 using Vit.Core.Util.Common;
 using System.Linq;
 using Vit.Extensions.ObjectExt;
 using Vit.Core.Util.ComponentModel.SsError;
 
-namespace Sqler.Module.AutoTemp.Demo
+namespace App.Module.AutoTemp.Demo
 {
 
     #region Repository

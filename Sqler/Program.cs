@@ -5,7 +5,7 @@ using Vit.ConsoleUtil;
 using Vit.Core.Module.Log;
 using Vit.Extensions;
 
-namespace Sqler
+namespace App
 {
     public class Program
     {
@@ -26,7 +26,7 @@ namespace Sqler
                 Logger.Info("[Sqler] version: "+ System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion );
 
                 string dataDirectoryPath = ConsoleHelp.GetArg(args, "--DataPath");
-                Sqler.Module.Sqler.Logical.SqlerHelp.InitEnvironment(dataDirectoryPath);
+                App.Module.Sqler.Logical.SqlerHelp.InitEnvironment(dataDirectoryPath);
               
             }
             catch (System.Exception ex)

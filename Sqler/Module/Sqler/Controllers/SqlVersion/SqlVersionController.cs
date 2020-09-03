@@ -3,15 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
 using System.Linq;
-using Sqler.Module.AutoTemp.Controllers;
-using Sqler.Module.Sqler.Logical.SqlVersion.Entity;
+using App.Module.AutoTemp.Controllers;
+using App.Module.Sqler.Logical.SqlVersion.Entity;
 using System;
-using static Sqler.Module.Sqler.Logical.SqlVersion.Entity.VersionManage;
+using static App.Module.Sqler.Logical.SqlVersion.Entity.VersionManage;
 using Microsoft.AspNetCore.Http;
 using System.Text;
-using Sqler.Module.Sqler.Logical.SqlVersion;
+using App.Module.Sqler.Logical.SqlVersion;
 
-namespace Sqler.Module.Sqler.Controllers.SqlVersion
+namespace App.Module.Sqler.Controllers.SqlVersion
 {
     [Route("sqler/SqlVersion")]
     [ApiController]

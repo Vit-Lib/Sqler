@@ -6,7 +6,7 @@ using Vit.Linq.Query;
 using Vit.Extensions;
 using System;
 
-namespace Sqler.Module.AutoTemp.Logical.Repository
+namespace App.Module.AutoTemp.Logical.Repository
 {
     public class RespositoryDataProvider<T>:IDataProvider
     {     

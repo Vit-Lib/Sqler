@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Sqler.Module.Sqler.Logical.SqlVersion.Entity
+namespace App.Module.Sqler.Logical.SqlVersion.Entity
 {
 
     [Table("sqler_version")]

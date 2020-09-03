@@ -7,9 +7,9 @@ using Vit.Linq.Query;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using Sqler.Module.AutoTemp.Logical.Repository;
+using App.Module.AutoTemp.Logical.Repository;
 
-namespace Sqler.Module.Sqler.Logical.SqlBackup
+namespace App.Module.Sqler.Logical.SqlBackup
 {
 
     #region ConfigRepository

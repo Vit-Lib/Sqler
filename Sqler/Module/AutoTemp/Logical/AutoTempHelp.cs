@@ -11,7 +11,7 @@ using Vit.Core.Util.XmlComment;
 using Vit.Core.Module.Log;
 using Vit.Orm.Dapper.Schema;
 
-namespace Sqler.Module.AutoTemp.Logical
+namespace App.Module.AutoTemp.Logical
 {
     public class AutoTempHelp
     {

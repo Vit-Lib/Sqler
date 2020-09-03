@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,8 +10,8 @@ using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Extensions;
 
-namespace Sqler
-{ 
+namespace App
+{
 
     public class Startup
     {
@@ -85,7 +84,7 @@ namespace Sqler
 
 
             //SqlerHelp
-            Task.Run(Sqler.Module.Sqler.Logical.SqlerHelp.InitAutoTemp);          
+            Task.Run(App.Module.Sqler.Logical.SqlerHelp.InitAutoTemp);          
 
         }
     }
@@ -115,7 +114,7 @@ namespace Sqler
                 {
                     Content = apiRet.Serialize(),//这里是把异常抛出。也可以不抛出。
                     StatusCode = StatusCodes.Status200OK,
-                    //ContentType = "text/html;charset=utf-8"
+                    ContentType = "application/json"
                 };
             }
             context.ExceptionHandled = true;

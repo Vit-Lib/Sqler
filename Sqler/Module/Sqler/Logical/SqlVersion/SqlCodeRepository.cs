@@ -8,10 +8,10 @@ using Vit.Linq.Query;
 using Vit.Core.Util.ConfigurationManager;
 using System;
 using System.ComponentModel.DataAnnotations;
-using Sqler.Module.Sqler.Logical.SqlVersion.Entity;
-using Sqler.Module.AutoTemp.Logical.Repository;
+using App.Module.Sqler.Logical.SqlVersion.Entity;
+using App.Module.AutoTemp.Logical.Repository;
 
-namespace Sqler.Module.Sqler.Logical.SqlVersion
+namespace App.Module.Sqler.Logical.SqlVersion
 {
 
     #region SqlVersionRepository

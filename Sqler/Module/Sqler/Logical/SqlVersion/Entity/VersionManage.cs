@@ -8,7 +8,7 @@ using Dapper;
 using System.Text;
 using Vit.Core.Util.ConfigurationManager;
 
-namespace Sqler.Module.Sqler.Logical.SqlVersion.Entity
+namespace App.Module.Sqler.Logical.SqlVersion.Entity
 {
     public class VersionManage
     {

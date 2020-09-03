@@ -1,9 +1,9 @@
-﻿using Sqler.Module.Sqler.Logical;
-using Sqler.Module.Sqler.Logical.SqlBackup;
+﻿using App.Module.Sqler.Logical;
+using App.Module.Sqler.Logical.SqlBackup;
 using Vit.ConsoleUtil;
 using Vit.Extensions;
 
-namespace Sqler.Module.Sqler.ConsoleCommand
+namespace App.Module.Sqler.ConsoleCommand
 {
     public class SqlServerBackupCommand
     {

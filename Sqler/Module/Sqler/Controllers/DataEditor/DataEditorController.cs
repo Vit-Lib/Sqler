@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
 using System.Linq;
-using Sqler.Module.AutoTemp.Controllers;
+using App.Module.AutoTemp.Controllers;
 
-namespace Sqler.Module.Sqler.Controllers.DataEditor
+namespace App.Module.Sqler.Controllers.DataEditor
 {
     [Route("sqler/DataEditor")]
     [ApiController]

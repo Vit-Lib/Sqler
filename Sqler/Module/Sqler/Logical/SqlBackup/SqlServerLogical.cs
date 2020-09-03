@@ -1,8 +1,8 @@
-﻿using Sqler.Module.Sqler.Logical;
+﻿using App.Module.Sqler.Logical;
 using System.IO;
 using Vit.Core.Module.Log;
 
-namespace Sqler.Module.Sqler.Logical.SqlBackup
+namespace App.Module.Sqler.Logical.SqlBackup
 {
     public static class SqlServerLogical
     {

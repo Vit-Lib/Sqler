@@ -1,5 +1,5 @@
-﻿using Sqler.Module.AutoTemp.Logical.Repository;
-using Sqler.Module.Sqler.Logical.DataEditor;
+﻿using App.Module.AutoTemp.Logical.Repository;
+using App.Module.Sqler.Logical.DataEditor;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,7 +10,7 @@ using Vit.Extensions;
 using Vit.Orm.Dapper;
 using Vit.Orm.Dapper.DbMng;
 
-namespace Sqler.Module.Sqler.Logical
+namespace App.Module.Sqler.Logical
 {
     public class SqlerHelp
     {
@@ -117,8 +117,8 @@ namespace Sqler.Module.Sqler.Logical
             #region AutoTemp SqlRun
             {
                 //config
-                global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
-                    new global::Sqler.Module.Sqler.Logical.SqlRun.ConfigRepository().ToDataProvider("Sqler_SqlRun_Config"));
+                global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                    new global::App.Module.Sqler.Logical.SqlRun.ConfigRepository().ToDataProvider("Sqler_SqlRun_Config"));
             }
             #endregion
 
@@ -130,8 +130,8 @@ namespace Sqler.Module.Sqler.Logical
                     Logger.Info("[Sqler.AutoTemp][DataEditor]init ...");
 
                     //RegistDataProvider
-                    global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
-                        new global::Sqler.Module.Sqler.Logical.DataEditor.ConfigRepository().ToDataProvider("Sqler_DataEditor_Config"));
+                    global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                        new global::App.Module.Sqler.Logical.DataEditor.ConfigRepository().ToDataProvider("Sqler_DataEditor_Config"));
 
 
                     //init
@@ -150,8 +150,8 @@ namespace Sqler.Module.Sqler.Logical
             #region AutoTemp SqlBackup
             {
                 //config
-                global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
-                    new global::Sqler.Module.Sqler.Logical.SqlBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_Config"));
+                global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
+                    new global::App.Module.Sqler.Logical.SqlBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_Config"));
                 Logger.Info("[Sqler.AutoTemp]inited SqlBackup!");
             }
             #endregion

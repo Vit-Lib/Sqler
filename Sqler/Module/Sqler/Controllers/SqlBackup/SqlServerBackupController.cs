@@ -8,11 +8,11 @@ using Vit.Extensions;
 using Vit.Core.Util.ComponentModel.SsError;
 using System.Linq;
 using System;
-using Sqler.Module.Sqler.Logical;
+using App.Module.Sqler.Logical;
 using Vit.Orm.Dapper.DbMng;
-using Sqler.Module.Sqler.Logical.SqlBackup;
+using App.Module.Sqler.Logical.SqlBackup;
 
-namespace Sqler.Module.Sqler.Controllers.SqlBackup
+namespace App.Module.Sqler.Controllers.SqlBackup
 {
     /// <summary>
     /// 

@@ -1,15 +1,14 @@
 ﻿using System.IO;
 using System.Linq;
-using Sqler.Module.AutoTemp.Logical.Repository;
-using Sqler.Module.AutoTemp.Logical;
+using App.Module.AutoTemp.Logical.Repository;
 using Microsoft.EntityFrameworkCore;
 using Vit.Orm.EntityFramework;
-using Sqler.Module.AutoTemp.Controllers;
+using App.Module.AutoTemp.Controllers;
 using Vit.Extensions;
 using System;
-using Sqler.Module.Sqler.AutoTemp.Logical;
+using App.Module.Sqler.AutoTemp.Logical;
 
-namespace Sqler.Module.Sqler.Logical.SqlVersion
+namespace App.Module.Sqler.Logical.SqlVersion
 {
     public class SqlVersionHelp
     {
@@ -51,7 +50,7 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
             //(x.1)取消注册
             if (sqlCodeDataProviders != null)
             {
-                global::Sqler.Module.AutoTemp.Controllers.AutoTempController.UnRegistDataProvider(sqlCodeDataProviders);
+                global::App.Module.AutoTemp.Controllers.AutoTempController.UnRegistDataProvider(sqlCodeDataProviders);
                 sqlCodeDataProviders = null;
             }
 
@@ -63,7 +62,7 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
                     var sqlCodeRepositorys = dir.GetFiles("*.json")
                         .Select(file => Path.GetFileNameWithoutExtension(file.Name))
                         //.Select(file => file.Name)
-                        .Select(name => new global::Sqler.Module.Sqler.Logical.SqlVersion.SqlCodeRepository(name))
+                        .Select(name => new global::App.Module.Sqler.Logical.SqlVersion.SqlCodeRepository(name))
                                 .ToArray();
 
                     sqlCodeDataProviders = sqlCodeRepositorys.Select(repository =>
@@ -77,15 +76,15 @@ namespace Sqler.Module.Sqler.Logical.SqlVersion
             #endregion
 
             //(x.3)注册config           
-            global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
-                new global::Sqler.Module.Sqler.Logical.SqlVersion.ConfigRepository().ToDataProvider("Sqler_SqlVersion_Config"));
+            global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                new global::App.Module.Sqler.Logical.SqlVersion.ConfigRepository().ToDataProvider("Sqler_SqlVersion_Config"));
 
             //(x.4)注册 ModuleMng            
-            global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+            global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
                                 new ModuleRepository().ToDataProvider("Sqler_SqlVersion_Module"));
 
             //(x.5)注册 VersionMng list 
-            global::Sqler.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(sqlCodeDataProviders);
+            global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(sqlCodeDataProviders);
 
             #region (x.6)注册 VersionResult( from database)
             {

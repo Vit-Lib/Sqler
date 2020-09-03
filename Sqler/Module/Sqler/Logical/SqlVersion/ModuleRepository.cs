@@ -8,9 +8,9 @@ using Vit.Core.Util.ConfigurationManager;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using Vit.Core.Util.Common;
-using Sqler.Module.AutoTemp.Logical.Repository;
+using App.Module.AutoTemp.Logical.Repository;
 
-namespace Sqler.Module.Sqler.Logical.SqlVersion
+namespace App.Module.Sqler.Logical.SqlVersion
 {
 
     #region SqlVersionModuleRepository

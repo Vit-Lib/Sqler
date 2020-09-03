@@ -9,9 +9,9 @@ using System.Data;
 using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Orm.Dapper.Schema;
 using Vit.Core.Module.Log;
-using Sqler.Module.AutoTemp.Logical;
+using App.Module.AutoTemp.Logical;
 
-namespace Sqler.Module.Sqler.Logical.DataEditor.DataProvider
+namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 {
     public class DbSchemaDataProvider : IDataProvider
     {

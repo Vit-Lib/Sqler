@@ -1,4 +1,4 @@
-﻿using Sqler.Module.AutoTemp.Logical.Repository;
+﻿using App.Module.AutoTemp.Logical.Repository;
 using System;
 
 namespace Vit.Extensions

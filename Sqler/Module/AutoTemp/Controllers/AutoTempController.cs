@@ -6,11 +6,10 @@ using Vit.Core.Util.ComponentModel.Query;
 using Vit.Linq.Query;
 using Vit.Extensions;
 using Vit.Core.Util.ComponentModel.SsError;
-using Sqler.Module.AutoTemp.Logical;
-using Sqler.Module.AutoTemp.Demo;
-using Sqler.Module.AutoTemp.Logical.Repository;
+using App.Module.AutoTemp.Logical;
+using App.Module.AutoTemp.Demo;
 
-namespace Sqler.Module.AutoTemp.Controllers
+namespace App.Module.AutoTemp.Controllers
 {
     // apiRoute=/autoTemp/data/{template}/{action}
     [Route("autoTemp/data")]
