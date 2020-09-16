@@ -13,43 +13,27 @@ DataImport
  
 (x.1)SqlRun
 	(x.x.1)SqlRun配置
-		http://localhost:4570/autoTemp/Scripts/autoTemp/item.html?apiRoute=/autoTemp/data/Sqler_SqlRun_Config/{action}&mode=update&id=1
 	(x.x.2)SqlRun 
-		http://localhost:4570/sqler/SqlRun/index.html
-
 --------------------------------------------------------------------
 SqlBackup
 (x.2)备份与还原
 	(x.x.1)备份与还原配置
-		http://localhost:4570/autoTemp/Scripts/autoTemp/item.html?apiRoute=/autoTemp/data/Sqler_SqlBackup_Config/{action}&mode=update&id=1
 	(x.x.2)SqlServer备份与还原
-		http://localhost:4570/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/Sqler_SqlBackup_SqlServerBackup/{action}
 	(x.x.3)MySql备份与还原
 --------------------------------------------------------------------
 DbPort
 (x.3)导入导出工具
- 		http://localhost:4570/sqler/DbPort/DbPort.html
 
 --------------------------------------------------------------------
 (x.4)SqlVersion
 	(x.x.1)SqlVersion配置
-		http://localhost:4570/autoTemp/Scripts/autoTemp/item.html?apiRoute=/autoTemp/data/Sqler_SqlVersion_Config/{action}&mode=update&id=1
-	(x.x.2)模块管理
-		http://localhost:4570/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/Sqler_SqlVersion_Module/{action}
-	(x.x.3)Sql语句管理
-		http://localhost:4570/sqler/SqlVersion/index.html
-	(x.x.4)升级记录
-		http://localhost:4570/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/Sqler_SqlVersion_VersionInfo/{action}
-		
+	(x.x.2)模块管理 
+	(x.x.3)升级记录		
 --------------------------------------------------------------------
 (x.5)DataEditor
 	(x.x.1)DataEditor配置
-		http://localhost:4570/autoTemp/Scripts/autoTemp/item.html?apiRoute=/autoTemp/data/Sqler_DataEditor_Config/{action}&mode=update&id=1
 	(x.x.2)Schema
-		http://localhost:4570/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/Sqler_DataEditor_schema/{action}
 	(x.x.3)DataEditor
-		http://localhost:4570/sqler/DataEditor/index.html
-
 --------------------------------------------------------------------
 (x.6)SqlStation
 

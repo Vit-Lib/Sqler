@@ -1,12 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.SsError;
 using System.Linq;
-using App.Module.AutoTemp.Controllers;
-using App.Module.Sqler.Logical.SqlVersion.Entity;
 using System;
-using static App.Module.Sqler.Logical.SqlVersion.Entity.VersionManage;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 using App.Module.Sqler.Logical.SqlVersion;
@@ -17,34 +12,11 @@ namespace App.Module.Sqler.Controllers.SqlVersion
     [ApiController]
     public class SqlVersionController : ControllerBase
     {
-
-        #region get templateList
-        /// <summary>
-        /// 获取模板列表
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("templateList")]
-        public ApiReturn templateList()
-        {
-            try
-            { 
-                return new ApiReturn<List<string>> { data= AutoTempController.dataProviderMap.Keys.Where(key=>key.StartsWith("Sqler_SqlVersion_Module_")).ToList() };
-            }
-            catch (System.Exception ex)
-            {
-                return (SsError)ex.GetBaseException();
-            }
-        }
-
-        #endregion
-
-
-
-
-
+               
         #region 升級
+
         /// <summary>
-        /// 获取模板列表
+        /// 升级
         /// </summary>
         /// <returns></returns>
         [HttpGet("upgrade")]
@@ -53,7 +25,7 @@ namespace App.Module.Sqler.Controllers.SqlVersion
 
             Response.ContentType = "text/html;charset=utf-8";
 
-            Action<EMsgType, String> sendMsg = (EMsgType type, String msg) =>
+            Action<EMsgType, String> sendMsg = (type, msg) =>
             {
                 msg = Str2XmlStr(msg)?.Replace("\n", "<br/>");
                 switch (type)
@@ -77,8 +49,53 @@ namespace App.Module.Sqler.Controllers.SqlVersion
                 }
                 //Response.Flush();
             };
-            VersionManage.UpgradeToVersion(module, version, sendMsg);
+            VersionManage.UpgradeToVersion(module, sendMsg, version);
         }
+
+
+
+        /// <summary>
+        /// 一键升级
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("oneKeyUpgrade")]
+        public void OneKeyUpgrade()
+        {
+
+            Response.ContentType = "text/html;charset=utf-8";
+
+            Action<EMsgType, String> sendMsg = (type, msg) =>
+            {
+                msg = Str2XmlStr(msg)?.Replace("\n", "<br/>");
+                switch (type)
+                {
+                    case EMsgType.Err:
+                        {
+
+                            Response.WriteAsync("<br/><font style='color:#f00;font-weight:bold;'>" + msg + "</font>");
+                            break;
+                        }
+                    case EMsgType.Title:
+                        {
+                            Response.WriteAsync("<br/><font style='color:#005499;font-weight:bold;'>" + msg + "</font>");
+                            break;
+                        }
+                    default:
+                        {
+                            Response.WriteAsync("<br/>" + msg);
+                            break;
+                        }
+                }
+                //Response.Flush();
+            };
+
+           
+            foreach (var sqlCodeRes in SqlVersionHelp.sqlCodeRepositorys) 
+            {          
+                VersionManage.UpgradeToVersion(sqlCodeRes.moduleName, sendMsg);
+            } 
+        }
+
 
 
         static string Str2XmlStr(string str)
@@ -136,13 +153,14 @@ namespace App.Module.Sqler.Controllers.SqlVersion
                 Response.WriteAsync(msg + "\r\n");
             };
 
-            var query = SqlVersionHelp.moduleModels.AsQueryable();
+            var query = SqlVersionHelp.sqlCodeRepositorys.AsQueryable();           
+        
             if (!string.IsNullOrEmpty(module)) 
             {
-                query = query.Where(m => m.fileName == module + ".json");
+                query = query.Where(m => m.moduleName == module);
             }
-
-            var repositorys = query.Select(m => m.repository).ToList();
+ 
+            var repositorys = query.ToList();
 
             foreach (var repository in repositorys)
             {

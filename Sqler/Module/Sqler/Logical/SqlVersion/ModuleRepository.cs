@@ -16,10 +16,10 @@ namespace App.Module.Sqler.Logical.SqlVersion
     #region SqlVersionModuleRepository
     public class ModuleRepository : IRepository<SqlVersionModuleModel>
     {
-   
-        public ModuleRepository( )
+        SqlVersionModuleModel[] moduleModels;
+        public ModuleRepository(SqlVersionModuleModel[] moduleModels )
         {
-              
+            this.moduleModels = moduleModels;
         }
 
 
@@ -32,14 +32,14 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
         public ApiReturn<PageData<SqlVersionModuleModel>> GetList(List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page)
         {
-            var query = SqlVersionHelp.moduleModels.AsQueryable();            
+            var query = moduleModels.AsQueryable();            
  
             return  query.ToPageData(filter, sort,page);   
         }
 
         public ApiReturn<SqlVersionModuleModel> GetModel(string id)
         {
-            var query = SqlVersionHelp.moduleModels.AsQueryable(); 
+            var query = moduleModels.AsQueryable(); 
  
             return query.FirstOrDefault(m=>m.id==id);
         }
@@ -54,7 +54,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
         public ApiReturn<SqlVersionModuleModel> Update(SqlVersionModuleModel m)
         {
-            var query = SqlVersionHelp.moduleModels.AsQueryable();
+            var query = moduleModels.AsQueryable();
 
             var mFromDb= query.FirstOrDefault(m_ => m_.id == m.id);
             
@@ -93,6 +93,15 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
         /// <summary>
         /// [field:visiable=false]
+        /// 
+        /// [controller:permit.update=false]
+        /// [controller:permit.delete=false]
+        /// [controller:permit.show=false]
+        /// 
+        /// [controller:list.buttons=\x5B
+        /// {text:'一键升级',handler:'function(callback){  callback();window.open("/sqler/SqlVersion/oneKeyUpgrade"); }' }  
+        /// \x5D]
+        /// 
         /// [controller:list.rowButtons=\x5B
         /// {text:'管理',handler:'function(callback,id){  callback();theme.addTab("/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/Sqler_SqlVersion_Module_"+id+"/{action}","SqlVersion_"+id); }' } 
         /// ,{text:'升级至最新',handler:'function(callback,id){  callback();window.open("/sqler/SqlVersion/upgrade?version=-1&amp;module="+id); }' }  
@@ -107,7 +116,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
         /// <summary>
         /// 文件名称 
-        /// </summary>        
+        /// </summary> 
         public string fileName { get; set; }
 
         /// <summary>

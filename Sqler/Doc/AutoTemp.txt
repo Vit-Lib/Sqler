@@ -64,3 +64,64 @@ filter:
 	demo：
 	http://localhost:4570/autoTemp/Scripts/autoTemp/list.html?dataProvider=LocalStorageProvider
     http://localhost:4570/autoTemp/Scripts/autoTemp/list.html?dataProvider=LocalStorageProvider&tree=false
+
+
+
+
+
+
+
+
+
+
+
+var controllerConfig = {
+       dependency: {
+	    css: [],
+	    js: []
+	},
+
+	/* 添加、修改、查看、删除 等权限,可不指定。 默认值均为true  */
+	'//permit': {
+	    insert: false,
+	    update: false,
+	    show: false,
+	    delete: false
+	},
+
+	idField: 'id',
+	pidField: 'pid',
+	//treeField: 'name',
+	rootPidValue: '0',
+
+	list: {
+	    title: 'autoTemp-demo',
+	    buttons: [
+		{ text: '执行js', handler: 'function(callback){  setTimeout(callback,5000); }' },
+		//{ text: '调用接口', ajax: { type: 'GET', url: '/autoTemp/demo_list/getConfig' } }
+	    ],
+	    rowButtons: [
+		{ text: '查看id', handler: 'function(callback,id){  callback();alert(id); }' },
+		//{ text: '调用接口', ajax: { type: 'GET', url: '/autoTemp/{template}/getConfig?name={id}' } }
+	    ]
+	},
+
+
+	fields: [
+	    { 'ig-class': 'Text', field: 'name', title: '<span title="装修商名称">装修商</span>', list_width: 200, editable: false },
+	    { 'ig-class': 'Text', field: 'sex', title: '性别', list_width: 80, visiable: false },
+	    { 'ig-class': 'TextArea', field: 'random', title: 'random', list_width: 150, 'ig-param': {height:300} },
+	    { 'ig-class': 'Text', field: 'random2', title: 'random2', list_width: 150 }
+	],
+
+	filterFields: [
+	    { 'ig-class': 'Text', field: 'name', title: '装修商', filterOpt: 'Contains' },
+	    { 'ig-class': 'Text', field: 'sex', title: '性别' },
+	    { 'ig-class': 'Text', field: 'random', title: 'random' }
+	]
+
+    };
+
+
+
+

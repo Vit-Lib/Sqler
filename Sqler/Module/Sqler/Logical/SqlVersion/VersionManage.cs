@@ -7,9 +7,18 @@ using Vit.Extensions;
 using Dapper;
 using System.Text;
 using Vit.Core.Util.ConfigurationManager;
+using App.Module.Sqler.Logical.SqlVersion.Entity;
 
-namespace App.Module.Sqler.Logical.SqlVersion.Entity
+namespace App.Module.Sqler.Logical.SqlVersion
 {
+    public enum EMsgType
+    {
+        Err,
+        Title,
+        Nomal
+    }
+
+
     public class VersionManage
     {
 
@@ -170,10 +179,10 @@ namespace App.Module.Sqler.Logical.SqlVersion.Entity
 
 
         #region 升級
-        public static void UpgradeToVersion(string module,int version, Action<EMsgType,String> sendMsg)
-        {
-            var repository = SqlVersionHelp.moduleModels.AsQueryable().Where(m => m.fileName == module + ".json").FirstOrDefault()?.repository;
-                        
+        public static void UpgradeToVersion(string module, Action<EMsgType,String> sendMsg, int descVersion = -1)
+        { 
+            var repository = SqlVersionHelp.sqlCodeRepositorys.AsQueryable().FirstOrDefault(m => m.moduleName == module);
+
             sendMsg = (EMsgType type, String msg) =>
             {
                 Logger.log.Log(Level.ApiTrace, msg);
@@ -182,11 +191,12 @@ namespace App.Module.Sqler.Logical.SqlVersion.Entity
 
             int curVersion = GetDbCurVersion(module);
             int lastVersion = repository.lastVersion;
-            int descVersion = version;
+            
             if (descVersion < 0) 
             {
                 descVersion = lastVersion;
             }
+
             try
             {            
 
@@ -271,12 +281,7 @@ namespace App.Module.Sqler.Logical.SqlVersion.Entity
         }
 
         #endregion
-        public enum EMsgType
-        {
-            Err,
-            Title,
-            Nomal
-        }
+       
 
 
  
