@@ -8,7 +8,6 @@ using Vit.Linq.Query;
 using Vit.Core.Util.ConfigurationManager;
 using System;
 using System.ComponentModel.DataAnnotations;
-using App.Module.Sqler.Logical.SqlVersion.Entity;
 using App.Module.AutoTemp.Logical.Repository;
 
 namespace App.Module.Sqler.Logical.SqlVersion
@@ -34,7 +33,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
         {
             get
             {
-                return dataSource.root["data"]?.Value<JArray>()?.Count??0;
+                return dataSource.root["data"]?.Value<JArray>()?.Count??-1;
             }
         }
 

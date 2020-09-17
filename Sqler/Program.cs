@@ -11,17 +11,21 @@ namespace App
     {
         public static void Main(string[] args)
         {
-            //var arg = new System.Collections.Generic.List<string>() { };
+            //var arg = new System.Collections.Generic.List<string>() {"SqlVersion.CurrentVersion" };
             //arg.AddRange(new[] { "--DataPath", @"W:\code\Data" });
             //args = arg.ToArray();
 
+            var runAsCmd = (args != null && args.Length >= 1 && false == args[0]?.StartsWith("-"));
+
+            if (!runAsCmd)
+            {
+                Logger.OnLog = (level, msg) => { Console.WriteLine((level == Level.INFO ? "" : "[" + level + "]") + msg); };
+            }
 
 
             //(x.1) 初始化Sqler
             try
-            {
-                Logger.OnLog = (level, msg) => { Console.WriteLine((level == Level.INFO ? "" : "[" + level + "]") + msg); };
-
+            {                
 
                 Logger.Info("[Sqler] version: "+ System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion );
 
@@ -35,13 +39,12 @@ namespace App
                 return;
             }
 
-
-
          
 
-            if (args != null && args.Length >= 1   &&  false==args[0]?.StartsWith("-") )
+            if (runAsCmd)
             {
-               
+                Logger.OnLog = (level, msg) => { Console.WriteLine((level == Level.INFO ? "" : "[" + level + "]") + msg); };
+
                 Vit.ConsoleUtil.ConsoleHelp.Log = (msg) => { Logger.Info(msg);  };
                 Vit.ConsoleUtil.ConsoleHelp.Exec(args);
                 return;
