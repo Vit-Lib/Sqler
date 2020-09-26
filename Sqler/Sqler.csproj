@@ -24,11 +24,11 @@
   </ItemGroup>
 
   <ItemGroup> 
-    <PackageReference Include="Vit.Db" Version="2.1.1.392" /> 
-    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.392" />
-    <PackageReference Include="Vit.Orm.Dapper" Version="2.1.1.392" />
-    <PackageReference Include="Vit.WebHost" Version="2.1.1.392" />
-  </ItemGroup>  
+    <PackageReference Include="Vit.Db" Version="2.1.1.400" /> 
+    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.400" />
+    <PackageReference Include="Vit.Orm.Dapper" Version="2.1.1.400" />
+    <PackageReference Include="Vit.WebHost" Version="2.1.1.400" />
+  </ItemGroup>
   
   
   <ItemGroup>
