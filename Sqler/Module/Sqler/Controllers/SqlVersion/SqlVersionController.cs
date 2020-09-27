@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System;
 using Microsoft.AspNetCore.Http;
-using System.Text;
 using App.Module.Sqler.Logical.SqlVersion;
+using Sqler.Module.Sqler.Logical.MessageWrite;
 
 namespace App.Module.Sqler.Controllers.SqlVersion
 {
@@ -12,7 +12,16 @@ namespace App.Module.Sqler.Controllers.SqlVersion
     [ApiController]
     public class SqlVersionController : ControllerBase
     {
-               
+
+
+        #region Util
+        void SendMsg(EMsgType type, String msg)
+        {
+            MessageWriteHelp.SendMsg(Response, type, msg, false);
+        }
+        #endregion
+
+
         #region 升級
 
         /// <summary>
@@ -24,32 +33,8 @@ namespace App.Module.Sqler.Controllers.SqlVersion
         {
 
             Response.ContentType = "text/html;charset=utf-8";
-
-            Action<EMsgType, String> sendMsg = (type, msg) =>
-            {
-                msg = Str2XmlStr(msg)?.Replace("\n", "<br/>");
-                switch (type)
-                {
-                    case EMsgType.Err:
-                        {
-
-                            Response.WriteAsync("<br/><font style='color:#f00;font-weight:bold;'>" + msg + "</font>");
-                            break;
-                        }
-                    case EMsgType.Title:
-                        {
-                            Response.WriteAsync("<br/><font style='color:#005499;font-weight:bold;'>" + msg + "</font>");
-                            break;
-                        }
-                    default:
-                        {
-                            Response.WriteAsync("<br/>" + msg);
-                            break;
-                        }
-                }
-                //Response.Flush();
-            };
-            VersionManage.UpgradeToVersion(module, sendMsg, version);
+    
+            VersionManage.UpgradeToVersion(module, SendMsg, version);
         }
 
 
@@ -62,72 +47,15 @@ namespace App.Module.Sqler.Controllers.SqlVersion
         public void OneKeyUpgrade()
         {
 
-            Response.ContentType = "text/html;charset=utf-8";
-
-            Action<EMsgType, String> sendMsg = (type, msg) =>
-            {
-                msg = Str2XmlStr(msg)?.Replace("\n", "<br/>");
-                switch (type)
-                {
-                    case EMsgType.Err:
-                        {
-
-                            Response.WriteAsync("<br/><font style='color:#f00;font-weight:bold;'>" + msg + "</font>");
-                            break;
-                        }
-                    case EMsgType.Title:
-                        {
-                            Response.WriteAsync("<br/><font style='color:#005499;font-weight:bold;'>" + msg + "</font>");
-                            break;
-                        }
-                    default:
-                        {
-                            Response.WriteAsync("<br/>" + msg);
-                            break;
-                        }
-                }
-                //Response.Flush();
-            };
+            Response.ContentType = "text/html;charset=utf-8";           
 
            
             foreach (var sqlCodeRes in SqlVersionHelp.sqlCodeRepositorys) 
             {          
-                VersionManage.UpgradeToVersion(sqlCodeRes.moduleName, sendMsg);
+                VersionManage.UpgradeToVersion(sqlCodeRes.moduleName, SendMsg);
             } 
         }
-
-
-
-        static string Str2XmlStr(string str)
-        {
-            if (string.IsNullOrEmpty(str))
-            {
-                return str;
-            }
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (char c in str)
-            {
-                switch (c)
-                {
-                    case '"':
-                        stringBuilder.Append("&quot;");
-                        break;
-                    case '&':
-                        stringBuilder.Append("&amp;");
-                        break;
-                    case '<':
-                        stringBuilder.Append("&lt;");
-                        break;
-                    case '>':
-                        stringBuilder.Append("&gt;");
-                        break;
-                    default:
-                        stringBuilder.Append(c);
-                        break;
-                }
-            }
-            return stringBuilder.ToString();
-        }
+ 
         #endregion
 
 

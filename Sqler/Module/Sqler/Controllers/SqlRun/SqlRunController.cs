@@ -12,9 +12,9 @@ using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Db.Excel;
 using Vit.Extensions;
 using Vit.Orm.Dapper;
-using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using Sqler.Module.Sqler.Logical.MessageWrite;
 
 namespace App.Module.Sqler.Controllers.SqlRun
 {
@@ -25,6 +25,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
     [ApiController]
     public class SqlRunController : ControllerBase
     {
+    
 
 
         #region Execute
@@ -304,7 +305,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
                 var url = "/temp/" + fileName;
 
                 Logger.Info("成功导出数据，地址：" + url);
-                SendMsg(EMsgType.Html, $"<br/>成功导出数据，地址：<a href='{url}'>{url}</a>");
+                SendMsg(EMsgType.Title, $"<br/>成功导出数据，地址：<a href='{url}'>{url}</a>");
 
             }
             catch (Exception ex)
@@ -323,84 +324,16 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
 
 
-
-
-        #region util
-        public enum EMsgType
-        {
-            Html,
-            Err,
-            Title,
-            Nomal
-        }
-
-
+        #region Util
         void SendMsg(EMsgType type, String msg)
         {
-            Logger.Info(msg);
-
-            switch (type)
-            {
-                case EMsgType.Html:
-                    {
-
-                        Response.WriteAsync(msg);
-                        break;
-                    }
-                case EMsgType.Err:
-                    {
-                        var escapeMsg = Str2XmlStr(msg)?.Replace("\n", "<br/>");
-                        Response.WriteAsync("<br/><font style='color:#f00;font-weight:bold;'>" + escapeMsg + "</font>");
-                        break;
-                    }
-                case EMsgType.Title:
-                    {
-                        var escapeMsg = Str2XmlStr(msg)?.Replace("\n", "<br/>");
-                        Response.WriteAsync("<br/><font style='color:#005499;font-weight:bold;'>" + escapeMsg + "</font>");
-                        break;
-                    }
-                default:
-                    {
-                        var escapeMsg = Str2XmlStr(msg)?.Replace("\n", "<br/>");
-                        Response.WriteAsync("<br/>" + escapeMsg);
-                        break;
-                    }
-            }
-            //Response.Flush();            
+            MessageWriteHelp.SendMsg(Response, type, msg);
         }
-
-        static string Str2XmlStr(string str)
-        {
-            if (string.IsNullOrEmpty(str))
-            {
-                return str;
-            }
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (char c in str)
-            {
-                switch (c)
-                {
-                    case '"':
-                        stringBuilder.Append("&quot;");
-                        break;
-                    case '&':
-                        stringBuilder.Append("&amp;");
-                        break;
-                    case '<':
-                        stringBuilder.Append("&lt;");
-                        break;
-                    case '>':
-                        stringBuilder.Append("&gt;");
-                        break;
-                    default:
-                        stringBuilder.Append(c);
-                        break;
-                }
-            }
-            return stringBuilder.ToString();
-        }
-
         #endregion
+
+
+
+
 
     }
 }

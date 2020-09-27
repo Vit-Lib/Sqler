@@ -13,6 +13,8 @@ using Dapper;
 using Vit.Db.Excel;
 using System.Data;
 using System.Linq;
+using Sqler.Module.Sqler.Logical.MessageWrite;
+using Sqler.Module.Sqler.Logical.DbPort;
 
 namespace App.Module.Sqler.Controllers.DbPort
 {
@@ -32,221 +34,18 @@ namespace App.Module.Sqler.Controllers.DbPort
 
         #region (x.1) Export
 
-        class DataTableWriter : IDisposable
-        {
-            public Action OnDispose;
-            public void Dispose()
-            {
-                OnDispose?.Invoke();
-            }
-
-            public Action<DataTable> WriteData;
-
-        }
-
-
-
         [HttpPost("Export")]
         public void Export
            ([FromForm] string type,
             [FromForm]string ConnectionString,
-            [FromForm,SsDescription("sqlite、excel")]string exportFileType)
+            [FromForm,SsDescription("sqlite/excel/txt")]string exportFileType)
         {
             Response.ContentType = "text/html;charset=utf-8";
 
-
-            SendMsg(EMsgType.Title, "   Export");
-
-
-            //(x.1)连接字符串
-            if (string.IsNullOrWhiteSpace(ConnectionString))
-            {
-                SendMsg(EMsgType.Err ,"Export error - invalid arg conn.");
-                return;
-            }
-
-
-            #region (x.2)构建数据导出回调
-
-            string fileName;
-     
-            Func<DataTableWriter> GetDataTableWriter;
-
-            if (exportFileType == "excel")
-            {
-                SendMsg(EMsgType.Title, "   export data to excel file");
-
-                fileName = "DbPort_Export_" + DateTime.Now.ToString("yyyyMMdd_HHmmss_") + CommonHelp.NewGuidLong() + ".xlsx";
-                string filePath = CommonHelp.GetAbsPath("wwwroot", "temp", fileName);
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-                GetDataTableWriter = () =>
-                {
-                    int exportedRowCount = 0;
-                
-                    return new DataTableWriter
-                    {
-                        WriteData =
-                        (dt) =>
-                        {
-                            SendMsg(EMsgType.Nomal, "           [x.x.3]Export data");
-                            ExcelHelp.SaveDataTable(filePath, dt, exportedRowCount == 0, exportedRowCount);
-
-                            if (exportedRowCount == 0) exportedRowCount++;
-                            exportedRowCount += dt.Rows.Count;
-                        }
-                    };
-                };
-               
-            }
-            else 
-            {
-                SendMsg(EMsgType.Title, "   export data to sqlite file");
-
-                fileName = "DbPort_Export_" + DateTime.Now.ToString("yyyyMMdd_HHmmss_") + CommonHelp.NewGuidLong() + ".sqlite3";
-                string filePath = CommonHelp.GetAbsPath("wwwroot", "temp", fileName);
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-                GetDataTableWriter = () =>
-                {         
-                    var connSqlite = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(filePath);
-                    var createdTable = false;
-                    return new DataTableWriter
-                    {
-                        OnDispose = () => 
-                        {
-                            connSqlite.Dispose();
-                        },
-                        WriteData =
-                        (dt) =>
-                        {
-                            if (!createdTable)
-                            {
-                                //(x.x.2)create table
-                                SendMsg(EMsgType.Title, "           [x.x.x]create table ");
-                                connSqlite.Sqlite_CreateTable(dt);
-
-                                createdTable = true;
-                            }
-
-                            //(x.x.3)write data           
-                            connSqlite.Import(dt);
-                        }
-                    };
-                };                         
-            }
-            #endregion
-
-
-            #region (x.3)分批读取数据并导出
-            try
-            {  
-               
-                using (var conn = ConnectionFactory.GetConnection(new Vit.Orm.Dapper.ConnectionInfo { type = type, ConnectionString = ConnectionString }))               
-                {
-                    var startTime = DateTime.Now;
-                
-                    SendMsg(EMsgType.Title, "   from database " + conn.Database);
-
-
-                    var tableNames = conn.GetAllTableName();
-
-                    var rowCounts = tableNames.Select(tableName =>
-                            Convert.ToInt32(conn.ExecuteScalar($"select Count(*) from {tableName}", commandTimeout: commandTimeout))
-                        ).ToList();
-
-                    int sourceSumRowCount = rowCounts.Sum();
-
-                    SendMsg(EMsgType.Title, "   sum row count: " + sourceSumRowCount);
-                    SendMsg(EMsgType.Title, "   table count: " + tableNames.Count);
-                    SendMsg(EMsgType.Title, "   table name: " + tableNames.Serialize());
-
-
-
-
-                    int importedSumRowCount = 0;
-
-                    for (var curTbIndex = 0; curTbIndex < tableNames.Count; curTbIndex++)
-                    {
-                        var tableName = tableNames[curTbIndex];
-                        var sourceRowCount = rowCounts[curTbIndex];                        
-                     
-                        try
-                        {
-                            int importedRowCount = 0;
-
-                            SendMsg(EMsgType.Title, "");
-                            SendMsg(EMsgType.Title, "");
-                            SendMsg(EMsgType.Title, "");
-                            SendMsg(EMsgType.Title, $"      [{(curTbIndex + 1)}/{tableNames.Count}]start export table " + tableName+ ",sourceRowCount:"+ sourceRowCount); 
-
-
-                            using (var dtWriter= GetDataTableWriter())
-                            using (var dr = conn.ExecuteReader($"select * from {tableName}", commandTimeout: commandTimeout))
-                            {
-                                DataTable dt;
-                               
-                                while (true)
-                                {
-                                    SendMsg(EMsgType.Nomal, " ");
-                                    SendMsg(EMsgType.Nomal, "           [x.x.1]read data ");
-                                    dt = dr.ReadDataToDataTable(batchRowCount);
-                                    if (dt == null) 
-                                    {
-                                        SendMsg(EMsgType.Nomal, "           already read all data！");
-                                        break;
-                                    }
-
-                                    SendMsg(EMsgType.Nomal, "           [x.x.2]write data ,row count:" + dt.Rows.Count);
-                                    dt.TableName = tableName;
-                                    dtWriter.WriteData(dt);
-
-                                    importedRowCount += dt.Rows.Count;
-                                    importedSumRowCount += dt.Rows.Count;
-                       
-
-                                    SendMsg(EMsgType.Nomal, "                      current progress:    " +
-                                        (((float)importedRowCount) / sourceRowCount * 100).ToString("f2") + " % ,    "
-                                        + importedRowCount + " / " + sourceRowCount);
-
-                                    SendMsg(EMsgType.Nomal, "                      total progress:      " +
-                                        (((float)importedSumRowCount) / sourceSumRowCount * 100).ToString("f2") + " % ,    "
-                                        + importedSumRowCount + " / " + sourceSumRowCount);
-                                }
-                            }
-                            SendMsg(EMsgType.Title, $"           export table " + tableName+ " success,row count:" + importedRowCount);
-                            
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error(ex);
-                            SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                        }
-                    }
-                    var span = (DateTime.Now - startTime);
-                    SendMsg(EMsgType.Title, "");
-                    SendMsg(EMsgType.Title, "");
-                    SendMsg(EMsgType.Title, "");
-                    SendMsg(EMsgType.Title, "   Export success");
-                    SendMsg(EMsgType.Title, "   sum row count:" + importedSumRowCount);
-                    SendMsg(EMsgType.Title, $"   耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-
-                    var url = "/temp/" + fileName;
-
-                    Logger.Info("成功导出数据，地址：" + url);
-                    SendMsg(EMsgType.Nomal, $"<br/>成功导出数据，地址：<a href='{url}'>{url}</a>");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                SendMsg(EMsgType.Err, "导出失败。" + ex.GetBaseException().Message);
-            }
-            finally
-            {
-                System.GC.Collect();
-            }
-            #endregion
+            DbPortLogical.ExportData(SendMsg, 
+                type, ConnectionString,
+                exportFileType
+                );             
         }
         #endregion
 
@@ -530,77 +329,12 @@ namespace App.Module.Sqler.Controllers.DbPort
 
         #endregion
 
-        #region util
-        public enum EMsgType
-        {         
-            Err,
-            Title,
-            Nomal
-        }
 
-
+        #region Util
         void SendMsg(EMsgType type, String msg)
         {
-            if (type == EMsgType.Err)
-                Logger.Info("[Error]"+msg);
-            else
-                Logger.Info(msg);
-
-            switch (type)
-            {               
-                case EMsgType.Err:
-                    {
-                        var escapeMsg = Str2XmlStr(msg)?.Replace("\n", "<br/>");
-                        Response.WriteAsync("<br/><font style='color:#f00;font-weight:bold;'>" + escapeMsg + "</font>");
-                        break;
-                    }
-                case EMsgType.Title:
-                    {
-                        var escapeMsg = Str2XmlStr(msg)?.Replace("\n", "<br/>");
-                        Response.WriteAsync("<br/><font style='color:#005499;font-weight:bold;'>" + escapeMsg + "</font>");
-                        break;
-                    }
-                default:
-                    {
-                        var escapeMsg = Str2XmlStr(msg)?.Replace("\n", "<br/>");
-                        Response.WriteAsync("<br/>" + escapeMsg);
-                        break;
-                    }
-            }
-            //Response.Flush();            
-        }
-
-        static string Str2XmlStr(string str)
-        {
-            if (string.IsNullOrEmpty(str))
-            {
-                return str;
-            }
-            StringBuilder stringBuilder = new StringBuilder();
-            foreach (char c in str)
-            {
-                switch (c)
-                {
-                    case '"':
-                        stringBuilder.Append("&quot;");
-                        break;
-                    case '&':
-                        stringBuilder.Append("&amp;");
-                        break;
-                    case '<':
-                        stringBuilder.Append("&lt;");
-                        break;
-                    case '>':
-                        stringBuilder.Append("&gt;");
-                        break;
-                    default:
-                        stringBuilder.Append(c);
-                        break;
-                }
-            }
-            return stringBuilder.ToString();
-        }
-
+            MessageWriteHelp.SendMsg(Response, type, msg);
+        }        
         #endregion
     }
 }

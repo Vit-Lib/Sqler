@@ -15,7 +15,7 @@
     <style type="text/css">
         body {
             padding: 0;
-            width: 1000px;
+            width: 1200px;
             margin-left: auto;
             margin-right: auto;
             font-size: 14px;
@@ -261,14 +261,16 @@ select 11 as PID,'任务目录' as DataTitle,'0' as DateValue;";
                         <ul>
                             <li>(1).执行前请先备份数据库。</li>
                             <li>(2).请仔细斟酌要执行的sql语句。</li>
-                            <li>(2).请在系统管理员的监护下执行此操作。</li>
-                            <li>(3).请勿执行返回海量数据的查询。</li>
+                            <li>(3).请在系统管理员的监护下执行此操作。</li>                     
                         </ul>
                     </td>
                     <td rowspan="2">
-                        <textarea rows="10" cols="80" id="txtSql">
-/* [tableName:aaa,bbb,bbb,bbb,b] [fileName:数据导出]  */ 
-select 1 as name union all select 2 </textarea><br />
+                        
+             <textarea rows="10" cols="100" id="txtSql">
+/* [SqlRun.Config.tableName:aaa,bbb,bbb,bbb,b] [fileName:数据导出]  */ 
+select 1 as name union all select 2 </textarea>
+                        <br />
+
                     </td>
                 </tr>
                 <tr>
