@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.Common;
@@ -40,16 +41,41 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
         }
 
+        public static Dictionary<string, string> GetSqlRunConfig(string sql) 
+        {
+            Dictionary<string, string> sqlRunConfig = new Dictionary<string, string>();
 
-        /*
-<tableName>["aaa","bbb","bbb","bbb"]<tableName>
-         
+            if (string.IsNullOrEmpty(sql)) return sqlRunConfig;
+
+            //var regXml = new Regex(@"\<SqlRunConfig\>[\s\S]+?\<\/SqlRunConfig\>"); //正则匹配 <SqlRunConfig></SqlRunConfig>
+            //var regTag = new Regex(@"\<[^\\]+?\>"); ; //正则匹配 <>
+
+            var regXml = new Regex(@"(?<=\<SqlRunConfig\>)[\s\S]+?(?=\<\/SqlRunConfig\>)"); //正则匹配 <SqlRunConfig></SqlRunConfig> 中间的字符串
+            var regTag = new Regex(@"(?<=\<)[^\/\<\>]+?(?=\>)"); //正则匹配 <> 中间的字符串(不含/)
+
+
+            var matches = regXml.Matches(sql);
+            if (matches.Count == 0) return sqlRunConfig;
+
+            var xml = matches[0].Value;
+            foreach (string tagName in regTag.Matches(xml).Select(i=>i.Value).Distinct()) 
+            {            
+                var values = new Regex($@"(?<=\<{tagName}\>)[\s\S]+?(?=\<\/{tagName}\>)").Matches(xml).Select(m => m.Value).ToArray();
+                sqlRunConfig[tagName] = string.Join("",values);
+            }
+            return sqlRunConfig;
+        }
+
+
+
+        /*         
 
          txt 配置：
              
 <SqlRunConfig>
 
-<fileName>2.建触发器、函数、存储过程、视图.sql<fileName>
+<fileName>表数据.sqlite</fileName>
+<tableNames>["aaa","bbb"]</tableNames>
 <tableSeparator>
 
 </tableSeparator>
@@ -79,8 +105,25 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 SendMsg(EMsgType.Err, "Export error - invalid arg conn.");
                 return;
             }
+            #region SqlRunConfig
+            var sqlRunConfig = GetSqlRunConfig(sql);
+            if (string.IsNullOrEmpty(outFileName)) 
+            {
+                sqlRunConfig.TryGetValue("fileName", out outFileName);
+            }
+            if (outTableNames==null)
+            {
+                if (sqlRunConfig.TryGetValue("tableNames", out var value)) 
+                {
+                    outTableNames = value.Deserialize<List<string>>();
+                }                
+            }
+            #endregion
 
-            List<string> filePathList = new List<string> { "wwwroot", "temp", "DbPort_Export_" + CommonHelp.NewGuidLong() };
+
+
+
+            List<string> filePathList = new List<string> { "wwwroot", "temp", "Export_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")+"_" + CommonHelp.NewGuid() };
             Func<DataTableWriter> GetDataTableWriter;
 
             #region (x.2)构建数据导出回调 
@@ -186,6 +229,12 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 string fieldSeparator = ",";
                 string rowSeparator = Environment.NewLine;
                 string tableSeparator = Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+
+
+                sqlRunConfig.TryGetValue("fieldSeparator", out fieldSeparator);
+                sqlRunConfig.TryGetValue("rowSeparator", out rowSeparator);
+                sqlRunConfig.TryGetValue("tableSeparator", out tableSeparator);
+
 
                 bool isFirstTable = true;
 

@@ -100,7 +100,7 @@ namespace App.Module.Sqler.Controllers.DbPort
             {
                 #region (x.4)sqlite文件保存至本地       
                 var file = files[0];
-                string filePath = CommonHelp.GetAbsPath("wwwroot", "temp", "DbPort_Import_" + DateTime.Now.ToString("yyyyMMdd_HHmmss_") + CommonHelp.NewGuidLong() + file.FileName);
+                string filePath = CommonHelp.GetAbsPath("wwwroot", "temp", "Import_" + DateTime.Now.ToString("yyyyMMdd_HHmmss_") + CommonHelp.NewGuidLong() + file.FileName);
                 Directory.CreateDirectory(Path.GetDirectoryName(filePath));
                 using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
                 {

@@ -1,18 +1,37 @@
 -------------------
 --2.生成触发器、函数、存储过程、视图的创建语句
 --2.GenerateTriggerFunctionProcedureView.sql
+-- by lith on 2020-09-28 v2.0
 -------------------
 
 
+--(1)指定列、行、表的分隔符，和返回的文件的名称
+/*
+<SqlRunConfig>
 
---(1)指定列、行、表的分隔符，和返回的文件的名称（默认为sql.txt）
-select '' fieldSeparator,'
-/*G'+'O*/'+' 
-G'+'O'+'
-' rowSeparator,'
-/*G'+'O*/'+' 
-G'+'O'+'
-' tableSeparator,'2.CreateTriggerFunctionProcedureView.sql' [fileName];
+<fileName>2.CreateTriggerFunctionProcedureView.sql</fileName>
+
+<tableSeparator></tableSeparator>
+<rowSeparator></rowSeparator>
+<fieldSeparator></fieldSeparator>
+
+</SqlRunConfig>
+
+
+
+-- 添加 G O（尚不使用）
+<tableSeparator>*G</tableSeparator>
+<tableSeparator>O*</tableSeparator>
+<tableSeparator>/
+G</tableSeparator>
+<tableSeparator>O
+</tableSeparator>
+*/
+
+
+
+
+ 
 
 
 
@@ -20,8 +39,8 @@ G'+'O'+'
 
 declare @IDStart int;
 declare @IDNext int;
- --定义text 指针   
- DECLARE @ptrval BINARY(16)
+--定义text 指针   
+declare @ptrval BINARY(16)
 declare @sqlNext varchar(8000)
 
 
@@ -41,16 +60,14 @@ WHERE (o.xtype IN ('X', 'TR', 'C', 'V', 'F', 'IF', 'TF', 'FN', 'P', 'PK')) AND
 --order BY  o.xtype
 
 
- 
+
 while(1=1)
 begin
 set @IDStart=null;
  	select top 1 @IDStart=start.[ID], @IDNext=nex.[ID], @ptrval=TEXTPTR(start.[声明语句]),@sqlNext=convert(varchar(8000),nex.[声明语句])        
-	from #tb start,#tb nex where start.[ID]<nex.[ID] and  start.[xtype]=nex.[xtype] and  start.[对象名]=nex.[对象名]
-
+	from #tb start,#tb nex where start.[ID]<nex.[ID] and  start.[xtype]=nex.[xtype] and  start.[对象名]=nex.[对象名];
 
  	if( @IDStart is null) break;
-
 
 	UPDATETEXT #tb.[声明语句] @ptrval NULL 0 @sqlNext;
 	delete #tb where [id]=@IDNext;
@@ -60,20 +77,52 @@ end
 
 
   
---触发器
+--(x.1)触发器
+select ('
+
+
+/* 触发器 */') comment;
 select [声明语句]  from #tb   where xtype='TR';
 
---函数
+
+
+
+
+
+
+--(x.2)函数
+select ('
+
+
+/* 函数 */') comment;
 select [声明语句]  from #tb   where xtype='FN';
 select [声明语句]  from #tb   where xtype='TF';
 
---存储过程
+
+
+
+
+
+
+
+--(x.3)存储过程
+select ('
+
+
+/* 存储过程 */') comment;
 select [声明语句]   from #tb   where xtype='P';
 
 
 
 
---视图 （考虑 依附关系）
+
+
+
+--(x.4)视图 （考虑 依附关系）
+select ('
+
+
+/* 视图 */') comment;
 select identity(int,1,1) [id],[对象名] [name], convert(smallint,null) SortCode  into #tmp_Enty  from #tb   where xtype='V'; 
 
  
@@ -82,7 +131,7 @@ into #tmp_R
 FROM sysobjects o 
 INNER JOIN sysdepends d     ON d.id = o.id   
 INNER JOIN sysobjects p     ON d.depid = p.id  and p.xtype='v'  and exists(select 1 from #tmp_Enty where p.[name] = #tmp_Enty.[name] )
-where  o.xtype='v' and exists(select 1 from #tmp_Enty where o.[name] = #tmp_Enty.[name] )
+where  o.xtype='v' and exists(select 1 from #tmp_Enty where o.[name] = #tmp_Enty.[name] );
 
  
 declare @sc int;
@@ -97,7 +146,7 @@ begin
 	 	break;
 	
 end
-update #tmp_Enty   set SortCode=@sc+1  where SortCode is null
+update #tmp_Enty   set SortCode=@sc+1  where SortCode is null;
  
 select [声明语句]  from #tb inner join #tmp_Enty on  #tb.对象名=#tmp_Enty.[name] order by SortCode;
 
@@ -111,6 +160,6 @@ drop table #tmp_R;
 
 
 
-drop table #tb
+drop table #tb;
 
  

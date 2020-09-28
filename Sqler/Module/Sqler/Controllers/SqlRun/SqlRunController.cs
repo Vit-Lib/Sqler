@@ -1,20 +1,15 @@
 ﻿using System;
 using System.Data;
-using System.IO;
 using System.Text;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using App.Module.Sqler.Logical;
-using Vit.Core.Module.Log;
-using Vit.Core.Util.Common;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
-using Vit.Db.Excel;
 using Vit.Extensions;
 using Vit.Orm.Dapper;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
 using Sqler.Module.Sqler.Logical.MessageWrite;
+using Sqler.Module.Sqler.Logical.DbPort;
 
 namespace App.Module.Sqler.Controllers.SqlRun
 {
@@ -149,173 +144,14 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
         #region Export
 
-        [HttpPost("{exportType}")]
-        public void Export([FromForm]string sql, string exportType)
+        [HttpPost("Export")]
+        public void Export([FromForm]string sql, [FromForm]string exportFileType)
         {
             Response.ContentType = "text/html;charset=utf-8";
 
-            string fileName=null;
+            var connInfo = SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config");
 
-            #region (x.1)查询数据
-            SendMsg(EMsgType.Title, "   执行sql获取数据...");
-            DataSet ds;
-            using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config")))
-            {
-                ds = conn.ExecuteDataSet(sql);
-            }
-
-            List<string> tableNames = new List<string>();
-            #region 获取 表名等额外信息
-            Regex ctrlAttribute = new Regex("\\[[^\\[\\]]+?\\]"); //正则匹配 [tableName:true] 
-            foreach (Match item in ctrlAttribute.Matches(sql))
-            {
-                string key, value;
-
-                #region (x.x.1)获取key value 用户配置信息
-                var comm = item.Value.Substring(1, item.Value.Length - 2);
-
-                SplitStringTo2(comm, ":", out key, out value);
-                
-                if (string.IsNullOrWhiteSpace(key)) continue;
-                #endregion
-
-                if (key == "tableName") 
-                {
-                    tableNames.AddRange(value.Split(","));
-                }
-                else if (key == "fileName")
-                {
-                    fileName = value;
-                }
-            }
-            #region SplitStringTo2
-            void SplitStringTo2(string oriString, string splitString, out string part1, out string part2)
-            {
-                int splitIndex = oriString.IndexOf(splitString);
-                if (splitIndex >= 0)
-                {
-                    part1 = oriString.Substring(0, splitIndex);
-                    part2 = oriString.Substring(splitIndex + splitString.Length);
-                }
-                else
-                {
-                    part1 = oriString;
-                    part2 = null;
-                }
-            }
-            #endregion
-            #endregion
-
-
-            for (var i = 0; i < tableNames.Count && i < ds.Tables.Count; i++) 
-            {
-                ds.Tables[i].TableName = tableNames[i];
-            }
-            #endregion
-
-
-
-            #region (x.2)构建导入操作回调
-
-            
-            Action<DataTable> ExportDataTable;
-            if (string.IsNullOrWhiteSpace(fileName)) 
-            {
-                fileName= "SqlRun_Export_" + DateTime.Now.ToString("yyyyMMdd_HHmmss_") + CommonHelp.NewGuidLong();
-            }
-
-            if (exportType == "ExportExcel")
-            {
-                SendMsg(EMsgType.Title, "   Export File is excel");
-
-                fileName += ".xlsx";
-                string filePath = CommonHelp.GetAbsPath("wwwroot", "temp", fileName);
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-                ExportDataTable = (dt) =>
-                {
-                    //(x.x.3)import table
-                    SendMsg(EMsgType.Nomal, "           [x.x.3]Export data");
-                    ExcelHelp.SaveDataTable(filePath, dt);
-                };
-            }
-            else
-            {
-                SendMsg(EMsgType.Title, "   Export File is sqlite");
-
-                fileName += ".sqlite3";               
-                string filePath = CommonHelp.GetAbsPath("wwwroot", "temp", fileName);
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-                ExportDataTable = (dt) =>
-                {
-                    using (var connSqlite = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(filePath))
-                    {
-
-                        //(x.x.2)create table
-                        SendMsg(EMsgType.Nomal, "           [x.x.2]create table ");
-                        connSqlite.Sqlite_CreateTable(dt);
-
-                        //(x.x.3)import table
-                        SendMsg(EMsgType.Nomal, "           [x.x.3]Export data");
-                        connSqlite.Import(dt);
-                    }
-                };
-            }
-            #endregion
-
-
-            #region (x.3)Export data to db
-            try
-            {
-                var startTime = DateTime.Now;
-                SendMsg(EMsgType.Title, "   Export to file");
-
-
-                int tbCount = 0;
-                int sumRowCount = 0;
-                foreach (DataTable dt in ds.Tables)
-                {
-                    tbCount++;
-
-                    var tableName = dt.TableName;
-                    try
-                    {
-                        SendMsg(EMsgType.Title, "");
-                        SendMsg(EMsgType.Title, $"      [{tbCount}/{ds.Tables.Count}]start backup table " + tableName);
-
-
-                        ExportDataTable(dt);
-
-                        var rowCount = dt.Rows.Count;
-                        sumRowCount += rowCount;
-                        SendMsg(EMsgType.Title, "            success,row count:" + rowCount);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(ex);
-                        SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                    }
-                }
-                var span = (DateTime.Now - startTime);
-                SendMsg(EMsgType.Title, "   Export success");
-                SendMsg(EMsgType.Title, "   row count:" + sumRowCount);
-                SendMsg(EMsgType.Title, $"   耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-
-                var url = "/temp/" + fileName;
-
-                Logger.Info("成功导出数据，地址：" + url);
-                SendMsg(EMsgType.Title, $"<br/>成功导出数据，地址：<a href='{url}'>{url}</a>");
-
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex);
-                SendMsg(EMsgType.Err, "导出失败。" + ex.GetBaseException().Message);
-            }
-            #endregion
-
-
+            DbPortLogical.ExportData(SendMsg, connInfo.type, connInfo.ConnectionString, exportFileType, sql);
         }
 
 

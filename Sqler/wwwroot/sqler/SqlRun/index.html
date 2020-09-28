@@ -93,17 +93,22 @@
         }
 
         
-        //type:  ExportExcel  ExportSqlite
-        function downloadData(type) {
-            var param = {};
-            if ('' == (param.sql = $('#txtSql').val())) {
+      
+        function exportData() {
+           //exportFileType:  sqlite excel txt
+            var exportFileType = $('input[name=exportFileType][checked]').val();
+
+            var param = {
+                sql: $('#txtSql').val(),
+                exportFileType:exportFileType
+            };
+            if (!param.sql) {
                 theme.tips('请输入sql语句');
                 return;
             }
 
-            theme.confirm('确定执行sql语句？', function () {
-                openForm({ url: '/sqler/sqlrun/'+type , reqParam: param, type: 'post' });
-
+            theme.confirm('确定导出执行sql语句返回的数据？', function () {
+                openForm({ url: '/sqler/sqlrun/Export' , reqParam: param, type: 'post' });
             });
         }
 
@@ -274,7 +279,7 @@ select 1 as name union all select 2 </textarea>
                     </td>
                 </tr>
                 <tr>
-                    <td style="text-align: center">
+                    <td style="text-align: left">
                         <table class="tbBtn">
                             <tr>
                                 <td>
@@ -292,12 +297,15 @@ select 1 as name union all select 2 </textarea>
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-                                    <a id="btnR2" iconcls="icon-sum" class="easyui-linkbutton" href="#" onclick="javascript:downloadData('ExportExcel');">Excel返回结果集</a>
+                                <td colspan="2">
+                                    <a id="btnR2" iconcls="icon-sum" class="easyui-linkbutton" href="#" onclick="javascript:exportData();">导出数据</a>
+
+                                    <input type='radio' name='exportFileType' value="sqlite" />sqlite
+                                    <input type='radio' name='exportFileType' value="excel" />excel
+                                    <input type='radio' name='exportFileType' value="txt"  checked="checked"/>txt
+
                                 </td>
-                                <td>
-                                    <a id="btnR5" iconcls="icon-sum" class="easyui-linkbutton" href="#" onclick="javascript:downloadData('ExportSqlite');">sqlite返回结果集</a>
-                                </td>
+                                 
                             </tr>
                             
                         </table>
