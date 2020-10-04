@@ -22,7 +22,7 @@ namespace App.Module.AutoTemp.Logical
         {
             TableSchema tableSchema = new TableSchema { table_name=type.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.TableAttribute>()?.Name   , columns = new List<ColumnSchema>() };
 
-            using (var xmlMng = new XmlMng())
+            using (var xmlMng = new XmlCommentMng())
             {
                 xmlMng.AddBin();
                 var xmlHelp = xmlMng.GetXmlHelp(type);
