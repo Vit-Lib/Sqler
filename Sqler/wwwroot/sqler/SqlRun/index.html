@@ -54,17 +54,19 @@
 
     <script type="text/javascript">
 
-    
+        function toXmlStr(str) {
+            return (str || '').replace(/\&/g, "&amp;").replace(/\"/g, "&quot;").replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
+        }
 
-        //openForm({url:'http://www.a.com',reqParam:{a:3},type:'post'}); 
+        //openForm({url:'http://www.a.com',reqParam:{a:3},type:'post'});
         function openForm(param) {
-            /// <summary>在新页面中新建Form，发送请求。          
+            /// <summary>在新页面中新建Form，发送请求。
             /// </summary>
             /// <param name="param" type="object">
             /// <para> demo:{url:'http://www.a.com',reqParam:{a:3},type:'post'} </para>
             /// <para> url[string]:要打开的链接地址。</para>
             /// <para> reqParam[object]:请求参数。</para>
-            /// <para> type[string]:请求方式。可为'get'、'post'、'put'等，不指定则为get。</para>           
+            /// <para> type[string]:请求方式。可为'get'、'post'、'put'等，不指定则为get。</para>
             /// </param>
             /// <param name="url" type="string"></param>
             /// <param name="postParam" type="object">。</param>
@@ -87,20 +89,20 @@
             html += '<script type="text/javascript">document.tempForm.submit();</sc' + 'ript>';
             html += '</body></html>';
 
-             var oWin = window.open('');
+            var oWin = window.open('');
             oWin.document.write(html);
-            return oWin;    
+            return oWin;
         }
 
-        
-      
+
+
         function exportData() {
-           //exportFileType:  sqlite excel txt
+            //exportFileType:  sqlite excel txt
             var exportFileType = $('input[name=exportFileType][checked]').val();
 
             var param = {
                 sql: $('#txtSql').val(),
-                exportFileType:exportFileType
+                exportFileType: exportFileType
             };
             if (!param.sql) {
                 theme.tips('请输入sql语句');
@@ -108,7 +110,7 @@
             }
 
             theme.confirm('确定导出执行sql语句返回的数据？', function () {
-                openForm({ url: '/sqler/sqlrun/Export' , reqParam: param, type: 'post' });
+                openForm({ url: '/sqler/sqlrun/Export', reqParam: param, type: 'post' });
             });
         }
 
@@ -127,6 +129,17 @@
             return failMsg;
         }
 
+        function loadSql(url) {
+            $.ajax({
+                type: "GET",
+                url: url,
+                async: false,
+                dataType: "text",
+                success: function (txt) {                  
+                    $('#txtSql').val(txt);                   
+                }
+            });
+        }
 
 
         function execSql(type) {
@@ -207,50 +220,39 @@
 
         $(function () {
 
-            var sqlBuildInsert = "\
---第一条语句依次传递后面各个表的表名（若多一条，则多的一条为导出文件名）\n\
-select 'T_User' \n\
-union all select 'T_TreeData' \n\
-union all select '用户和数据字典导出';\n\n\
---后面语句获取各个表数据\n\
-select top 20 * from T_User;\n\
-select 11 as PID,'任务目录' as DataTitle,'0' as DateValue;";
+            var sqlDemo = "/\
+* <SqlRunConfig>                                       \n\
+<fileName>表数据.txt</fileName>                        \n\
+<tableNames>[\"aaa\",\"bbb\"]</tableNames>             \n\
+<tableSeparator>                                       \n\
+</tableSeparator>                                      \n\
+<rowSeparator>                                         \n\
+</rowSeparator>                                        \n\
+<fieldSeparator>,</fieldSeparator>                     \n\
+</SqlRunConfig> *\
+/                                                      \n\
+                                                           \n\
+select 1 as name union all select 2;                   \n\
+select 3 as name union all select 4;                   \n\
+";
 
 
-            function createLinkButton() {
+            function createLinkButton(text, sql) {
                 return $('<a></a>').linkbutton({
-                    text: '加载Demo语句',
+                    text: text,
                     iconCls: 'icon-print',
                     onClick: function () {
-                        $('#txtSql').val(sqlBuildInsert.slice(0, -1) + "\nunion all select null as PID,null as DataTitle,null as DateValue \nunion all select 11 as PID,null as DataTitle,'0' as DateValue ")
+                        $('#txtSql').val(sql);
                     }
                 })
             };
 
             var content;
-            return;
-            //id="btnR2"  id="btnR5"
-            content = $('<div><pre><code>' + sqlBuildInsert + '</code></pre><div>');
-            createLinkButton().prependTo(content);
-            tooltip($('#btnR2'), content);
 
-            content = $('<div><pre><code>' + sqlBuildInsert + '</code></pre><div>');
-            createLinkButton().prependTo(content);
-            tooltip($('#btnR5'), content);
-
-
-            content = $('<div><pre><code>--生成 insert  的 sql 语句\n--若 某一列值为 null,则不添加这列。\n--若 某一行 所有列的值均为 null，则不添加这一行' + sqlBuildInsert + '</code></pre><div>');
-            createLinkButton().prependTo(content);
-            tooltip($('#btnR3'), content);
-
-            content = $('<div><pre><code>--生成 insert  的 sql 语句\n--若 某一列值为 null,则sql语句也添加null值。' + sqlBuildInsert + '</code></pre><div>');
-            createLinkButton().prependTo(content);
-            tooltip($('#btnR4'), content);
-
-
-            content = $("<div><pre><code>--以txt文件返回结果集。\n--在要返回的字符串特别长的时候，使用此方法。\n\n--(1)指定列、行、表的分隔符，和返回的文件的名称（默认为sql.txt）\nselect '' fieldSeparator, '' rowSeparator,'' tableSeparator,'sql.txt' fileName;\n\n--(2)获取数据的语句\nselect * from T_User</code></pre><div>");
-            tooltip($('#btnR6'), content);
-
+            content = $('<div><pre><code>可通过SqlRunConfig指定配置\nfileName和separator只在导出txt数据时有效\n\n\ndemo:\n' + toXmlStr(sqlDemo) + '</code></pre></div>');
+            createLinkButton('加载Demo语句', sqlDemo).prependTo(content);
+            tooltip($('#btn_export'), content);
+            $('#txtSql').val(sqlDemo);
         });
 
     </script>
@@ -266,48 +268,50 @@ select 11 as PID,'任务目录' as DataTitle,'0' as DateValue;";
                         <ul>
                             <li>(1).执行前请先备份数据库。</li>
                             <li>(2).请仔细斟酌要执行的sql语句。</li>
-                            <li>(3).请在系统管理员的监护下执行此操作。</li>                     
+                            <li>(3).请在系统管理员的监护下执行此操作。</li>
                         </ul>
                     </td>
                     <td rowspan="2">
-                        
-             <textarea rows="10" cols="100" id="txtSql">
-/* [SqlRun.Config.tableName:aaa,bbb,bbb,bbb,b] [fileName:数据导出]  */ 
-select 1 as name union all select 2 </textarea>
+                        <textarea rows="15" cols="100" id="txtSql"> </textarea>
                         <br />
-
                     </td>
                 </tr>
                 <tr>
                     <td style="text-align: left">
                         <table class="tbBtn">
                             <tr>
-                                <td>
+                                <td colspan="2">
                                     <a iconcls="icon-reload" class="easyui-linkbutton" href="#" onclick="javascript:$('#txtSql').val('');">清空语句</a>
-                                </td>
-                                <td>                                   
                                 </td>
                             </tr>
                             <tr>
-                                <td>
+                                <td colspan="2" style="padding-top:5px;">
                                     <a iconcls="icon-ok" class="easyui-linkbutton" href="#" onclick="javascript:execSql('Execute');">执行并显示影响行数</a>
                                 </td>
-                                <td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding-top:5px;">
                                     <a iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:execSql('ExecuteDataSet');">执行并显示结果集</a>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2">
-                                    <a id="btnR2" iconcls="icon-sum" class="easyui-linkbutton" href="#" onclick="javascript:exportData();">导出数据</a>
-
+                                <td colspan="2" style="padding-top:5px;">
+                                    <a iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:loadSql('/sqler/SqlRun/sql/1.GenerateTable.sql');">加载mssql表结构导出语句</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding-top:5px;">
+                                    <a iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:loadSql('/sqler/SqlRun/sql/2.GenerateTriggerFunctionProcedureView.sql');">加载mssql触发器函数等导出语句</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding-top:5px;">
+                                    <a id="btn_export" iconcls="icon-sum" class="easyui-linkbutton" href="#" onclick="javascript:exportData();">导出数据</a>
                                     <input type='radio' name='exportFileType' value="sqlite" />sqlite
                                     <input type='radio' name='exportFileType' value="excel" />excel
-                                    <input type='radio' name='exportFileType' value="txt"  checked="checked"/>txt
-
+                                    <input type='radio' name='exportFileType' value="txt" checked="checked" />txt
                                 </td>
-                                 
                             </tr>
-                            
                         </table>
                     </td>
                 </tr>

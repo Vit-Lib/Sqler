@@ -1,11 +1,11 @@
 -------------------
---2.Éú³É´¥·¢Æ÷¡¢º¯Êı¡¢´æ´¢¹ı³Ì¡¢ÊÓÍ¼µÄ´´½¨Óï¾ä
+--2.ç”Ÿæˆè§¦å‘å™¨ã€å‡½æ•°ã€å­˜å‚¨è¿‡ç¨‹ã€è§†å›¾çš„åˆ›å»ºè¯­å¥
 --2.GenerateTriggerFunctionProcedureView.sql
 -- by lith on 2020-09-28 v2.0
 -------------------
 
 
---(1)Ö¸¶¨ÁĞ¡¢ĞĞ¡¢±íµÄ·Ö¸ô·û£¬ºÍ·µ»ØµÄÎÄ¼şµÄÃû³Æ
+--(1)æŒ‡å®šåˆ—ã€è¡Œã€è¡¨çš„åˆ†éš”ç¬¦ï¼Œå’Œè¿”å›çš„æ–‡ä»¶çš„åç§°
 /*
 <SqlRunConfig>
 
@@ -19,7 +19,7 @@
 
 
 
--- Ìí¼Ó G O£¨ÉĞ²»Ê¹ÓÃ£©
+-- æ·»åŠ  G Oï¼ˆå°šä¸ä½¿ç”¨ï¼‰
 <tableSeparator>*G</tableSeparator>
 <tableSeparator>O*</tableSeparator>
 <tableSeparator>/
@@ -35,23 +35,23 @@ G</tableSeparator>
 
 
 
---(2)»ñÈ¡Êı¾İµÄÓï¾ä
+--(2)è·å–æ•°æ®çš„è¯­å¥
 
 declare @IDStart int;
 declare @IDNext int;
---¶¨Òåtext Ö¸Õë   
+--å®šä¹‰text æŒ‡é’ˆ   
 declare @ptrval BINARY(16)
 declare @sqlNext varchar(8000)
 
 
 SELECT  Identity(int,1,1) [ID],
     o.xtype,
-(CASE o.xtype WHEN 'X' THEN 'À©Õ¹´æ´¢¹ı³Ì' WHEN 'TR' THEN '´¥·¢Æ÷' WHEN 'PK' THEN 'Ö÷¼ü' WHEN 'F' THEN 'Íâ¼ü' WHEN 'C' THEN 'Ô¼Êø' WHEN 'V' THEN 'ÊÓÍ¼' WHEN 'FN' THEN 'º¯Êı-±êÁ¿' WHEN 'IF' THEN 'º¯Êı-ÄÚÇ¶' WHEN 'TF' THEN 'º¯Êı-±íÖµ' ELSE '´æ´¢¹ı³Ì' END)
- AS [ÀàĞÍ]
-, o.name AS [¶ÔÏóÃû]
-, o.crdate AS [´´½¨Ê±¼ä]
-, o.refdate AS [¸ü¸ÄÊ±¼ä]
-,convert(text,c.[text]) AS [ÉùÃ÷Óï¾ä]
+(CASE o.xtype WHEN 'X' THEN 'æ‰©å±•å­˜å‚¨è¿‡ç¨‹' WHEN 'TR' THEN 'è§¦å‘å™¨' WHEN 'PK' THEN 'ä¸»é”®' WHEN 'F' THEN 'å¤–é”®' WHEN 'C' THEN 'çº¦æŸ' WHEN 'V' THEN 'è§†å›¾' WHEN 'FN' THEN 'å‡½æ•°-æ ‡é‡' WHEN 'IF' THEN 'å‡½æ•°-å†…åµŒ' WHEN 'TF' THEN 'å‡½æ•°-è¡¨å€¼' ELSE 'å­˜å‚¨è¿‡ç¨‹' END)
+ AS [ç±»å‹]
+, o.name AS [å¯¹è±¡å]
+, o.crdate AS [åˆ›å»ºæ—¶é—´]
+, o.refdate AS [æ›´æ”¹æ—¶é—´]
+,convert(text,c.[text]) AS [å£°æ˜è¯­å¥]
 into #tb
 FROM dbo.sysobjects o LEFT OUTER JOIN
 dbo.syscomments c ON o.id = c.id
@@ -64,12 +64,12 @@ WHERE (o.xtype IN ('X', 'TR', 'C', 'V', 'F', 'IF', 'TF', 'FN', 'P', 'PK')) AND
 while(1=1)
 begin
 set @IDStart=null;
- 	select top 1 @IDStart=start.[ID], @IDNext=nex.[ID], @ptrval=TEXTPTR(start.[ÉùÃ÷Óï¾ä]),@sqlNext=convert(varchar(8000),nex.[ÉùÃ÷Óï¾ä])        
-	from #tb start,#tb nex where start.[ID]<nex.[ID] and  start.[xtype]=nex.[xtype] and  start.[¶ÔÏóÃû]=nex.[¶ÔÏóÃû];
+ 	select top 1 @IDStart=start.[ID], @IDNext=nex.[ID], @ptrval=TEXTPTR(start.[å£°æ˜è¯­å¥]),@sqlNext=convert(varchar(8000),nex.[å£°æ˜è¯­å¥])        
+	from #tb start,#tb nex where start.[ID]<nex.[ID] and  start.[xtype]=nex.[xtype] and  start.[å¯¹è±¡å]=nex.[å¯¹è±¡å];
 
  	if( @IDStart is null) break;
 
-	UPDATETEXT #tb.[ÉùÃ÷Óï¾ä] @ptrval NULL 0 @sqlNext;
+	UPDATETEXT #tb.[å£°æ˜è¯­å¥] @ptrval NULL 0 @sqlNext;
 	delete #tb where [id]=@IDNext;
 
 end
@@ -77,12 +77,12 @@ end
 
 
   
---(x.1)´¥·¢Æ÷
+--(x.1)è§¦å‘å™¨
 select ('
 
 
-/* ´¥·¢Æ÷ */') comment;
-select [ÉùÃ÷Óï¾ä]  from #tb   where xtype='TR';
+/* è§¦å‘å™¨ */') comment;
+select [å£°æ˜è¯­å¥]  from #tb   where xtype='TR';
 
 
 
@@ -90,13 +90,13 @@ select [ÉùÃ÷Óï¾ä]  from #tb   where xtype='TR';
 
 
 
---(x.2)º¯Êı
+--(x.2)å‡½æ•°
 select ('
 
 
-/* º¯Êı */') comment;
-select [ÉùÃ÷Óï¾ä]  from #tb   where xtype='FN';
-select [ÉùÃ÷Óï¾ä]  from #tb   where xtype='TF';
+/* å‡½æ•° */') comment;
+select [å£°æ˜è¯­å¥]  from #tb   where xtype='FN';
+select [å£°æ˜è¯­å¥]  from #tb   where xtype='TF';
 
 
 
@@ -105,12 +105,12 @@ select [ÉùÃ÷Óï¾ä]  from #tb   where xtype='TF';
 
 
 
---(x.3)´æ´¢¹ı³Ì
+--(x.3)å­˜å‚¨è¿‡ç¨‹
 select ('
 
 
-/* ´æ´¢¹ı³Ì */') comment;
-select [ÉùÃ÷Óï¾ä]   from #tb   where xtype='P';
+/* å­˜å‚¨è¿‡ç¨‹ */') comment;
+select [å£°æ˜è¯­å¥]   from #tb   where xtype='P';
 
 
 
@@ -118,12 +118,12 @@ select [ÉùÃ÷Óï¾ä]   from #tb   where xtype='P';
 
 
 
---(x.4)ÊÓÍ¼ £¨¿¼ÂÇ ÒÀ¸½¹ØÏµ£©
+--(x.4)è§†å›¾ ï¼ˆè€ƒè™‘ ä¾é™„å…³ç³»ï¼‰
 select ('
 
 
-/* ÊÓÍ¼ */') comment;
-select identity(int,1,1) [id],[¶ÔÏóÃû] [name], convert(smallint,null) SortCode  into #tmp_Enty  from #tb   where xtype='V'; 
+/* è§†å›¾ */') comment;
+select identity(int,1,1) [id],[å¯¹è±¡å] [name], convert(smallint,null) SortCode  into #tmp_Enty  from #tb   where xtype='V'; 
 
  
 SELECT distinct  o.[name],  p.[name]  dependOn
@@ -148,7 +148,7 @@ begin
 end
 update #tmp_Enty   set SortCode=@sc+1  where SortCode is null;
  
-select [ÉùÃ÷Óï¾ä]  from #tb inner join #tmp_Enty on  #tb.¶ÔÏóÃû=#tmp_Enty.[name] order by SortCode;
+select [å£°æ˜è¯­å¥]  from #tb inner join #tmp_Enty on  #tb.å¯¹è±¡å=#tmp_Enty.[name] order by SortCode;
 
 drop table #tmp_Enty;
 drop table #tmp_R;

@@ -1,12 +1,12 @@
 -------------------
---1.Éú³É½¨±íÓï¾ä
+--1.ç”Ÿæˆå»ºè¡¨è¯­å¥
 --1.GenerateTable.sql
--- º¬ ±í×Ö¶Î¡¢×Ö¶Î±¸×¢¡¢Ä¬ÈÏÖµÔ¼Êø ¡¢uniqueÔ¼Êø¡¢primary keyÔ¼Êø
+-- å« è¡¨å­—æ®µã€å­—æ®µå¤‡æ³¨ã€é»˜è®¤å€¼çº¦æŸ ã€uniqueçº¦æŸã€primary keyçº¦æŸ
 -- by lith on 2020-09-28 v2.0
 -------------------
 
 
---(1)Ö¸¶¨ÁĞ¡¢ĞĞ¡¢±íµÄ·Ö¸ô·û£¬ºÍ·µ»ØµÄÎÄ¼şµÄÃû³Æ
+--(1)æŒ‡å®šåˆ—ã€è¡Œã€è¡¨çš„åˆ†éš”ç¬¦ï¼Œå’Œè¿”å›çš„æ–‡ä»¶çš„åç§°
 /*
 <SqlRunConfig>
 
@@ -20,7 +20,7 @@
 
 
 
--- Ìí¼Ó G O£¨ÉĞ²»Ê¹ÓÃ£©
+-- æ·»åŠ  G Oï¼ˆå°šä¸ä½¿ç”¨ï¼‰
 <tableSeparator>*G</tableSeparator>
 <tableSeparator>O*</tableSeparator>
 <tableSeparator>/
@@ -32,7 +32,7 @@ G</tableSeparator>
 
 
 
---(2)»ñÈ¡Êı¾İµÄÓï¾ä
+--(2)è·å–æ•°æ®çš„è¯­å¥
 
 create table #Proc_S_TableStruct_ColInfo([col_id] int,[col_name] varchar(200),[col_typename] varchar(200),[col_len] int,[col_identity] int,[col_seed] int,[col_increment] int,[collation] varchar(200),[col_null] int,[col_DefaultValue] varchar(2000),[ConstraintName_DefaultValue]  varchar(200),[ExtendedProperty] varchar(4000),[ConstraintName_PrimaryKey] varchar(200),[ConstraintName_Unique] varchar(200))
  
@@ -45,7 +45,7 @@ create table #Proc_S_TableStruct_SqlCreateTb([id] int identity(1,1),sql varchar(
 
 
 
---(3)Ñ­»·´¦Àí¸÷¸ö±í
+--(3)å¾ªç¯å¤„ç†å„ä¸ªè¡¨
 select  [Name] into #Proc_S_TableStruct_tbName from sysobjects where [type] = 'U'  and [Name]!='dtproperties';
 
 declare @tbName varchar(100); 
@@ -61,7 +61,7 @@ begin
 	set @tbIndex=@tbIndex+1;
 
 
-    --(x.2)»ñÈ¡±íĞÅÏ¢
+    --(x.2)è·å–è¡¨ä¿¡æ¯
 
 	set @tbName=( SELECT top 1  [Name] from #Proc_S_TableStruct_tbName)
 	if @tbName is null 
@@ -69,7 +69,7 @@ begin
 	delete  #Proc_S_TableStruct_tbName  where [Name]=@tbName;
 
 
-	--(x.2.1) »ñÈ¡×Ö¶Î»ù´¡ĞÅÏ¢ 
+	--(x.2.1) è·å–å­—æ®µåŸºç¡€ä¿¡æ¯ 
 	insert into #Proc_S_TableStruct_MShelpcolumns  exec sp_MShelpcolumns @tbName;  
  
 	select [col_id],[col_name],col_typename,col_len,col_identity,col_seed,col_increment,collation   
@@ -80,18 +80,18 @@ begin
 	truncate table #Proc_S_TableStruct_MShelpcolumns;
 
 
-	--£¨x.2.2£©  »ñÈ¡×Ö¶ÎµÄ±¸×¢
+	--ï¼ˆx.2.2ï¼‰  è·å–å­—æ®µçš„å¤‡æ³¨
 	select objname [col_name],[value] [ExtendedProperty] into #Proc_S_TableStruct_Property  from ::fn_listextendedproperty(null,N'user',N'dbo',N'table',@tbName,N'column',null) where 1=1
 
 
-	--£¨x.2.3£©Ö÷Âë ºÍ Î¨Ò» Ô¼Êø ¡£ CONSTRAINT_TYPE£º  'PRIMARY KEY' ºÍ 'UNIQUE'
+	--ï¼ˆx.2.3ï¼‰ä¸»ç  å’Œ å”¯ä¸€ çº¦æŸ ã€‚ CONSTRAINT_TYPEï¼š  'PRIMARY KEY' å’Œ 'UNIQUE'
 	select  t1.COLUMN_NAME [col_name],t2.CONSTRAINT_TYPE ,t1.Constraint_Name
 	into #Proc_S_TableStruct_Constraint
 	from information_schema.key_column_usage t1 
 	left join information_schema.table_constraints t2 on t1.Constraint_Name=t2.Constraint_Name 
 	where t1.TABLE_NAME=@tbName
 
-	--£¨x.2.4£© ºÏ²¢×îÖÕ½á¹¹Êı¾İ
+	--ï¼ˆx.2.4ï¼‰ åˆå¹¶æœ€ç»ˆç»“æ„æ•°æ®
 	insert into #Proc_S_TableStruct_ColInfo
 	select c.*
 	,convert(varchar(8000) , p.[ExtendedProperty])
@@ -104,27 +104,27 @@ begin
 
  
 
-	--(x.2.5)ÇåÀíÊı¾İ
+	--(x.2.5)æ¸…ç†æ•°æ®
 	drop  table #Proc_S_TableStruct_Col;
 	drop  table #Proc_S_TableStruct_Property;
 	drop  table #Proc_S_TableStruct_Constraint;
 
 
 
-	--(x.3)Êä³ö
+	--(x.3)è¾“å‡º
 	select ('
 
 
 
 
-/* ['+  CONVERT(varchar(10),@tbIndex)+'/'+ CONVERT(varchar(10),@tbCount) +']´´½¨±í '+@tbName+' */
+/* ['+  CONVERT(varchar(10),@tbIndex)+'/'+ CONVERT(varchar(10),@tbCount) +']åˆ›å»ºè¡¨ '+@tbName+' */
 ') comment;
 
 
 
-	--(x.3.1)½¨±í
+	--(x.3.1)å»ºè¡¨
 	select ('
-/* ´´½¨±í×Ö¶Î */') comment;
+/* åˆ›å»ºè¡¨å­—æ®µ */') comment;
 
 	insert into #Proc_S_TableStruct_SqlCreateTb(sql)
 	select '
@@ -135,7 +135,7 @@ create table [dbo].['+@tbName+'] ( ';
 	select 
 	' ['+[col_name]+'] ['+[col_typename]+']'
 
-	-- [ÀàĞÍ] (³¤¶È)
+	-- [ç±»å‹] (é•¿åº¦)
 	+(case when(0!=charindex('char',col_typename)) then (case when [col_len]=0 then '(MAX)' else ' ('+convert(varchar(100),[col_len])+')' end)  else '' end)  
 
 	-- IDENTITY(2010,100)
@@ -162,9 +162,9 @@ create table [dbo].['+@tbName+'] ( ';
  
 
 
-	--(.3.2)Ä¬ÈÏÖµÔ¼Êø
+	--(.3.2)é»˜è®¤å€¼çº¦æŸ
 	select ('
-/* Ä¬ÈÏÖµÔ¼Êø */') comment;
+/* é»˜è®¤å€¼çº¦æŸ */') comment;
 	select ('
 alter table '+ quotename(@tbName)
 	+' add constraint '+quotename(ConstraintName_DefaultValue)
@@ -176,9 +176,9 @@ alter table '+ quotename(@tbName)
 
  
  
-	--(.3.3)uniqueÔ¼Êø              ALTER TABLE table_a ADD unique(aID);
+	--(.3.3)uniqueçº¦æŸ              ALTER TABLE table_a ADD unique(aID);
 	select ('
-/* uniqueÔ¼Êø */') comment;
+/* uniqueçº¦æŸ */') comment;
 	select ('
 alter table '+ quotename(@tbName)
 	+' add unique( '+quotename([col_name])+')'
@@ -188,10 +188,10 @@ alter table '+ quotename(@tbName)
 
 
  
-	--(.3.3)primary keyÔ¼Êø
+	--(.3.3)primary keyçº¦æŸ
 	--'ALTER TABLE ['+@tbName+'] ADD CONSTRAINT PK__'+@tbName+'_'+@colName+'__lit17032317 PRIMARY KEY CLUSTERED (['+@colName+']) '
 	select ('
-/* primary keyÔ¼Êø */') comment;
+/* primary keyçº¦æŸ */') comment;
 	select('
 alter table '+ quotename(@tbName)
 	+' add constraint '+quotename(ConstraintName_PrimaryKey)

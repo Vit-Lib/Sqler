@@ -10,6 +10,7 @@ using Vit.Extensions;
 using Vit.Orm.Dapper;
 using Sqler.Module.Sqler.Logical.MessageWrite;
 using Sqler.Module.Sqler.Logical.DbPort;
+using System.Collections.Generic;
 
 namespace App.Module.Sqler.Controllers.SqlRun
 {
@@ -57,6 +58,18 @@ namespace App.Module.Sqler.Controllers.SqlRun
                     ds = conn.ExecuteDataSet(sql);
                 }
 
+
+                #region SqlRunConfig
+                var sqlRunConfig = DbPortLogical.GetSqlRunConfig(sql);
+                if (sqlRunConfig.TryGetValue("tableNames", out var value))
+                {
+                    var tableNames = value.Deserialize<List<string>>();
+                    for (var t = 0; t < tableNames.Count && t < ds.Tables.Count; t++)
+                    {
+                        ds.Tables[t].TableName = tableNames[t];
+                    }
+                }
+                #endregion
 
                 #region build html
                 StringBuilder builder = new StringBuilder("<div class=\"easyui-tabs\">");
@@ -153,9 +166,6 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
             DbPortLogical.ExportData(SendMsg, connInfo.type, connInfo.ConnectionString, exportFileType, sql);
         }
-
-
-
         #endregion
 
 

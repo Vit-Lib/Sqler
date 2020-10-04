@@ -4,7 +4,7 @@
     /* 数据库类型，可为  mysql mssql sqlite */
     "//type": "sqlite",
     /* 连接字符串 */
-    "ConnectionString": "data source=Data\\db.sqlite3"
+    "ConnectionString": "data source=Data\\db.sqlite"
   },
 
   "dbComment": {

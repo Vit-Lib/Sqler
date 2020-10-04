@@ -1,4 +1,6 @@
 ﻿{
   /* wwwroot静态文件类型映射配置,可不指定  */
-  ".sqlite3": "application/octet-stream"
+  ".sqlite3": "application/octet-stream",
+  ".sqlite": "application/octet-stream",
+  ".sql": "text/plain"
 }

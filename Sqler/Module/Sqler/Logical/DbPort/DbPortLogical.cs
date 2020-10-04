@@ -6,7 +6,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.Common;
 using Vit.Core.Util.ComponentModel.Model;
@@ -21,9 +20,9 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
 
 
-        static int? commandTimeout => Vit.Orm.Dapper.DbHelp.CommandTimeout;
+        public static int? commandTimeout => Vit.Orm.Dapper.DbHelp.CommandTimeout;
 
-        static readonly int batchRowCount = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<int?>("Sqler.DbPort_batchRowCount") ?? 100000;
+        public static readonly int batchRowCount = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<int?>("Sqler.DbPort_batchRowCount") ?? 100000;
 
 
 
@@ -172,7 +171,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
                 if (string.IsNullOrWhiteSpace(outFileName))
                 {
-                    outFileName = "DbPort_Export_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")  + ".sqlite3";
+                    outFileName = "DbPort_Export_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")  + ".sqlite";
                 }           
               
                 filePathList.Add(outFileName);
@@ -389,9 +388,11 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
                                         SendMsg(EMsgType.Nomal,  "                      current              sum");
                                         SendMsg(EMsgType.Nomal, $"            imported: {importedRowCount }      {importedSumRowCount }");
-                                        SendMsg(EMsgType.Nomal, $"            total :   {sourceRowCount ?? 0}    {sourceSumRowCount ?? 0}");
+                                    
                                         if (sourceRowCount.HasValue || sourceSumRowCount.HasValue) 
                                         {
+                                            SendMsg(EMsgType.Nomal, $"            total :   {sourceRowCount ?? 0}    {sourceSumRowCount ?? 0}");
+
                                             SendMsg(EMsgType.Nomal, $@"            progress:   {
                                                 (sourceRowCount.HasValue ? (((float)importedRowCount) / sourceRowCount.Value * 100).ToString("f2") : "    ")
                                                 }%   {

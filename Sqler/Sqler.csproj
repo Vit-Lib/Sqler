@@ -63,7 +63,7 @@
   
   
   <ItemGroup>
-    <None Update="Data\db.sqlite3">
+    <None Update="Data\db.sqlite">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Data\SqlServerBackup\readme.txt">
