@@ -114,7 +114,7 @@ namespace App
                 {
                     Content = apiRet.Serialize(),//这里是把异常抛出。也可以不抛出。
                     StatusCode = StatusCodes.Status200OK,
-                    ContentType = "application/json"
+                    ContentType = "application/json; charset=utf-8"
                 };
             }
             context.ExceptionHandled = true;
