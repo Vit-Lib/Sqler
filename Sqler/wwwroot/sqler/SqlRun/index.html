@@ -98,7 +98,7 @@
 
         function exportData() {
             //exportFileType:  sqlite excel txt
-            var exportFileType = $('input[name=exportFileType][checked]').val();
+            var exportFileType = $('input[name=exportFileType]:checked').val();
 
             var param = {
                 sql: $('#txtSql').val(),
