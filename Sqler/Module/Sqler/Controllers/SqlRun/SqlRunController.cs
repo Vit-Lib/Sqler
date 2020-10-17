@@ -69,19 +69,22 @@ namespace App.Module.Sqler.Controllers.SqlRun
                             }
                         }
                         tran.Commit();
+
+                        sendMsg(EMsgType.Title, "语句执行成功。");
+                        sendMsg(EMsgType.Nomal, "");
+                        sendMsg(EMsgType.Nomal, "");                 
                     }
                     catch (Exception ex)
                     {
                         Logger.Error(ex);
                         tran.Rollback();
-                        throw;
+                        sendMsg(EMsgType.Err, "执行出错，原因：");
+                        sendMsg(EMsgType.Err, ex.GetBaseException().Message);                 
                     }
                 }
             }
 
-            sendMsg(EMsgType.Title, "语句执行成功。");
-            sendMsg(EMsgType.Nomal, "");
-            sendMsg(EMsgType.Nomal, "");
+         
         }
 
         #endregion
