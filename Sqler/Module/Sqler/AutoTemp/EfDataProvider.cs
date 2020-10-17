@@ -97,7 +97,7 @@ namespace App.Module.Sqler.AutoTemp.Logical
                 
                 var queryable = db.GetQueryableByTableName(tableName);
 
-                var pageData = queryable.Ef_ToPageData(filter, sort, page, (object ori) => { return ori.ConvertBySerialize<JObject>(); });
+                var pageData = queryable.Ef_ToPageDataAsync(filter, sort, page, (object ori) => { return ori.ConvertBySerialize<JObject>(); }).Result;
 
                 #region _childrenCount       
                 if (isTree)

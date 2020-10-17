@@ -31,13 +31,14 @@ namespace App.Module.Sqler.Controllers.DbPort
         }
         #endregion
 
- 
+
 
 
 
         #region (x.1) Export
 
         [HttpPost("Export")]
+        [HttpGet("Export")]
         public void Export
            ([FromForm] string type,
             [FromForm]string ConnectionString,

@@ -76,9 +76,23 @@ namespace App
             else
             {
                 app.UseHsts();
-            } 
+            }
 
-          
+
+            #region api for appVersion
+            app.Map("/version", appBuilder =>
+            {
+                appBuilder.Run(async context =>
+                {
+                    var version= System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion;
+                    await context.Response.WriteAsync(version);
+                });
+
+            });
+            #endregion
+
+
+
             //app.UseHttpsRedirection();
             app.UseMvc();
 

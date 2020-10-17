@@ -153,11 +153,12 @@ namespace App.Module.Sqler.Controllers.SqlRun
         #endregion
 
 
-         
+
 
         #region Export
 
         [HttpPost("Export")]
+        [HttpGet("Export")]
         public void Export([FromForm]string sql, [FromForm]string exportFileType)
         {
             Response.ContentType = "text/html;charset=utf-8";

@@ -346,10 +346,10 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                         do
                         {
                             //TODO
-                            var schemaTable=dr.GetSchemaTable();
+                            //var schemaTable=dr.GetSchemaTable();
 
                             //(x.x.1)
-                            var tableName = inTableNames?[curTbIndex] ?? "table" + curTbIndex;
+                            var tableName = outTableNames?[curTbIndex] ?? "table" + curTbIndex;
                             int? sourceRowCount = rowCounts?[curTbIndex];
 
                             #region (x.x.2)logical
