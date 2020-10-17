@@ -114,6 +114,21 @@
             });
         }
 
+        
+        function executeOnline() {
+            
+            var param = {
+                sql: $('#txtSql').val()
+            };
+            if (!param.sql) {
+                theme.tips('请输入sql语句');
+                return;
+            }
+
+            theme.confirm('确定在新页面执行sql语句？', function () {
+                openForm({ url: '/sqler/sqlrun/ExecuteOnline', reqParam: param, type: 'post' });
+            });
+        }
 
 
 
@@ -286,7 +301,7 @@ select 3 as name union all select 4;                   \n\
                             </tr>
                             <tr>
                                 <td colspan="2" style="padding-top:5px;">
-                                    <a iconcls="icon-ok" class="easyui-linkbutton" href="#" onclick="javascript:execSql('Execute');">执行并显示影响行数</a>
+                                    <a iconcls="icon-ok" class="easyui-linkbutton" href="#" onclick="javascript:execSql('Execute');">执行</a> <a iconcls="icon-ok" class="easyui-linkbutton" href="#" onclick="javascript:executeOnline();">新页面执行</a>
                                 </td>
                             </tr>
                             <tr>
@@ -296,12 +311,12 @@ select 3 as name union all select 4;                   \n\
                             </tr>
                             <tr>
                                 <td colspan="2" style="padding-top:5px;">
-                                    <a iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:loadSql('/sqler/SqlRun/sql/1.GenerateTable.sql');">加载mssql表结构导出语句</a>
+                                    <a iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:loadSql('/sqler/SqlRun/sql/1.GenerateTable.sql');">加载mssql表结构导出器</a>
                                 </td>
                             </tr>
                             <tr>
                                 <td colspan="2" style="padding-top:5px;">
-                                    <a iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:loadSql('/sqler/SqlRun/sql/2.GenerateTriggerFunctionProcedureView.sql');">加载mssql触发器函数等导出语句</a>
+                                    <a iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:loadSql('/sqler/SqlRun/sql/2.GenerateTriggerFunctionProcedureView.sql');">加载mssql触发器函数等导出器</a>
                                 </td>
                             </tr>
                             <tr>

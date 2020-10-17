@@ -102,15 +102,16 @@ namespace App.Module.Sqler.Logical.SqlVersion
                         //  /*GO*/GO 中间可出现多个空白字符，包括空格、制表符、换页符等          
                         //Regex reg = new Regex("/\\*GO\\*/\\s*GO");
                         Regex reg = new Regex("\\sGO\\s");
-                        foreach (String sql in reg.Split(versionResult.code))
+                        var sqls = reg.Split(versionResult.code);
+                        foreach (String sql in sqls)                      
                         {
                             if (String.IsNullOrEmpty(sql.Trim()))
                             {
-                                sendMsg(EMsgType.Title, $"(x.{(index++)})空语句，无需执行.");
+                                sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]空语句，无需执行.");
                             }
                             else
                             {
-                                sendMsg(EMsgType.Title, $"(x.{(index++)}) 执行sql语句：");
+                                sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]执行sql语句：");
                                 sendMsg(EMsgType.Nomal, sql);
                                 var result = "执行结果:" + conn.Execute(sql, null, tran) + " Lines effected.";
                                 execResult.AppendLine(result);

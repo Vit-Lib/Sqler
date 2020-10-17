@@ -2,7 +2,7 @@
 --1.生成建表语句
 --1.GenerateTable.sql
 -- 含 表字段、字段备注、默认值约束 、unique约束、primary key约束
--- by lith on 2020-09-28 v2.0
+-- by lith on 2020-10-17 v2.1
 -------------------
 
 
@@ -136,7 +136,7 @@ create table [dbo].['+@tbName+'] ( ';
 	' ['+[col_name]+'] ['+[col_typename]+']'
 
 	-- [类型] (长度)
-	+(case when(0!=charindex('char',col_typename)) then (case when [col_len]=0 then '(MAX)' else ' ('+convert(varchar(100),[col_len])+')' end)  else '' end)  
+	+(case when(0!=charindex('char',col_typename)) then (case when [col_len]<=0 then '(MAX)' else ' ('+convert(varchar(100),[col_len])+')' end)  else '' end)  
 
 	-- IDENTITY(2010,100)
 	+(case when(1=col_identity) then ' IDENTITY('+convert(varchar(100),[col_seed]) +','+ convert(varchar(100),[col_increment]) +')' else '' end)  

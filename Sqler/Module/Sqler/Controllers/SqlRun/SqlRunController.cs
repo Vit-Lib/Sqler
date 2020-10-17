@@ -11,6 +11,8 @@ using Vit.Orm.Dapper;
 using Sqler.Module.Sqler.Logical.MessageWrite;
 using Sqler.Module.Sqler.Logical.DbPort;
 using System.Collections.Generic;
+using Vit.Core.Module.Log;
+using System.Text.RegularExpressions;
 
 namespace App.Module.Sqler.Controllers.SqlRun
 {
@@ -21,24 +23,80 @@ namespace App.Module.Sqler.Controllers.SqlRun
     [ApiController]
     public class SqlRunController : ControllerBase
     {
-    
 
+        #region ExecuteOnline
+
+        [HttpPost("ExecuteOnline")]
+        [HttpGet("ExecuteOnline")]
+        public void ExecuteOnline([FromForm]string sql)
+        {
+            if (string.IsNullOrEmpty(sql)) sql = Request.Query["sql"];
+
+            Response.ContentType = "text/html;charset=utf-8";
+
+            var connInfo = SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config");
+
+            ExecSql(SendMsg, sql);
+        }
+
+        static void ExecSql( Action<EMsgType, String> sendMsg,string sqlCode)
+        {
+
+            using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config")))
+            {
+                conn.Open();
+                using (var tran = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        int index = 1;
+                        //  /*GO*/GO 中间可出现多个空白字符，包括空格、制表符、换页符等          
+                        //Regex reg = new Regex("/\\*GO\\*/\\s*GO");
+                        Regex reg = new Regex("\\sGO\\s");
+                        var sqls = reg.Split(sqlCode);
+                        foreach (String sql in sqls)
+                        {
+                            if (String.IsNullOrEmpty(sql.Trim()))
+                            {
+                                sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]空语句，无需执行.");
+                            }
+                            else
+                            {
+                                sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]执行sql语句：");
+                                sendMsg(EMsgType.Nomal, sql);
+                                var result = "执行结果:" + conn.Execute(sql, null, tran) + " Lines effected.";
+                                sendMsg(EMsgType.Title, result);
+                            }
+                        }
+                        tran.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                        tran.Rollback();
+                        throw;
+                    }
+                }
+            }
+
+            sendMsg(EMsgType.Title, "语句执行成功。");
+            sendMsg(EMsgType.Nomal, "");
+            sendMsg(EMsgType.Nomal, "");
+        }
+
+        #endregion
 
         #region Execute
 
         [HttpPost("Execute")]
+        [HttpGet("Export")]
         public ApiReturn<int> Execute([FromForm]string sql)
         {
-            try
+            if (string.IsNullOrEmpty(sql)) sql = Request.Query["sql"];
+
+            using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config")))
             {
-                using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config")))
-                {
-                    return conn.Execute(sql);
-                }
-            }
-            catch (System.Exception ex)
-            {
-                return (SsError)ex.GetBaseException();
+                return conn.Execute(sql);
             }
         }
 
@@ -161,6 +219,9 @@ namespace App.Module.Sqler.Controllers.SqlRun
         [HttpGet("Export")]
         public void Export([FromForm]string sql, [FromForm]string exportFileType)
         {
+            if (string.IsNullOrEmpty(sql)) sql = Request.Query["sql"];
+            if (string.IsNullOrEmpty(exportFileType)) exportFileType = Request.Query["exportFileType"];
+
             Response.ContentType = "text/html;charset=utf-8";
 
             var connInfo = SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config");

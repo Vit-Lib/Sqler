@@ -22,7 +22,7 @@ namespace App.Module.Sqler.Controllers.SqlVersion
         #endregion
 
 
-        #region 升級
+        #region 升级
 
         /// <summary>
         /// 升级
