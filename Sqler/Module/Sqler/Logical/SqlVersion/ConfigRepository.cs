@@ -77,7 +77,13 @@ namespace App.Module.Sqler.Logical.SqlVersion
         /// 连接字符串[field:ig-class=TextArea]
         /// </summary>
         public String ConnectionString { get; set; }
- 
+
+
+        /// <summary>
+        /// 是否可修改sql语句
+        /// </summary>
+        public String SqlCodeEditable { get; set; }
+
 
     }
 

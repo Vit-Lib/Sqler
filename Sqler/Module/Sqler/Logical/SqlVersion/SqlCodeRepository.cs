@@ -45,7 +45,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
         public ApiReturn Delete(SqlCodeModel m)
         {
-            throw new System.NotImplementedException();
+            throw new Exception("不可删除sql语句");
         }
 
         public ApiReturn<PageData<SqlCodeModel>> GetList(List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page)
@@ -77,8 +77,20 @@ namespace App.Module.Sqler.Logical.SqlVersion
             return m;
         }
 
+
+
+
         public ApiReturn<SqlCodeModel> Update(SqlCodeModel m)
         {
+
+            if (SqlerHelp.sqlerConfig.GetByPath<bool?>("SqlVersion.Config.SqlCodeEditable") == false) 
+            {
+                throw new Exception("不可修改sql语句");
+            }
+
+
+            m.time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
             var data = dataSource.root["data"].Value<JArray>();
             var modelFromDb = data[m.version.Value - 1];
 
@@ -117,7 +129,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
         public String author { get; set; }
 
         /// <summary>
-        /// sql代码
+        /// sql语句
         /// [field:ig-class=TextArea] 
         /// [field:ig-param={height:200}]
         /// </summary>
@@ -132,7 +144,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
 
         /// <summary>
-        /// 添加时间[field:editable=false]
+        /// 操作时间[field:editable=false]
         /// </summary>
         public string time { get; set; } 
 
