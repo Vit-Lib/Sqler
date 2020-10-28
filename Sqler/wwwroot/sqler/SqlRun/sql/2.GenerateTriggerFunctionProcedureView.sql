@@ -1,7 +1,7 @@
 -------------------
 --2.生成触发器、函数、存储过程、视图的创建语句
 --2.GenerateTriggerFunctionProcedureView.sql
--- by lith on 2020-10-17 v2.1
+-- by lith on 2020-10-28 v2.2
 -------------------
 
 

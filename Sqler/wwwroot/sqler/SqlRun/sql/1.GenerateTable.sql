@@ -1,8 +1,8 @@
 -------------------
 --1.生成建表语句
 --1.GenerateTable.sql
--- 含 表字段、字段备注、默认值约束 、unique约束、primary key约束
--- by lith on 2020-10-17 v2.1
+-- 含 表字段、字段备注、默认值约束 、unique约束、primary key约束、索引
+-- by lith on 2020-10-28 v2.2
 -------------------
 
 
@@ -32,7 +32,7 @@ G</tableSeparator>
 
 
 
---(2)获取数据的语句
+--(2)创建表用来存储数据库表的结构
 
 create table #Proc_S_TableStruct_ColInfo([col_id] int,[col_name] varchar(200),[col_typename] varchar(200),[col_len] int,[col_identity] int,[col_seed] int,[col_increment] int,[collation] varchar(200),[col_null] int,[col_DefaultValue] varchar(2000),[ConstraintName_DefaultValue]  varchar(200),[ExtendedProperty] varchar(4000),[ConstraintName_PrimaryKey] varchar(200),[ConstraintName_Unique] varchar(200))
  
@@ -40,14 +40,49 @@ create table #Proc_S_TableStruct_MShelpcolumns([col_name] varchar(200),[col_id] 
 
 create table #Proc_S_TableStruct_SqlCreateTb([id] int identity(1,1),sql varchar(700));
 
- 
-
-
-
-
---(3)循环处理各个表
 select  [Name] into #Proc_S_TableStruct_tbName from sysobjects where [type] = 'U'  and [Name]!='dtproperties';
 
+
+ 
+--(3)获取所有的索引
+SELECT
+SCHEMA_NAME(t.schema_id) AS [架构名称],
+t.name AS [数据表名称],
+i.name AS [索引名称],
+i.type_desc as [索引类型],
+i.is_primary_key as [是否主键],
+i.is_unique as [是否唯一],
+i.is_unique_constraint as [是否外键],
+STUFF(REPLACE(REPLACE((
+SELECT QUOTENAME(c.name) + CASE WHEN ic.is_descending_key = 1 THEN ' DESC' ELSE '' END AS [data()] 
+FROM sys.index_columns AS ic
+INNER JOIN sys.columns AS c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
+WHERE ic.object_id = i.object_id AND ic.index_id = i.index_id AND ic.is_included_column = 0
+ORDER BY ic.key_ordinal
+FOR XML PATH
+), '<row>', ', '), '</row>', ''), 1, 2, '') AS [索引键列表],
+STUFF(REPLACE(REPLACE((
+SELECT QUOTENAME(c.name) AS [data()]
+FROM sys.index_columns AS ic
+INNER JOIN sys.columns AS c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
+WHERE ic.object_id = i.object_id AND ic.index_id = i.index_id AND ic.is_included_column = 1
+ORDER BY ic.index_column_id
+FOR XML PATH
+), '<row>', ', '), '</row>', ''), 1, 2, '') AS [包含列信息],
+u.user_seeks,
+u.user_scans,
+u.user_lookups,
+u.user_updates
+into #Proc_S_TableStruct_Index
+FROM sys.tables AS t
+INNER JOIN sys.indexes AS i ON t.object_id = i.object_id
+LEFT JOIN sys.dm_db_index_usage_stats AS u ON i.object_id = u.object_id AND i.index_id = u.index_id
+WHERE t.is_ms_shipped = 0
+AND i.type <> 0;
+
+
+
+--(4)循环处理各个表
 declare @tbName varchar(100); 
 declare @tbCount int; 
 declare @tbIndex int; 
@@ -58,11 +93,11 @@ set @tbIndex=0;
 while 1=1
 begin
 
+    --(x.1)
 	set @tbIndex=@tbIndex+1;
 
 
     --(x.2)获取表信息
-
 	set @tbName=( SELECT top 1  [Name] from #Proc_S_TableStruct_tbName)
 	if @tbName is null 
 		break;	 
@@ -81,7 +116,10 @@ begin
 
 
 	--（x.2.2）  获取字段的备注
-	select objname [col_name],[value] [ExtendedProperty] into #Proc_S_TableStruct_Property  from ::fn_listextendedproperty(null,N'user',N'dbo',N'table',@tbName,N'column',null) where 1=1
+	select objname [col_name],[value] [ExtendedProperty] 
+	into #Proc_S_TableStruct_Property 
+	from ::fn_listextendedproperty(null,N'user',N'dbo',N'table',@tbName,N'column',null) 
+	where 1=1;
 
 
 	--（x.2.3）主码 和 唯一 约束 。 CONSTRAINT_TYPE：  'PRIMARY KEY' 和 'UNIQUE'
@@ -89,7 +127,8 @@ begin
 	into #Proc_S_TableStruct_Constraint
 	from information_schema.key_column_usage t1 
 	left join information_schema.table_constraints t2 on t1.Constraint_Name=t2.Constraint_Name 
-	where t1.TABLE_NAME=@tbName
+	where t1.TABLE_NAME=@tbName;
+
 
 	--（x.2.4） 合并最终结构数据
 	insert into #Proc_S_TableStruct_ColInfo
@@ -100,7 +139,7 @@ begin
 	from  #Proc_S_TableStruct_Col c
 	left join #Proc_S_TableStruct_Property p on c.[col_name] Collate Database_Default =p.[col_name]
 	left join #Proc_S_TableStruct_Constraint conPrimary on c.[col_name]=conPrimary.[col_name] and conPrimary.[CONSTRAINT_TYPE]='PRIMARY KEY'
-	left join #Proc_S_TableStruct_Constraint conUnique on c.[col_name]=conUnique.[col_name]  and conUnique.[CONSTRAINT_TYPE]='UNIQUE'
+	left join #Proc_S_TableStruct_Constraint conUnique on c.[col_name]=conUnique.[col_name]  and conUnique.[CONSTRAINT_TYPE]='UNIQUE';
 
  
 
@@ -122,7 +161,7 @@ begin
 
 
 
-	--(x.3.1)建表
+	--(x.x.1)建表
 	select ('
 /* 创建表字段 */') comment;
 
@@ -162,8 +201,9 @@ create table [dbo].['+@tbName+'] ( ';
  
 
 
-	--(.3.2)默认值约束
+	--(x.x.2)默认值约束
 	select ('
+
 /* 默认值约束 */') comment;
 	select ('
 alter table '+ quotename(@tbName)
@@ -176,8 +216,9 @@ alter table '+ quotename(@tbName)
 
  
  
-	--(.3.3)unique约束              ALTER TABLE table_a ADD unique(aID);
+	--(x.x.3)unique约束              ALTER TABLE table_a ADD unique(aID);
 	select ('
+
 /* unique约束 */') comment;
 	select ('
 alter table '+ quotename(@tbName)
@@ -188,9 +229,10 @@ alter table '+ quotename(@tbName)
 
 
  
-	--(.3.3)primary key约束
+	--(x.x.4)primary key约束
 	--'ALTER TABLE ['+@tbName+'] ADD CONSTRAINT PK__'+@tbName+'_'+@colName+'__lit17032317 PRIMARY KEY CLUSTERED (['+@colName+']) '
 	select ('
+
 /* primary key约束 */') comment;
 	select('
 alter table '+ quotename(@tbName)
@@ -202,6 +244,26 @@ alter table '+ quotename(@tbName)
 	
 
 
+    --(x.x.5)索引
+	-- CREATE NONCLUSTERED INDEX IX_Tileset_File ON dbo.Tileset_File
+	-- (professionalTreeId,	creator DESC,floorId)
+	-- WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	select ('
+
+/* 索引 */') comment;
+	select('
+CREATE NONCLUSTERED INDEX '+ quotename([索引名称])
+	+' ON '+quotename([架构名称])+'.'+quotename([数据表名称])
+	+'
+('+[索引键列表]+')'
+	+'
+WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY];
+') [sql]
+	from #Proc_S_TableStruct_Index
+    where [索引类型]='NONCLUSTERED' and [数据表名称]=@tbName;
+ 
+
+
 	truncate table #Proc_S_TableStruct_ColInfo;
 
 
@@ -210,7 +272,7 @@ end
 
 
 
-
+drop table #Proc_S_TableStruct_Index;
 drop table #Proc_S_TableStruct_tbName;
 drop table #Proc_S_TableStruct_MShelpcolumns;
 drop table #Proc_S_TableStruct_ColInfo;
