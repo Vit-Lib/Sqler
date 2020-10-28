@@ -8,7 +8,7 @@ using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Extensions;
 using Vit.Orm.Dapper;
-using Sqler.Module.Sqler.Logical.MessageWrite;
+using Sqler.Module.Sqler.Logical.Message;
 using Sqler.Module.Sqler.Logical.DbPort;
 using System.Collections.Generic;
 using Vit.Core.Module.Log;
@@ -238,7 +238,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
         #region Util
         void SendMsg(EMsgType type, String msg)
         {
-            MessageWriteHelp.SendMsg(Response, type, msg);
+            MessageHelp.SendMsg(Response, type, msg);
         }
         #endregion
 

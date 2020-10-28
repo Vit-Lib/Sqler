@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System;
-using System.Linq;
 using System.Text;
 using Vit.Core.Module.Log;
 
-namespace Sqler.Module.Sqler.Logical.MessageWrite
+namespace Sqler.Module.Sqler.Logical.Message
 {
-    public class MessageWriteHelp
+    public class MessageHelp
     {
         
 
@@ -46,7 +45,8 @@ namespace Sqler.Module.Sqler.Logical.MessageWrite
                         Response.WriteAsync("<br/>" + escapeMsg);
                         break;
                     }
-            }      //Response.Flush();  
+            }      
+            //Response.Flush();  
 
         }
 

@@ -1,5 +1,5 @@
 ﻿using Dapper;
-using Sqler.Module.Sqler.Logical.MessageWrite;
+using Sqler.Module.Sqler.Logical.Message;
 using System;
 using System.Collections.Generic;
 using System.Data;

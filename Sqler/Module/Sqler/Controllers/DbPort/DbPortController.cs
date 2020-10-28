@@ -12,7 +12,7 @@ using Dapper;
 using Vit.Db.Excel;
 using System.Data;
 using System.Linq;
-using Sqler.Module.Sqler.Logical.MessageWrite;
+using Sqler.Module.Sqler.Logical.Message;
 using Sqler.Module.Sqler.Logical.DbPort;
 
 namespace App.Module.Sqler.Controllers.DbPort
@@ -27,7 +27,7 @@ namespace App.Module.Sqler.Controllers.DbPort
         #region Util
         void SendMsg(EMsgType type, String msg)
         {
-            MessageWriteHelp.SendMsg(Response, type, msg);
+            MessageHelp.SendMsg(Response, type, msg);
         }
         #endregion
 

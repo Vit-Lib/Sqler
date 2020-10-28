@@ -40,7 +40,7 @@
       /*连接字符串 */
       "ConnectionString": "data source=Data\\db.sqlite",
 
-      /* 是否可修改sql语句，默认true */
+      /* 是否可修改sql（若为false则不可修改） */
       "SqlCodeEditable": false
     }
 

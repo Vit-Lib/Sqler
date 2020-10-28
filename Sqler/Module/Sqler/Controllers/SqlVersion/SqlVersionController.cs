@@ -4,7 +4,7 @@ using System.Linq;
 using System;
 using Microsoft.AspNetCore.Http;
 using App.Module.Sqler.Logical.SqlVersion;
-using Sqler.Module.Sqler.Logical.MessageWrite;
+using Sqler.Module.Sqler.Logical.Message;
 
 namespace App.Module.Sqler.Controllers.SqlVersion
 {
@@ -17,7 +17,7 @@ namespace App.Module.Sqler.Controllers.SqlVersion
         #region Util
         void SendMsg(EMsgType type, String msg)
         {
-            MessageWriteHelp.SendMsg(Response, type, msg, false);
+            MessageHelp.SendMsg(Response, type, msg, false);
         }
         #endregion
 

@@ -1,5 +1,5 @@
 ﻿using App.Module.Sqler.Logical.SqlVersion;
-using Sqler.Module.Sqler.Logical.MessageWrite;
+using Sqler.Module.Sqler.Logical.Message;
 using System;
 using Vit.ConsoleUtil;
 

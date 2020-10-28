@@ -80,7 +80,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
 
         /// <summary>
-        /// 是否可修改sql语句
+        /// 是否可修改sql
         /// </summary>
         public String SqlCodeEditable { get; set; }
 
