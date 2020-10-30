@@ -38,9 +38,9 @@
             <input type='submit' value='导出数据' />
         </form>
         <pre>
-        <code>  
-                type:              数据库类型，可为  mysql mssql sqlite
-                ConnectionString:  数据库连接字符串 
+            <code>
+                type:              数据库类型，可为 mysql、mssql、sqlite
+                ConnectionString:  数据库连接字符串
             </code>
     </pre>
     </fieldset>
@@ -49,16 +49,17 @@
         <legend>数据导入工具</legend>
         <form method='post' enctype='multipart/form-data' action='/sqler/DbPort/Import' target='_blank'>
             <table>
+                <tr><td><label title="从哪里导入数据">文件</label></td><td><input type='file' name='files' /></td></tr>
                 <tr>
-                    <td>type</td>
+                    <td><label title="数据导入到何处">type</label></td>
                     <td>
                         <input type='radio' name='type' value="mysql" />mysql
                         <input type='radio' name='type' value="mssql" checked="checked" />mssql
                         <input type='radio' name='type' value="sqlite" />sqlite
                     </td>
                 </tr>
-                <tr><td>ConnectionString</td><td><textarea name='ConnectionString' cols="100" rows="2"></textarea></td></tr>
-                <tr><td>导入文件</td><td><input type='file' name='files' /></td></tr>
+                <tr><td><label title="数据导入到何处">ConnectionString</label></td><td><textarea name='ConnectionString' cols="100" rows="2"></textarea></td></tr>
+
                 <tr><td>createTable</td><td><input type='checkbox' name='createTable' /></td></tr>
                 <tr><td>delete</td><td><input type='checkbox' name='delete' /></td></tr>
                 <tr><td>truncate</td><td><input type='checkbox' name='truncate' /></td></tr>
@@ -68,9 +69,9 @@
         </form>
         <pre>
             <code>
-                type:               数据库类型，可为  mysql mssql sqlite
-                ConnectionString:   数据库连接字符串
-                file:               导入文件可为sqlite、xls、xlsx等
+                file:               从哪里导入数据。导入文件可为 sqlite、xls、xlsx等
+                type:               数据导入到何处。数据库类型，可为 mysql、mssql、sqlite
+                ConnectionString:   数据导入到何处。数据库连接字符串
                 createTable:        若指定(on)，则在导入数据前自动创建表结构
                 delete:             若指定(on)，则在导入数据前使用delete语句清空待操作的表
                 truncate:           若指定(on)，则在导入数据前使用truncate语句清空待操作的表
