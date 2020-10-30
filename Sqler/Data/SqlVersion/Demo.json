@@ -1,0 +1,43 @@
+{
+  "data": [
+    {
+      "version": 1,
+      "author": "Lith",
+      "code": "/* v1.407 创建表SysData\n    2020-10-09 16:01 Lith\n*/\n\n--(x.1)创建表\nif   object_id('SysData_Data') is null\nCREATE TABLE [SysData_Data] (\n    [id] int NOT NULL IDENTITY,\n    [pId] int NULL,\n    [name] nvarchar(1000) NULL,\n    [value] nvarchar(1000) NULL,\n    [dataCode] nvarchar(100) NULL,\n    [dataGroup] nvarchar(100) NULL,\n    [sortCode] nvarchar(100) NULL,\n    [remarks] nvarchar(1000) NULL,\n    [ext1] nvarchar(1000) NULL,\n    [ext2] nvarchar(1000) NULL,\n    [ext3] nvarchar(1000) NULL,\n    [ext4] nvarchar(1000) NULL,\n    [ext5] nvarchar(1000) NULL,\n    CONSTRAINT [PK_SysData_Data] PRIMARY KEY ([id])\n);\n\n\n\n--(x.2)创建索引\nif not exists (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID('SysData_Data', N'U') and NAME='Index_SysData_Data_pId_dataCode_dataGroup')\n\tcreate index Index_SysData_Data_pId_dataCode on SysData_Data(pId,dataCode,dataGroup) ;\n\n\n\n\n\n\n\n\n\n ",
+      "comment": "创建表SysData",
+      "time": "2020-10-30 15:24:22",
+      "attr_type": "",
+      "attr_Opt": "",
+      "attr_obj": "",
+      "attr_obj2": "",
+      "attr_isSys": "",
+      "attr_ext": ""
+    },
+    {
+      "version": 2,
+      "author": "Lith",
+      "code": "/* v1.407 添加字段（Tileset_File.sortCode）\n2020-08-31 15:12 Lith\n*/ \nIF COL_LENGTH('Tileset_File', 'sortCode') IS NULL\n\tALTER TABLE Tileset_File ADD  sortCode varchar(100);\n",
+      "comment": "添加字段（Tileset_File.sortCode）",
+      "time": "2020-10-30 15:24:04",
+      "attr_type": "",
+      "attr_Opt": "",
+      "attr_obj": "",
+      "attr_obj2": "",
+      "attr_isSys": "",
+      "attr_ext": ""
+    },
+    {
+      "version": 3,
+      "author": "Lith",
+      "code": "/* v1.407 删除字段（Tileset_File.sortCode）\n2020-08-31 15:12 Lith \n*/ \nIF COL_LENGTH('Tileset_File', 'sortCode') IS NOT NULL\n\talter table Tileset_File drop column sortCode;",
+      "comment": "删除字段（Tileset_File.sortCode）",
+      "time": "2020-10-30 15:21:42",
+      "attr_type": "",
+      "attr_Opt": "",
+      "attr_obj": "",
+      "attr_obj2": "",
+      "attr_isSys": "",
+      "attr_ext": ""
+    }
+  ]
+}

@@ -53,7 +53,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
  
-    <Content Update="Data\SqlVersion\auth.json">
+    <Content Update="Data\SqlVersion\Demo.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
  

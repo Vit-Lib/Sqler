@@ -41,7 +41,7 @@
       "ConnectionString": "data source=Data\\db.sqlite",
 
       /* 是否可修改sql（若为false则不可修改） */
-      "SqlCodeEditable": false
+      "SqlCodeEditable": true
     }
 
   }
