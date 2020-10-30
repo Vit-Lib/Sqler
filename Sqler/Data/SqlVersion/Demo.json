@@ -29,9 +29,9 @@
     {
       "version": 3,
       "author": "Lith",
-      "code": "/* v1.407 删除字段（Tileset_File.sortCode）\n2020-08-31 15:12 Lith \n*/ \nIF COL_LENGTH('Tileset_File', 'sortCode') IS NOT NULL\n\talter table Tileset_File drop column sortCode;",
-      "comment": "删除字段（Tileset_File.sortCode）",
-      "time": "2020-10-30 15:21:42",
+      "code": "/* v1.407 删除字段（SYS_User.suppliermcode）\n2020-10-30 15:28 Lith \n*/ \n\ndeclare @tableName varchar(50),@columnName varchar(50);\nset @tableName='SYS_User'; set @columnName='suppliermcode';\n\nif col_length(@tableName, @columnName) is not null\nbegin\n\t--(x.1)删除约束（若存在）\n\tdeclare @constraintName varchar(50)\n\tselect  @constraintName =obj.name from sysobjects obj join syscolumns col on obj.id = col.cdefault\n\twhere col.id = object_id(@tableName) and col.name =@columnName;\n\n\tif(@constraintName is not null)\n\texec('alter table '+@tableName+' drop constraint ' + @constraintName);\n\n\n\t--(x.2)删除字段\n\texec('alter table '+@tableName+' drop column ' + @columnName); \n \n end\n",
+      "comment": "删除字段（SYS_User.suppliermcode）",
+      "time": "2020-10-30 15:48:07",
       "attr_type": "",
       "attr_Opt": "",
       "attr_obj": "",
