@@ -2,7 +2,7 @@
 using System.IO;
 using Vit.Core.Module.Log;
 
-namespace App.Module.Sqler.Logical.SqlBackup
+namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 {
     public static class SqlServerLogical
     {

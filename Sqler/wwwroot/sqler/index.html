@@ -84,37 +84,58 @@
                 ]
             },
 
+
             {
                 "attributes": {
                     "url": ""
                 },
-                "text": "<img mid='" + Math.random() + "' />备份与还原",
+                "text": "<img mid='" + Math.random() + "' />SqlServer备份还原",
                 "iconCls": "icon-null",
                 "children": [
                     {
                         "attributes": {
-                            "url": "/autoTemp/Scripts/autoTemp/item.html?apiRoute=/autoTemp/data/Sqler_SqlBackup_Config/{action}&mode=update&id=1"
+                            "url": "/autoTemp/Scripts/autoTemp/item.html?apiRoute=/autoTemp/data/Sqler_SqlBackup_SqlServerBackup_Config/{action}&mode=update&id=1"
                         },
-                        "text": "<img  mid='" + Math.random() + "' />备份与还原配置",
+                        "text": "<img  mid='" + Math.random() + "' />SqlServer备份还原配置",
                         "iconCls": "icon-null"
                     },
                     {
                         "attributes": {
                             "url": "/autoTemp/Scripts/autoTemp/list.html?apiRoute=/sqler/Sqler_SqlBackup_SqlServerBackup/{action}"
                         },
-                        "text": "<img  mid='" + Math.random() + "' />SqlServer备份与还原",
+                        "text": "<img  mid='" + Math.random() + "' />SqlServer备份还原",
+                        "iconCls": "icon-null"
+                    }
+                ]
+            },
+
+
+            {
+                "attributes": {
+                    "url": ""
+                },
+                "text": "<img mid='" + Math.random() + "' />MySql备份还原",
+                "iconCls": "icon-null",
+                "children": [
+
+                    {
+                        "attributes": {
+                            "url": "/autoTemp/Scripts/autoTemp/item.html?apiRoute=/autoTemp/data/Sqler_SqlBackup_MySqlBackup_Config/{action}&mode=update&id=1"
+                        },
+                        "text": "<img  mid='" + Math.random() + "' />MySql备份还原配置",
                         "iconCls": "icon-null"
                     },
                     {
                         "attributes": {
-                            "url": ""
+                            "url": "/autoTemp/Scripts/autoTemp/list.html?apiRoute=/sqler/Sqler_SqlBackup_MySqlBackup/{action}"
                         },
-                        "text": "<img  mid='" + Math.random() + "' />MySql备份与还原",
+                        "text": "<img  mid='" + Math.random() + "' />MySql备份还原",
                         "iconCls": "icon-null"
                     }
                 ]
-            },            
-             {
+            },
+
+            {
                 "attributes": {
                     "url": ""
                 },
@@ -134,7 +155,7 @@
                         },
                         "text": "<img  mid='" + Math.random() + "' />数据直导",
                         "iconCls": "icon-null"
-                    }                    
+                    }
                 ]
             },
             {
@@ -157,7 +178,7 @@
                         },
                         "text": "<img  mid='" + Math.random() + "' />模块管理",
                         "iconCls": "icon-null"
-                    },                    
+                    },
                     {
                         "attributes": {
                             "url": "/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/Sqler_SqlVersion_VersionInfo/{action}"
@@ -272,7 +293,7 @@
 
 
 
-       
+
 
         $(function () {
 
@@ -284,8 +305,8 @@
         });
 
 
-         //(x.x)获取版本号
-        $.get('/version', function (version) { $(function () { $('#appVersion').text(' - '+version); });      });
+        //(x.x)获取版本号
+        $.get('/version', function (version) { $(function () { $('#appVersion').text(' - ' + version); }); });
 
 
     </script>

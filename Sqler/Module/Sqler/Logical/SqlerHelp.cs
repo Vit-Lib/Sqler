@@ -1,5 +1,4 @@
-﻿using App.Module.AutoTemp.Logical.Repository;
-using App.Module.Sqler.Logical.DataEditor;
+﻿using App.Module.Sqler.Logical.DataEditor;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -39,7 +38,14 @@ namespace App.Module.Sqler.Logical
 
         #region (Member.3)SqlServerBackup     
 
-        public static Func<System.Data.IDbConnection> SqlServerBackup_CreateDbConnection { get; private set; }
+        public static System.Data.IDbConnection SqlServerBackup_CreateDbConnection() 
+        {
+            //Vit.Orm.Dapper.ConnectionFactory.GetConnectionCreator(new ConnectionInfo { type = "mssql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") });
+
+            return Vit.Orm.Dapper.ConnectionFactory.GetConnection(new ConnectionInfo { type = "mssql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") });
+        }
+
+
 
         public static MsDbMng SqlServerBackup_CreateMsDbMng(System.Data.IDbConnection conn)
         {
@@ -59,6 +65,39 @@ namespace App.Module.Sqler.Logical
         }
 
         #endregion
+
+
+
+
+
+
+        #region (Member.4)MySqlBackup     
+
+        public static System.Data.IDbConnection MySqlBackup_CreateDbConnection()
+        {          
+
+            return Vit.Orm.Dapper.ConnectionFactory.GetConnection(new ConnectionInfo { type = "mysql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.ConnectionString") });
+        }
+
+        public static string MySqlBackup_BackupPath
+        {
+            get
+            {
+                var BackupPath = sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.BackupPath");
+                if (string.IsNullOrWhiteSpace(BackupPath))
+                {
+                    BackupPath = GetDataFilePath("MySqlBackup");
+                }            
+
+                return BackupPath;
+            }
+        }
+        #endregion
+
+
+
+
+
 
 
         #region InitEnvironment      
@@ -95,11 +134,7 @@ namespace App.Module.Sqler.Logical
                                            
 
             #region init member        
-            sqlerConfig = new JsonFile(GetDataFilePath("sqler.json"));
-
-            SqlServerBackup_CreateDbConnection =
-            //Vit.Orm.Dapper.ConnectionFactory.GetConnectionCreator(new ConnectionInfo { type = "mssql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") });
-            () => Vit.Orm.Dapper.ConnectionFactory.GetConnection(new ConnectionInfo { type = "mssql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") });
+            sqlerConfig = new JsonFile(GetDataFilePath("sqler.json"));        
 
             #endregion
 
@@ -151,7 +186,11 @@ namespace App.Module.Sqler.Logical
             {
                 //config
                 global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
-                    new global::App.Module.Sqler.Logical.SqlBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_Config"));
+                    new global::App.Module.Sqler.Logical.SqlBackup.SqlServerBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_SqlServerBackup_Config"));
+
+                global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                   new global::App.Module.Sqler.Logical.SqlBackup.MySqlBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_MySqlBackup_Config"));
+
                 Logger.Info("[Sqler.AutoTemp]inited SqlBackup!");
             }
             #endregion

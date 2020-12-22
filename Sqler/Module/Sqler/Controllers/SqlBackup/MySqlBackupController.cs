@@ -10,17 +10,46 @@ using System.Linq;
 using System;
 using App.Module.Sqler.Logical;
 using Vit.Orm.Dapper.DbMng;
-using App.Module.Sqler.Logical.SqlBackup.SqlServerBackup;
+using System.IO;
+using Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup;
 
 namespace App.Module.Sqler.Controllers.SqlBackup
 {
     /// <summary>
     /// 
     /// </summary>
-    [Route("sqler/Sqler_SqlBackup_SqlServerBackup")] 
+    [Route("sqler/Sqler_SqlBackup_MySqlBackup")] 
     [ApiController]
-    public class SqlServerBackupController : ControllerBase
+    public class MySqlBackupController : ControllerBase
     {
+
+        #region BackupFile_GetFileInfos
+        List<BackupFileInfo> BackupFile_GetFileInfos() 
+        {
+            List<BackupFileInfo> backupFiles;
+
+            DirectoryInfo directoryInfo = new DirectoryInfo(SqlerHelp.MySqlBackup_BackupPath);
+            if (!directoryInfo.Exists)
+            {
+                backupFiles = new List<BackupFileInfo>();
+            }
+            else
+            {
+                backupFiles = (from f in directoryInfo.GetFiles()
+                               select new BackupFileInfo
+                               {
+                                   fileName = f.Name,
+                                   size = (float)f.Length / 1024f / 1024f,
+                                   createTime = f.CreationTime
+                               }).ToList();
+            }
+
+            return backupFiles;
+        }
+
+        #endregion
+
+
 
         #region autoTemp      
 
@@ -50,9 +79,8 @@ namespace App.Module.Sqler.Controllers.SqlBackup
                 },
 
                 list:{
-                    rowButtons:[                            
-                            {text:'还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/Restore?fileName={id}'    }     },
-                            {text:'远程还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/RemoteRestore?fileName={id}'    }     }
+                    rowButtons:[                          
+                            {text:'远程还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/RemoteRestore?fileName={id}'    }     }
                     ]
                 },
 
@@ -72,22 +100,11 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
             #region (x.1)获取数据库状态
-            EDataBaseState dbState;
-            int processCount=0;
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                dbState =dbMng.GetDataBaseState();
-                if(dbState== EDataBaseState.online) processCount = dbMng.GetProcessCount();
-            }
+            EDataBaseState dbState= EDataBaseState.unknow;            
             #endregion            
-
-
-
          
             #region (x.2)list.title
-            var title = $"Sql Server数据库管理工具（Sqler_SqlBackup_SqlServerBackup）-- 数据库状态：{ dbState }";
-            if (dbState == EDataBaseState.online) title += " -- 连接数：" + processCount;
+            var title = $"MySql数据库管理工具（Sqler_SqlBackup_MySqlBackup）-- 数据库状态：{ dbState }";       
             controllerConfig["list"]["title"] = title;
             #endregion
 
@@ -99,7 +116,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             #region (x.x.1)CreateDataBase
             if (Array.IndexOf(new[] { EDataBaseState.none, EDataBaseState.unknow }, dbState) >= 0)
             {
-                var strButton = "{text:'创建数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/CreateDataBase'    }     }";
+                var strButton = "{text:'创建数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/CreateDataBase'    }     }";
                 buttons.Add(strButton.Deserialize<JObject>());
             }
             #endregion
@@ -107,50 +124,18 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             #region (x.x.2)DropDataBase
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
             {
-                var strButton = "{text:'删除数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/DropDataBase'    }     }";
+                var strButton = "{text:'删除数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/DropDataBase'    }     }";
                 buttons.Add(strButton.Deserialize<JObject>());
             }
             #endregion
 
-            #region (x.x.3)AttachDataBase
-            if (Array.IndexOf(new[] { EDataBaseState.offline, EDataBaseState.unknow }, dbState) >= 0)
-            {
-                var strButton = "{text:'附加数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/AttachDataBase'    }     }";
-                buttons.Add(strButton.Deserialize<JObject>());
-            }
-            #endregion
-
-
-            #region (x.x.4)DetachDataBase
-            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
-            {
-                var strButton = "{text:'分离数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/DetachDataBase'    }     }";
-                buttons.Add(strButton.Deserialize<JObject>());
-            }
-            #endregion
-
-            #region (x.x.5)KillProcess
-            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
-            {
-                var strButton = "{text:'强制关闭数据库连接进程',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/KillProcess'    }     }";
-                buttons.Add(strButton.Deserialize<JObject>());
-            }
-            #endregion
-
-
-            #region (x.x.6)Backup
-            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
-            {
-                var strButton = "{text:'备份数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/Backup'    }     }";
-                buttons.Add(strButton.Deserialize<JObject>());
-            }
-            #endregion
-
+          
+ 
 
             #region (x.x.8)RemoteBackup
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
             {
-                var strButton = "{text:'远程备份数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/RemoteBackup'    }     }";
+                var strButton = "{text:'远程备份数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/RemoteBackup'    }     }";
                 buttons.Add(strButton.Deserialize<JObject>());
             }
             #endregion
@@ -176,18 +161,15 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         {
             try
             {
+                //(x.1)获取所有backupFiles
+                List<BackupFileInfo> backupFiles= BackupFile_GetFileInfos(); 
+
+
+                //(x.2)条件筛选
                 var page_ = page.Deserialize<PageInfo>();
                 var filter_ = filter.Deserialize<List<DataFilter>>() ?? new List<DataFilter>();
                 var sort_ = sort.Deserialize<SortItem[]>();
 
-
-                List<BackupFileInfo> backupFiles;
-
-                using (var conn= SqlerHelp.SqlServerBackup_CreateDbConnection())
-                {
-                    var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                    backupFiles=dbMng.BackupFile_GetFileInfos();
-                }
                 var queryable = backupFiles.AsQueryable();
 
                 var pageData = queryable.Where(filter_).Sort(sort_).Select(m => m.ConvertBySerialize<JObject>()).ToPageData(page_);
@@ -221,13 +203,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         {
             try
             {
-                List<BackupFileInfo> backupFiles;
-
-                using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-                {
-                    var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                    backupFiles = dbMng.BackupFile_GetFileInfos();
-                }
+                List<BackupFileInfo> backupFiles = BackupFile_GetFileInfos();
 
                 var model = backupFiles.AsQueryable().Where(m=>m.fileName==id).FirstOrDefault()?.ConvertBySerialize<JObject>();
                 model["id"] = model["fileName"];
@@ -251,11 +227,12 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         [HttpPut("update")]
         public ApiReturn update([FromBody]JObject model)
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                dbMng.BackupFile_Rename(model["id"].ConvertToString(), model["fileName"].ConvertToString());
-            }
+            string sourceFileName = Path.Combine(SqlerHelp.MySqlBackup_BackupPath, model["id"].ConvertToString());
+            string destFileName = Path.Combine(SqlerHelp.MySqlBackup_BackupPath, model["fileName"].ConvertToString());
+
+            global::System.IO.File.Move(sourceFileName, destFileName);
+
+          
             return true;
         }
         #endregion
@@ -267,14 +244,11 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         /// </summary>
         /// <returns></returns>
         [HttpDelete("delete")]
-        public ApiReturn delete([FromBody]JObject arg)
+        public ApiReturn delete([FromBody]JObject model)
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                string fileName = arg["id"].Value<string>();
-                dbMng.BackupFile_Del(fileName);
-            }
+            string sourceFileName = Path.Combine(SqlerHelp.MySqlBackup_BackupPath, model["id"].ConvertToString());
+            global::System.IO.File.Delete(sourceFileName);
+            
             return true;
         }
         #endregion
@@ -294,7 +268,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         [HttpPost("CreateDataBase")]
         public ApiReturn CreateDataBase()
         {
-            SqlServerLogical.CreateDataBase();
+            MySqlLogical.CreateDataBase();
             return new ApiReturn();
         }
         #endregion
@@ -305,71 +279,20 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         [HttpPost("DropDataBase")]
         public ApiReturn DropDataBase()
         {
-            SqlServerLogical.DropDataBase();
+            MySqlLogical.DropDataBase();
             return new ApiReturn();
         }
         #endregion
 
 
-
-        #region (x.3) AttachDataBase        
-
-        [HttpPost("AttachDataBase")]
-        public ApiReturn AttachDataBase()
-        {
-            SqlServerLogical.AttachDataBase();
-            return new ApiReturn();
-        }
-        #endregion
-
-        #region (x.4) DetachDataBase
-        [HttpPost("DetachDataBase")]
-        public ApiReturn DetachDataBase()
-        {
-            SqlServerLogical.DetachDataBase();
-            return new ApiReturn();
-        }
-        #endregion
-
-
-        #region (x.5) KillProcess
-        [HttpPost("KillProcess")]
-        public ApiReturn KillProcess()
-        {
-            SqlServerLogical.KillProcess();
-            return new ApiReturn();
-        }
-        #endregion
-
-
-
-
-        #region (x.6) Backup
-        [HttpPost("Backup")]
-        public ApiReturn Backup()
-        {
-            SqlServerLogical.Backup();
-            return new ApiReturn();
-        }
-        #endregion
-
-
-        #region (x.7) Restore
-        [HttpPost("Restore")]
-        public ApiReturn Restore([FromQuery]string fileName)
-        {
-            SqlServerLogical.Restore(fileName: fileName);
-            return new ApiReturn();
-        }
-        #endregion
-
+         
 
 
         #region (x.8) RemoteBackup
         [HttpPost("RemoteBackup")]
         public ApiReturn RemoteBackup()
         {
-            SqlServerLogical.RemoteBackup();
+            MySqlLogical.RemoteBackup();
             return new ApiReturn();
         }
         #endregion
@@ -380,7 +303,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         [HttpPost("RemoteRestore")]
         public ApiReturn RemoteRestore([FromQuery]string fileName)
         {
-            SqlServerLogical.RemoteRestore(fileName: fileName);
+            MySqlLogical.RemoteRestore(fileName: fileName);
             return new ApiReturn();
         }
         #endregion
