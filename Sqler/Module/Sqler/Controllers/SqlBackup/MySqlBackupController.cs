@@ -8,10 +8,11 @@ using Vit.Extensions;
 using Vit.Core.Util.ComponentModel.SsError;
 using System.Linq;
 using System;
-using App.Module.Sqler.Logical;
-using Vit.Orm.Dapper.DbMng;
+using App.Module.Sqler.Logical; 
 using System.IO;
 using Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup;
+using Vit.Db.DbMng;
+using Vit.Db.DbMng.MsSql;
 
 namespace App.Module.Sqler.Controllers.SqlBackup
 {
@@ -28,22 +29,11 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         {
             List<BackupFileInfo> backupFiles;
 
-            DirectoryInfo directoryInfo = new DirectoryInfo(SqlerHelp.MySqlBackup_BackupPath);
-            if (!directoryInfo.Exists)
+            using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
             {
-                backupFiles = new List<BackupFileInfo>();
-            }
-            else
-            {
-                backupFiles = (from f in directoryInfo.GetFiles()
-                               select new BackupFileInfo
-                               {
-                                   fileName = f.Name,
-                                   size = (float)f.Length / 1024f / 1024f,
-                                   createTime = f.CreationTime
-                               }).ToList();
-            }
-
+                var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
+                backupFiles = dbMng.BackupFile_GetFileInfos();
+            } 
             return backupFiles;
         }
 
@@ -100,11 +90,20 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
             #region (x.1)获取数据库状态
-            EDataBaseState dbState= EDataBaseState.unknow;            
-            #endregion            
-         
+            EDataBaseState dbState;
+            int processCount = 0;
+            using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
+                dbState = dbMng.GetDataBaseState();
+                if (dbState == EDataBaseState.online) processCount = dbMng.GetProcessCount();
+            }
+            #endregion 
+      
+
             #region (x.2)list.title
-            var title = $"MySql数据库管理工具（Sqler_SqlBackup_MySqlBackup）-- 数据库状态：{ dbState }";       
+            var title = $"MySql备份与还原-- 数据库状态：{ dbState }";
+            if (dbState == EDataBaseState.online) title += " -- 连接数：" + processCount;
             controllerConfig["list"]["title"] = title;
             #endregion
 
@@ -247,8 +246,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         public ApiReturn delete([FromBody]JObject model)
         {
             string sourceFileName = Path.Combine(SqlerHelp.MySqlBackup_BackupPath, model["id"].ConvertToString());
-            global::System.IO.File.Delete(sourceFileName);
-            
+            global::System.IO.File.Delete(sourceFileName);            
             return true;
         }
         #endregion

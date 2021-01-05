@@ -17,7 +17,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 dbMng.CreateDataBase();
                 Logger.Info("Sqler-CreateDataBase");
             }
@@ -32,7 +32,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 dbMng.DropDataBase();
                 Logger.Info("[Sqler]MsDbMng-DropDataBase");
             }       
@@ -48,7 +48,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 dbMng.Attach();
                 Logger.Info("[Sqler]MsDbMng-AttachDataBase");
             }      
@@ -61,7 +61,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 dbMng.Detach();
                 Logger.Info("[Sqler]MsDbMng-DetachDataBase");
             }         
@@ -75,7 +75,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 dbMng.KillProcess();
                 Logger.Info("[Sqler]MsDbMng-KillProcess");
             }       
@@ -91,11 +91,11 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
 
                 if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
                 {
-                    filePath = Path.Combine(dbMng.BackupPath, fileName);
+                    filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }
 
                 filePath = dbMng.Backup(filePath);
@@ -111,11 +111,11 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
 
                 if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
                 {
-                    filePath = Path.Combine(dbMng.BackupPath, fileName);
+                    filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }
                 filePath = dbMng.Restore(filePath);
 
@@ -132,10 +132,10 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
                 {
-                    filePath = Path.Combine(dbMng.BackupPath, fileName);
+                    filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }                
 
                 filePath = dbMng.RemoteBackup(filePath);
@@ -153,11 +153,11 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
 
                 if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
                 {
-                    filePath = Path.Combine(dbMng.BackupPath, fileName);
+                    filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }
 
                 filePath = dbMng.RemoteRestore(filePath);

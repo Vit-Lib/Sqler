@@ -1,13 +1,16 @@
 ﻿using App.Module.Sqler.Logical.DataEditor;
+using MySql.Data.MySqlClient;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.Common;
 using Vit.Core.Util.ConfigurationManager;
+using Vit.Db.DbMng;
+using Vit.Db.DbMng.MsSql;
 using Vit.Extensions;
 using Vit.Orm.Dapper;
-using Vit.Orm.Dapper.DbMng;
+ 
 
 namespace App.Module.Sqler.Logical
 {
@@ -47,7 +50,7 @@ namespace App.Module.Sqler.Logical
 
 
 
-        public static MsDbMng SqlServerBackup_CreateMsDbMng(System.Data.IDbConnection conn)
+        public static MsSqlDbMng SqlServerBackup_CreateDbMng(System.Data.IDbConnection conn)
         {
             var BackupPath = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.BackupPath");
             if (string.IsNullOrWhiteSpace(BackupPath))
@@ -61,7 +64,7 @@ namespace App.Module.Sqler.Logical
                 MdfPath = CommonHelp.GetAbsPath(MdfPath);
             }
 
-            return new MsDbMng(conn, BackupPath, MdfPath);
+            return new MsSqlDbMng(conn, BackupPath, MdfPath);
         }
 
         #endregion
@@ -73,10 +76,21 @@ namespace App.Module.Sqler.Logical
 
         #region (Member.4)MySqlBackup     
 
-        public static System.Data.IDbConnection MySqlBackup_CreateDbConnection()
+        public static MySqlConnection MySqlBackup_CreateDbConnection()
         {          
 
-            return Vit.Orm.Dapper.ConnectionFactory.GetConnection(new ConnectionInfo { type = "mysql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.ConnectionString") });
+            return Vit.Orm.Dapper.ConnectionFactory.GetConnection(new ConnectionInfo { type = "mysql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.ConnectionString") }) as MySqlConnection;
+        }
+
+        public static MySqlDbMng MySqlBackup_CreateDbMng(MySqlConnection conn)
+        {
+            var BackupPath = sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.BackupPath");
+            if (string.IsNullOrWhiteSpace(BackupPath))
+            {
+                BackupPath = GetDataFilePath("MySqlBackup");
+            }
+
+            return new MySqlDbMng(conn, BackupPath);
         }
 
         public static string MySqlBackup_BackupPath

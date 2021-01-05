@@ -1,7 +1,9 @@
-﻿using System;
+﻿using App.Module.Sqler.Logical;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Vit.Core.Module.Log;
 
 namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
 {
@@ -16,7 +18,13 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
         #region (x.1) CreateDataBase         
         public static void CreateDataBase()
         {
-             
+            using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);               
+
+                dbMng.CreateDataBase();
+                Logger.Info("Sqler-CreateDataBase");
+            }
         }
         #endregion
 
@@ -24,7 +32,14 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
         #region (x.2) DropDataBase
         public static void DropDataBase()
         {
-            
+            using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
+
+                dbMng.DropDataBase();
+                Logger.Info("[Sqler]MsDbMng-DropDataBase");
+            }
+
         }
         #endregion
 
@@ -36,18 +51,18 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
 
         public static void RemoteBackup(string filePath = null, string fileName = null)
         {
-            //using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            //{
-            //    var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-            //    if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
-            //    {
-            //        filePath = Path.Combine(dbMng.BackupPath, fileName);
-            //    }
+            using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
+                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
+                {
+                    filePath = dbMng.BackupFile_GetPathByName(fileName);
+                }
 
-            //    filePath = dbMng.RemoteBackup(filePath);
+                filePath = dbMng.RemoteBackup(filePath);
 
-            //    Logger.Info("[Sqler]MsDbMng-RemoteBackup,filePath:" + filePath);
-            //}
+                Logger.Info("[Sqler]MySqlDbMng-RemoteBackup,filePath:" + filePath);
+            }             
         }
         #endregion
 
@@ -57,19 +72,19 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
 
         public static void RemoteRestore(string filePath = null, string fileName = null)
         {
-            //using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            //{
-            //    var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+            using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
 
-            //    if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
-            //    {
-            //        filePath = Path.Combine(dbMng.BackupPath, fileName);
-            //    }
+                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
+                {
+                    filePath = dbMng.BackupFile_GetPathByName(fileName);
+                }
 
-            //    filePath = dbMng.RemoteRestore(filePath);
+                filePath = dbMng.RemoteRestore(filePath);
 
-            //    Logger.Info("[Sqler]MsDbMng-RemoteRestore,filePath:" + filePath);
-            //}
+                Logger.Info("[Sqler]MySqlDbMng-RemoteRestore,filePath:" + filePath);
+            }
         }
         #endregion
 

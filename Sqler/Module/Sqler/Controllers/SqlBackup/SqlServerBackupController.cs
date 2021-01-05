@@ -9,8 +9,9 @@ using Vit.Core.Util.ComponentModel.SsError;
 using System.Linq;
 using System;
 using App.Module.Sqler.Logical;
-using Vit.Orm.Dapper.DbMng;
 using App.Module.Sqler.Logical.SqlBackup.SqlServerBackup;
+using Vit.Db.DbMng.MsSql;
+using Vit.Db.DbMng;
 
 namespace App.Module.Sqler.Controllers.SqlBackup
 {
@@ -21,6 +22,24 @@ namespace App.Module.Sqler.Controllers.SqlBackup
     [ApiController]
     public class SqlServerBackupController : ControllerBase
     {
+
+        #region BackupFile_GetFileInfos
+        List<BackupFileInfo> BackupFile_GetFileInfos()
+        {
+            List<BackupFileInfo> backupFiles;
+
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+                backupFiles = dbMng.BackupFile_GetFileInfos();
+            }
+            return backupFiles;
+        }
+
+        #endregion
+
+
+
 
         #region autoTemp      
 
@@ -76,7 +95,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             int processCount=0;
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 dbState =dbMng.GetDataBaseState();
                 if(dbState== EDataBaseState.online) processCount = dbMng.GetProcessCount();
             }
@@ -86,7 +105,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
          
             #region (x.2)list.title
-            var title = $"Sql Server数据库管理工具（Sqler_SqlBackup_SqlServerBackup）-- 数据库状态：{ dbState }";
+            var title = $"Sql Server备份与还原-- 数据库状态：{ dbState }";
             if (dbState == EDataBaseState.online) title += " -- 连接数：" + processCount;
             controllerConfig["list"]["title"] = title;
             #endregion
@@ -181,13 +200,8 @@ namespace App.Module.Sqler.Controllers.SqlBackup
                 var sort_ = sort.Deserialize<SortItem[]>();
 
 
-                List<BackupFileInfo> backupFiles;
-
-                using (var conn= SqlerHelp.SqlServerBackup_CreateDbConnection())
-                {
-                    var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                    backupFiles=dbMng.BackupFile_GetFileInfos();
-                }
+                List<BackupFileInfo> backupFiles= BackupFile_GetFileInfos();
+                
                 var queryable = backupFiles.AsQueryable();
 
                 var pageData = queryable.Where(filter_).Sort(sort_).Select(m => m.ConvertBySerialize<JObject>()).ToPageData(page_);
@@ -221,13 +235,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         {
             try
             {
-                List<BackupFileInfo> backupFiles;
-
-                using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-                {
-                    var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                    backupFiles = dbMng.BackupFile_GetFileInfos();
-                }
+                List<BackupFileInfo> backupFiles = BackupFile_GetFileInfos();
 
                 var model = backupFiles.AsQueryable().Where(m=>m.fileName==id).FirstOrDefault()?.ConvertBySerialize<JObject>();
                 model["id"] = model["fileName"];
@@ -253,8 +261,14 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
-                dbMng.BackupFile_Rename(model["id"].ConvertToString(), model["fileName"].ConvertToString());
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+                string fileName= model["id"].ConvertToString();
+                string newFileName = model["fileName"].ConvertToString();
+
+
+                string filePathOld = dbMng.BackupFile_GetPathByName(fileName);
+                string filePathNew = dbMng.BackupFile_GetPathByName(newFileName);
+                global::System.IO.File.Move(filePathOld, filePathNew);
             }
             return true;
         }
@@ -271,9 +285,13 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         {
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateMsDbMng(conn);
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 string fileName = arg["id"].Value<string>();
-                dbMng.BackupFile_Del(fileName);
+
+                var filePath = dbMng.BackupFile_GetPathByName(fileName);
+
+                global::System.IO.File.Delete(filePath);
+          
             }
             return true;
         }

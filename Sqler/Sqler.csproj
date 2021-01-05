@@ -24,10 +24,10 @@
   </ItemGroup>
 
   <ItemGroup> 
-    <PackageReference Include="Vit.Db" Version="2.1.1.410" /> 
-    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.410" />
-    <PackageReference Include="Vit.Orm.Dapper" Version="2.1.1.410" />
-    <PackageReference Include="Vit.WebHost" Version="2.1.1.410" />
+    <PackageReference Include="Vit.Db" Version="2.1.1.429" /> 
+    <PackageReference Include="Vit.Db.DbMng" Version="2.1.1.429" /> 
+    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.429" />
+    <PackageReference Include="Vit.WebHost" Version="2.1.1.429" />
   </ItemGroup>
   
   
@@ -78,8 +78,12 @@
     <None Update="Start Sqler.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup> 
- 
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="xcopy  &quot;$(ProjectDir)wwwroot&quot; &quot;$(TargetDir)\wwwroot&quot; /e /i /r /y" />
+  </Target>
+  
    <!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="xcopy  &quot;$(ProjectDir)Data&quot; &quot;$(TargetDir)\Data&quot; /e /i /r /y" />
   </Target>-->
