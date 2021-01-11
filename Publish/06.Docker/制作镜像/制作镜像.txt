@@ -1,0 +1,99 @@
+﻿
+#把本文件所在目录下的文件夹拷贝到 /home/ec2-user/image 
+cd /root
+
+cd image 
+
+export namespace=huyan
+echo $namespace
+
+#构建镜像并推送到 镜像仓库
+
+cd gateway
+docker build -t docker.sers.cloud:10020/${namespace}_gateway:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_gateway:1.0
+cd ..
+
+cd ServiceStation/12.Basis
+docker build -t docker.sers.cloud:10020/${namespace}_basis:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_basis:1.0
+cd ../..
+
+cd ServiceStation/14.Tileset
+docker build -t docker.sers.cloud:10020/${namespace}_tileset:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_tileset:1.0
+cd ../..
+
+cd ServiceStation/20.DevOpsDoc
+docker build -t docker.sers.cloud:10020/${namespace}_devopsdoc:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_devopsdoc:1.0
+cd ../..
+
+cd ServiceStation/21.Bim
+docker build -t docker.sers.cloud:10020/${namespace}_bim:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_bim:1.0
+cd ../..
+
+cd ServiceStation/22.Ast
+docker build -t docker.sers.cloud:10020/${namespace}_ast:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_ast:1.0
+cd ../..
+
+cd ServiceStation/23.DevOps
+docker build -t docker.sers.cloud:10020/${namespace}_devops:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_devops:1.0
+cd ../..
+
+cd ServiceStation/25.Project
+docker build -t docker.sers.cloud:10020/${namespace}_project:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_project:1.0
+cd ../..
+
+cd ServiceStation/26.Statistics
+docker build -t docker.sers.cloud:10020/${namespace}_statistics:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_statistics:1.0
+cd ../..
+
+cd ServiceStation/27.Bim.Tpm.Inspection
+docker build -t docker.sers.cloud:10020/${namespace}_tpm_inspection:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_tpm_inspection:1.0
+cd ../..
+
+cd ServiceStation/27.Bim.Tpm.Maintenance
+docker build -t docker.sers.cloud:10020/${namespace}_tpm_maintenance:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_tpm_maintenance:1.0
+cd ../..
+
+cd ServiceStation/27.Bim.Tpm.Repair
+docker build -t docker.sers.cloud:10020/${namespace}_tpm_repair:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_tpm_repair:1.0
+cd ../..
+
+cd ServiceStation/28.DataEcosystem
+docker build -t docker.sers.cloud:10020/${namespace}_dataecosystem:1.0  . 
+docker push docker.sers.cloud:10020/${namespace}_dataecosystem:1.0
+cd ../..
+ 
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 

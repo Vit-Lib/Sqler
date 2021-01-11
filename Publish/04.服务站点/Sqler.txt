@@ -1,0 +1,138 @@
+http://localhost:4570/sqler/index.html
+
+----------------
+Sqler
+SqlRun
+SqlBackup	
+SqlVersion
+DataEditor
+SqlStation
+DataImport
+
+--------------------------------------------------------------------
+ 
+(x.1)SqlRun
+	(x.x.1)SqlRun配置
+	(x.x.2)SqlRun 
+--------------------------------------------------------------------
+SqlBackup
+(x.2)备份与还原
+	(x.x.1)备份与还原配置
+	(x.x.2)SqlServer备份与还原
+	(x.x.3)MySql备份与还原
+--------------------------------------------------------------------
+DbPort
+(x.3)导入导出工具
+
+--------------------------------------------------------------------
+(x.4)SqlVersion
+	(x.x.1)SqlVersion配置
+	(x.x.2)模块管理 
+	(x.x.3)升级记录		
+--------------------------------------------------------------------
+(x.5)DataEditor
+	(x.x.1)DataEditor配置
+	(x.x.2)Schema
+	(x.x.3)DataEditor
+--------------------------------------------------------------------
+(x.6)SqlStation
+
+
+
+
+
+
+
+菜单demo:
+[
+{    
+    "attributes": {
+        "url": ""
+    },
+    "text": "<img mid='10' />SqlRun",
+    "iconCls": "icon-null",
+    "children": [
+        {           
+            "attributes": {
+                "url": "/autoTemp/Scripts/autoTemp/item.html?apiRoute=/autoTemp/data/Sqler_SqlRun_Config/{action}&mode=update&id=1"
+            },
+            "text": "<img  mid='10_1' />SqlRun配置",
+            "iconCls": "icon-null"
+        },
+        {          
+            "attributes": {
+                "url": "/sqler/SqlRun/index.html"
+            },
+            "text": "<img  mid='10_2' />SqlRun",
+            "iconCls": "icon-null"
+        }
+    ]
+}
+]
+
+
+
+
+
+
+
+
+
+
+
+
+SqlVersion 建表语句
+
+
+sql server:
+
+drop TABLE  sqler_version;
+
+if object_id(N'sqler_version', N'U') is null
+CREATE TABLE   if not exists  sqler_version(
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[module] [nvarchar](100) NULL,
+	[version] [int] NULL,
+	[success] [int] NOT NULL,
+	[result] [nvarchar](100) NULL,
+	[code] [nvarchar](4000) NULL,
+	[exec_time] [datetime] NULL,
+	[remarks] [nvarchar](1000) NULL
+)
+ 
+
+
+----------
+sqlite:
+
+drop TABLE  sqler_version;
+
+ 
+CREATE TABLE  if not exists  sqler_version(
+	[id] INTEGER PRIMARY KEY   autoincrement,
+	[module] [nvarchar](100) NULL,
+	[version] [int] NULL,
+	[success] [int] NOT NULL,
+	[result] [nvarchar](100) NULL,
+	[code] [nvarchar](4000) NULL,
+	[exec_time] [datetime] NULL,
+	[remarks] [nvarchar](1000) NULL
+);
+
+
+----------
+mysql:
+
+drop TABLE  sqler_version;
+
+ 
+CREATE TABLE  if not exists  sqler_version(
+	id  int(4) primary key not null auto_increment,
+	module [nvarchar](100) NULL,
+	version [int] NULL,
+	success [int] NOT NULL,
+	result [nvarchar](100) NULL,
+	code [nvarchar](4000) NULL,
+	exec_time [datetime] NULL,
+	remarks [nvarchar](1000) NULL
+);
