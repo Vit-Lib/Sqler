@@ -5,7 +5,7 @@ using Vit.Extensions;
 
 namespace App.Module.Sqler.ConsoleCommand
 {
-    public class SqlServerBackupCommand
+    public class SqlServerCommand
     {
 
         #region CreateDataBase
@@ -31,6 +31,31 @@ namespace App.Module.Sqler.ConsoleCommand
             ConsoleHelp.Log("操作成功");
         }
         #endregion
+
+        #region DropDataBase
+        [Command("SqlServer.DropDataBase")]
+        [Remarks("若数据库存在，则删除数据库。参数说明：")]
+        [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
+        [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]
+        [Remarks("示例： SqlServer.DropDataBase -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" ")]
+        public static void DropDataBase(string[] args)
+        {
+            ConsoleHelp.Log("删除数据库...");
+
+            #region SqlBackup.SqlServerBackup.ConnectionString
+            string connStr = ConsoleHelp.GetArg(args, "-ConnStr") ?? ConsoleHelp.GetArg(args, "--ConnectionString");
+            if (!string.IsNullOrEmpty(connStr))
+            {
+                SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "SqlServerBackup", "ConnectionString");
+            }
+            #endregion
+
+
+            SqlServerLogical.DropDataBase();
+            ConsoleHelp.Log("操作成功");
+        }
+        #endregion
+
 
 
         #region Restore
