@@ -6,15 +6,15 @@ cd image
 
 #构建镜像并推送到 镜像仓库
 cd sqler
-docker build -t sersms/sqler:2.23.261  . 
-docker push sersms/sqler:2.23.261
+docker build -t sersms/sqler:2.23.265  . 
+docker push sersms/sqler:2.23.265
 cd ..
 
 
 
 #添加tag latest
-docker pull sersms/sqler:2.23.261
-docker tag sersms/sqler:2.23.261 sersms/sqler
+docker pull sersms/sqler:2.23.265
+docker tag sersms/sqler:2.23.265 sersms/sqler
 docker push sersms/sqler
 
  
