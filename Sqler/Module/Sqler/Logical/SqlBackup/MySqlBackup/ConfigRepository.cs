@@ -66,7 +66,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.MySqlBackup
 
         /// <summary>
         /// 连接字符串
-        /// [field:title=&lt;span title='数据库连接字符串'&gt;连接字符串&lt;/span&gt;]       
+        /// [field:title=&lt;span title='数据库连接字符串。必须包含Allow Zero Datetime=True;AllowLoadLocalInfile=true;'&gt;连接字符串&lt;/span&gt;]       
         /// [field:ig-class=TextArea]
         /// </summary>
         public String ConnectionString { get; set; }
@@ -74,7 +74,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.MySqlBackup
 
         /// <summary>
         /// 数据库备份还原文件的所在文件夹。例：@"F:\\db"。若不指定则为 /Data/MySqlBackup
-        /// [field:title=&lt;span title='数据库备份还原文件的文件夹路径。例：@"F:\\db"。若不指定则为 /Data/MySqlBackup'&gt;备份路径&lt;/span&gt;]
+        /// [field:title=&lt;span title='数据库备份还原文件的文件夹路径。例：@"F:\\db"。若不指定则为 Data/MySqlBackup'&gt;备份路径&lt;/span&gt;]
         /// [field:ig-class=TextArea]
         /// </summary>
         public String BackupPath { get; set; }

@@ -30,9 +30,10 @@
 
       /* 备份文件所在文件夹的路径,若不指定则为当前路径下的"Data/MySqlBackup"文件夹 */
       "BackupPath": "",
- 
-      /* 连接字符串 */
-      "ConnectionString": "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;"
+
+      /* 连接字符串。必须包含Allow Zero Datetime=True;AllowLoadLocalInfile=true; */
+      "ConnectionString": "Data Source=192.168.56.106;Port=3306;Database=Huyan2011-Bim-Basis2;SslMode=none;User Id=root;Password=123456;CharSet=utf8;Allow Zero Datetime=True;AllowLoadLocalInfile=true;"
+
     }
 
 

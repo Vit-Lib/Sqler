@@ -74,7 +74,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 
         /// <summary>
         /// SqlServer数据库备份还原文件的所在文件夹。例：@"F:\\db"。若不指定则为 /Data/SqlServerBackup
-        /// [field:title=&lt;span title='SqlServer数据库备份还原文件的文件夹路径。例：@"F:\\db"。若不指定则为 /Data/SqlServerBackup'&gt;Ms备份路径&lt;/span&gt;]
+        /// [field:title=&lt;span title='SqlServer数据库备份还原文件的文件夹路径。例：@"F:\\db"。若不指定则为 Data/SqlServerBackup'&gt;Ms备份路径&lt;/span&gt;]
         /// [field:ig-class=TextArea]
         /// </summary>
         public String BackupPath { get; set; }

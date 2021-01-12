@@ -5,7 +5,7 @@
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject /> 
-    <Version>2.23.261</Version>
+    <Version>2.23.265</Version>
     <Description>https://github.com/sersms/Sqler</Description>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <PreserveCompilationContext>true</PreserveCompilationContext>
@@ -24,10 +24,10 @@
   </ItemGroup>
 
   <ItemGroup> 
-    <PackageReference Include="Vit.Db" Version="2.1.1.442" /> 
-    <PackageReference Include="Vit.Db.DbMng" Version="2.1.1.442" /> 
-    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.442" />
-    <PackageReference Include="Vit.WebHost" Version="2.1.1.442" />
+    <PackageReference Include="Vit.Db" Version="2.1.1.445" /> 
+    <PackageReference Include="Vit.Db.DbMng" Version="2.1.1.445" /> 
+    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.445" />
+    <PackageReference Include="Vit.WebHost" Version="2.1.1.445" />
   </ItemGroup>
   
   

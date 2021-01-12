@@ -1,6 +1,4 @@
-﻿using App.Module.Sqler.Logical;
-using System.IO;
-using Vit.Core.Module.Log;
+﻿using Vit.Core.Module.Log;
 
 namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 {
