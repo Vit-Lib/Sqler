@@ -2,11 +2,9 @@
 #把本文件所在目录下的文件夹拷贝到 /home/ec2-user/image 
 
 cd /root
-
 cd image 
 
 #构建镜像并推送到 镜像仓库
-
 cd sqler
 docker build -t sersms/sqler:2.23.261  . 
 docker push sersms/sqler:2.23.261
@@ -14,7 +12,7 @@ cd ..
 
 
 
- #添加tag latest
+#添加tag latest
 docker pull sersms/sqler:2.23.261
 docker tag sersms/sqler:2.23.261 sersms/sqler
 docker push sersms/sqler
@@ -26,16 +24,6 @@ docker push sersms/sqler
 
 #强制删除镜像名称中包含“sqler”的镜像
 docker rmi --force $(docker images | grep sqler | awk '{print $3}')
-
- 
-
-
-
-
-
-
-
-
 
 
 
