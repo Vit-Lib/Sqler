@@ -139,7 +139,14 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             }
             #endregion
 
-            
+
+            #region (x.x.10)导入导出
+            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'导入导出', handler: \"function(callback){ callback(); theme.popDialog('/sqler/DbBackup/MySqlPort.html', '导入导出') }\"   }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
 
             #endregion
 
