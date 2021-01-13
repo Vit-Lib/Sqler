@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Vit.Core.Module.Log;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Extensions;
@@ -122,7 +123,10 @@ namespace App
         {
             if (context.ExceptionHandled == false)
             {
-                ApiReturn apiRet = (SsError)context.Exception;
+                Logger.Error(context.Exception);
+                SsError error = (SsError)context.Exception;
+                ApiReturn apiRet = error;
+
 
                 context.Result = new ContentResult
                 {
@@ -130,6 +134,9 @@ namespace App
                     StatusCode = StatusCodes.Status200OK,
                     ContentType = "application/json; charset=utf-8"
                 };
+
+                //context.HttpContext.Response.Headers.Add("responseState", "fail");
+                //context.HttpContext.Response.Headers.Add("responseError_Base64", error?.SerializeToBytes()?.BytesToBase64String());
             }
             context.ExceptionHandled = true;
         }

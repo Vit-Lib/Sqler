@@ -19,8 +19,6 @@ namespace Sqler.Module.Sqler.Logical.DbPort
     public class DbPortLogical
     {
 
-
-
         public static int? commandTimeout => Vit.Orm.Dapper.DapperConfig.CommandTimeout;
 
         public static readonly int batchRowCount = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<int?>("Sqler.DbPort_batchRowCount") ?? 100000;
@@ -122,10 +120,11 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 ConnectionString = SqlerHelp.sqlerConfig.GetStringByPath(ConnectionString.Substring("sqler.config:".Length));
             }
 
-            //https://blog.csdn.net/actionmr/article/details/2172549
-            //强制连接字符串保存密码信息
-            ConnectionString = "Persist Security Info=True;" + ConnectionString;
-
+            //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
+            if (type == "mysql")
+            {
+                ConnectionString = "AllowLoadLocalInfile=true;" + ConnectionString;
+            }
             #endregion
 
 
@@ -148,7 +147,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
 
 
-            List<string> filePathList = new List<string> { "wwwroot", "temp", "Export_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")+"_" + CommonHelp.NewGuid() };
+            List<string> filePathList = new List<string> { "wwwroot", "temp", "Export", DateTime.Now.ToString("yyyyMMdd_HHmmss") };
             Func<DataTableWriter> GetDataTableWriter;
 
             #region (x.2)构建数据导出回调 
@@ -161,7 +160,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
                 if (string.IsNullOrWhiteSpace(outFileName))
                 {
-                    outFileName = "DbPort_Export_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")  + ".xlsx";
+                    outFileName = DateTime.Now.ToString("yyyyMMdd_HHmmss") + "_" + type + ".xlsx";
                 }
 
                 filePathList.Add(outFileName);
@@ -201,9 +200,9 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
                 if (string.IsNullOrWhiteSpace(outFileName))
                 {
-                    outFileName = "DbPort_Export_" + DateTime.Now.ToString("yyyyMMdd_HHmmss")  + ".sqlite";
-                }           
-              
+                    outFileName = DateTime.Now.ToString("yyyyMMdd_HHmmss") + "_" + type + ".sqlite";
+                }
+
                 filePathList.Add(outFileName);
 
                 if (string.IsNullOrEmpty(outFilePath))
@@ -251,7 +250,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
                 if (string.IsNullOrWhiteSpace(outFileName))
                 {
-                    outFileName = "DbPort_Export_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".txt";
+                    outFileName = DateTime.Now.ToString("yyyyMMdd_HHmmss") + "_" + type + ".txt";
                 }
 
                 filePathList.Add(outFileName);
@@ -520,14 +519,12 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 ConnectionString = SqlerHelp.sqlerConfig.GetStringByPath(ConnectionString.Substring("sqler.config:".Length));
             }
 
-            //https://blog.csdn.net/actionmr/article/details/2172549
-            //强制连接字符串保存密码信息
-            ConnectionString = "Persist Security Info=True;" + ConnectionString;
-
+            //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
+            if (type == "mysql")
+            {
+                ConnectionString = "AllowLoadLocalInfile=true;" + ConnectionString;
+            }
             #endregion
-
-
-
 
 
             try
@@ -784,11 +781,11 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 return;
             }
 
-
-            //https://blog.csdn.net/actionmr/article/details/2172549
-            //强制连接字符串保存密码信息
-            from_ConnectionString = "Persist Security Info=True;" + from_ConnectionString;
-            to_ConnectionString = "Persist Security Info=True;" + to_ConnectionString;
+            //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
+            if (to_type == "mysql") 
+            {
+                to_ConnectionString = "AllowLoadLocalInfile=true;" + to_ConnectionString;
+            }          
 
 
             try

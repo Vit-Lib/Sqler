@@ -1,4 +1,5 @@
-﻿using Vit.Core.Module.Log;
+﻿using System;
+using Vit.Core.Module.Log;
 
 namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 {
@@ -87,6 +88,9 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
  
         public static void Backup(string filePath = null,string fileName=null)
         {
+            Logger.Info("[Sqler]MsDbMng 备份数据库...");
+            var startTime = DateTime.Now;
+
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
@@ -97,8 +101,13 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
                 }
 
                 filePath = dbMng.Backup(filePath);
-                Logger.Info("[Sqler]MsDbMng-Backup,filePath:" + filePath);
+               
             }
+
+            var span = (DateTime.Now - startTime);
+            Logger.Info("[Sqler]MsDbMng 数据库已备份"); 
+            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+            Logger.Info("       filePath:" + filePath);
         }
         #endregion
 
@@ -107,6 +116,9 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
     
         public static void Restore( string filePath=null, string fileName = null)
         {
+            Logger.Info("[Sqler]MsDbMng 还原数据库...");
+            var startTime = DateTime.Now;
+
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
@@ -117,8 +129,12 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
                 }
                 filePath = dbMng.Restore(filePath);
 
-                Logger.Info("[Sqler]MsDbMng-Restore,filePath:" + filePath);
-            }   
+ 
+            }
+            var span = (DateTime.Now - startTime);
+            Logger.Info("[Sqler]MsDbMng 数据库已还原");
+            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+            Logger.Info("       filePath:" + filePath);
         } 
         #endregion
 
@@ -128,6 +144,9 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 
         public static void RemoteBackup(string filePath = null, string fileName = null)
         {
+            Logger.Info("[Sqler]MsDbMng 远程备份数据库...");
+            var startTime = DateTime.Now;
+
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
@@ -136,10 +155,13 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
                     filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }                
 
-                filePath = dbMng.RemoteBackup(filePath);
+                filePath = dbMng.RemoteBackup(filePath); 
+            }
 
-                Logger.Info("[Sqler]MsDbMng-RemoteBackup,filePath:" + filePath);
-            }       
+            var span = (DateTime.Now - startTime);
+            Logger.Info("[Sqler]MsDbMng 数据库已远程备份");
+            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+            Logger.Info("       filePath:" + filePath);
         }
         #endregion
 
@@ -149,6 +171,9 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
      
         public static void RemoteRestore(string filePath = null, string fileName = null)
         {
+            Logger.Info("[Sqler]MsDbMng 远程还原数据库...");
+            var startTime = DateTime.Now;
+
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
@@ -158,10 +183,13 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
                     filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }
 
-                filePath = dbMng.RemoteRestore(filePath);
+                filePath = dbMng.RemoteRestore(filePath);           
+            }
 
-                Logger.Info("[Sqler]MsDbMng-RemoteRestore,filePath:" + filePath);
-            }          
+            var span = (DateTime.Now - startTime);
+            Logger.Info("[Sqler]MsDbMng 数据库已远程还原");
+            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+            Logger.Info("       filePath:" + filePath);
         }  
         #endregion
 

@@ -143,10 +143,19 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             #region (x.x.10)导入导出
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
             {
-                var strButton = "{text:'导入导出', handler: \"function(callback){ callback(); theme.popDialog('/sqler/DbBackup/MySqlPort.html', '导入导出') }\"   }";
+                var strButton = "{text:'导入导出', handler: \"function(callback){ callback(); theme.popDialog('/sqler/DbBackup/MySqlPort.html', '导入导出'); }\"   }";
                 buttons.Add(strButton.Deserialize<JObject>());
             }
             #endregion
+
+            #region (x.x.11)下载建库脚本
+            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'下载建库脚本', handler: \"function(callback){ callback(); window.open('/sqler/Sqler_SqlBackup_MySqlBackup/CreateDataBaseSql'); }\"   }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
+
 
             #endregion
 
@@ -312,6 +321,26 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             return new ApiReturn();
         }
         #endregion
+
+
+
+        #region (x.11) 下载建库脚本
+        [HttpGet("CreateDataBaseSql")]
+        public IActionResult CreateDataBaseSql()
+        {
+            var sql = "";
+
+            using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
+
+                sql=dbMng.BuildCreateSql();              
+            }
+            var bytes = sql.StringToBytes();
+            return File(bytes, "text/plain", "CreateDataBase.sql");
+        }
+        #endregion
+
 
         #endregion
 

@@ -78,7 +78,7 @@ namespace App.Module.Sqler.Logical
 
         public static MySqlConnection MySqlBackup_CreateDbConnection()
         {
-            //确保连接字符串包含 "AllowLoadLocalInfile=true;"
+            //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
             return Vit.Orm.Dapper.ConnectionFactory.GetConnection(
                 new ConnectionInfo
                 {

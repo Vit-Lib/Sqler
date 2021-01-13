@@ -1,8 +1,5 @@
 ﻿using App.Module.Sqler.Logical;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Vit.Core.Module.Log;
 
 namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
@@ -45,12 +42,13 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
 
 
 
-
-
         #region (x.8) RemoteBackup
 
         public static void RemoteBackup(string filePath = null, string fileName = null)
         {
+            Logger.Info("[Sqler]MySqlDbMng 远程备份数据库...");
+            var startTime = DateTime.Now;
+
             using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
@@ -59,10 +57,13 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
                     filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }
 
-                filePath = dbMng.RemoteBackup(filePath);
+                filePath = dbMng.RemoteBackup(filePath);  
+            }
 
-                Logger.Info("[Sqler]MySqlDbMng-RemoteBackup,filePath:" + filePath);
-            }             
+            var span = (DateTime.Now - startTime);
+            Logger.Info("[Sqler]MySqlDbMng 数据库已远程备份");
+            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+            Logger.Info("       filePath:" + filePath);
         }
         #endregion
 
@@ -72,6 +73,9 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
 
         public static void RemoteRestore(string filePath = null, string fileName = null)
         {
+            Logger.Info("[Sqler]MySqlDbMng 远程还原数据库...");
+            var startTime = DateTime.Now;
+
             using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
@@ -81,10 +85,13 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
                     filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }
 
-                filePath = dbMng.RemoteRestore(filePath);
-
-                Logger.Info("[Sqler]MySqlDbMng-RemoteRestore,filePath:" + filePath);
+                filePath = dbMng.RemoteRestore(filePath); 
             }
+
+            var span = (DateTime.Now - startTime);
+            Logger.Info("[Sqler]MySqlDbMng 数据库已远程还原");
+            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+            Logger.Info("       filePath:" + filePath);
         }
         #endregion
 
