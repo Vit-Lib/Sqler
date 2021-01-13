@@ -21,7 +21,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
 
 
-        public static int? commandTimeout => Vit.Orm.Dapper.DbHelp.CommandTimeout;
+        public static int? commandTimeout => Vit.Orm.Dapper.DapperConfig.CommandTimeout;
 
         public static readonly int batchRowCount = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<int?>("Sqler.DbPort_batchRowCount") ?? 100000;
 

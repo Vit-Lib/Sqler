@@ -77,9 +77,14 @@ namespace App.Module.Sqler.Logical
         #region (Member.4)MySqlBackup     
 
         public static MySqlConnection MySqlBackup_CreateDbConnection()
-        {          
-
-            return Vit.Orm.Dapper.ConnectionFactory.GetConnection(new ConnectionInfo { type = "mysql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.ConnectionString") }) as MySqlConnection;
+        {
+            //确保连接字符串包含 "AllowLoadLocalInfile=true;"
+            return Vit.Orm.Dapper.ConnectionFactory.GetConnection(
+                new ConnectionInfo
+                {
+                    type = "mysql",
+                    ConnectionString = "AllowLoadLocalInfile=true;" + sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.ConnectionString")
+                }) as MySqlConnection;
         }
 
         public static MySqlDbMng MySqlBackup_CreateDbMng(MySqlConnection conn)
