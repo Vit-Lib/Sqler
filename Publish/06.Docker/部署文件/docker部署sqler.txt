@@ -21,8 +21,8 @@ cd sqler
 docker run --name=sqler --restart=always -p 4570:4570 -d \
 -v /etc/localtime:/etc/localtime \
 -v $PWD/appsettings.json:/root/app/sqler/appsettings.json \
--v $PWD/Data:/root/app/Sqler/Data  \
--v $PWD/Logs:/root/app/Sqler/Logs  \
+-v $PWD/Data:/root/app/sqler/Data  \
+-v $PWD/Logs:/root/app/sqler/Logs  \
 sersms/sqler
 cd .. 
 
