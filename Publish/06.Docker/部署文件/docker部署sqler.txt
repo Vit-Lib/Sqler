@@ -1,4 +1,4 @@
-﻿docker部署sqler
+docker部署sqler
 
  
 
@@ -21,7 +21,8 @@ cd sqler
 docker run --name=sqler --restart=always -p 4570:4570 -d \
 -v /etc/localtime:/etc/localtime \
 -v $PWD/appsettings.json:/root/app/sqler/appsettings.json \
--v $PWD/Data:/root/app/sqler/Data  \
+-v $PWD/Data:/root/app/Sqler/Data  \
+-v $PWD/Logs:/root/app/Sqler/Logs  \
 sersms/sqler
 cd .. 
 
@@ -34,6 +35,20 @@ docker run --name=sqler --restart=always -p 4570:4570 -d sersms/sqler
 docker run --rm -it -p 4570:4570 sersms/sqler dotnet Sqler.dll
 
 docker run --rm -it -p 4570:4570 sersms/sqler sh
+
+
+#运行容器，在断开后自动关闭并清理
+cd /root/docker
+cd sqler
+docker run --rm -it  -p 4570:4570  \
+-v /etc/localtime:/etc/localtime \
+-v $PWD/SqlerData:/root/app/SqlerData  \
+-v $PWD/Logs:/root/app/sqler/Logs  \
+sersms/sqler \
+dotnet Sqler.dll --DataPath "../SqlerData/Local_Basis"
+cd .. 
+
+
 
 #(x.3)应用已经运行
  

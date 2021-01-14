@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>2.1.2</Version>
+    <Description>https://github.com/sersms/SersTool/tree/2.1.1/release</Description>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DocumentationFile>bin\Debug\netstandard2.0\Vit.Db.DbMng.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Vit.Core" Version="2.1.1.449" />
+    <PackageReference Include="Vit.Orm.Dapper" Version="2.1.1.449" />
+    <PackageReference Include="sharpcompress" Version="0.27.0" />
+  </ItemGroup>  
+ 
+  
+</Project>

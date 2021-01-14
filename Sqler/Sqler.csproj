@@ -5,7 +5,7 @@
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject /> 
-    <Version>2.23.275</Version>
+    <Version>2.23.276</Version>
     <Description>https://github.com/sersms/Sqler</Description>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <PreserveCompilationContext>true</PreserveCompilationContext>
@@ -23,15 +23,16 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.8.0" />
   </ItemGroup>
 
-  <ItemGroup> 
-    <PackageReference Include="Vit.Db.DbMng" Version="2.1.1.449" />
+  <ItemGroup>  
     <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.449" />
     <PackageReference Include="Vit.WebHost" Version="2.1.1.449" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Library\Vit.Db.DbMng\Vit.Db.DbMng.csproj" />
+  </ItemGroup>
 
-
-
+ 
   <ItemGroup>
  
     <Content Update="appsettings.json">
