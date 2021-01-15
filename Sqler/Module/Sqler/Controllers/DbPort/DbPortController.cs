@@ -42,7 +42,7 @@ namespace App.Module.Sqler.Controllers.DbPort
         public void Export
            ([FromForm] string type,
             [FromForm]string ConnectionString,
-            [FromForm,SsDescription("sqlite/excel/txt")]string exportFileType)
+            [FromForm,SsDescription("sqlite/excel/csv/txt")]string exportFileType)
         {
             Response.ContentType = "text/html;charset=utf-8";
 

@@ -637,6 +637,9 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
 
                 string sqlitePath = Path.Combine(tempPath, "Data.sqlite3");
 
+                string tempCsvFilePath = Path.Combine(tempPath, "MysqlImport.csv");
+
+
                 //using (var conn = ConnectionFactory.MySql_GetOpenConnection(sqlConnectionString))
                 using (var connSqlite = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(sqlitePath))
                 {
@@ -650,11 +653,11 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
                         //Logger.Info($"       [{tbCount}/{tableNames.Count}]start import table " + tableName);
 
                         //get data
-                        using (var dr = connSqlite.ExecuteReader($"select * from `{tableName}`"))
+                        using (var dr = connSqlite.ExecuteReader($"select * from {tableName}"))
                         {
                             //(x.4)
                             //Logger.Info("           [x.x.4]import table " + dt.TableName + ",row count:" + dt.Rows.Count);
-                            var rowCount = conn.Import(dr, tableName);
+                            var rowCount = conn.Import(dr, tableName,tempFilePath:tempCsvFilePath);
                             sumRowCount += rowCount;
                             //Logger.Info("                    import table " + dt.TableName + " success");
                         }

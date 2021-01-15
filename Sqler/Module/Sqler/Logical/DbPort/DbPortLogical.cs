@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.Common;
 using Vit.Core.Util.ComponentModel.Model;
+using Vit.Db.Csv;
 using Vit.Db.Excel;
 using Vit.Extensions;
 using Vit.Orm.Dapper;
@@ -18,6 +19,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 {
     public class DbPortLogical
     {
+        public static string NewLine = "\r\n";
 
         public static int? commandTimeout => Vit.Orm.Dapper.DapperConfig.CommandTimeout;
 
@@ -97,7 +99,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             Action<EMsgType, string> SendMsg,
             string type,
             string ConnectionString, //数据库连接字符串。亦可从配置文件获取，如 sqler.config:SqlBackup.SqlServerBackup.ConnectionString
-            [SsDescription("sqlite/excel/txt")]string exportFileType,
+            [SsDescription("sqlite/excel/csv/txt")]string exportFileType,
             string sql = null, List<string> inTableNames = null, //指定一个即可,若均不指定，则返回所有表
             string outFilePath = null,string outFileName = null, //指定一个即可
             List<string> outTableNames=null            
@@ -143,7 +145,6 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 }                
             }
             #endregion
-
 
 
 
@@ -242,6 +243,57 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 };
                 #endregion
             }
+            else if (exportFileType == "csv")
+            {
+                #region csv
+
+                SendMsg(EMsgType.Title, "   export data to csv file");
+
+                if (string.IsNullOrWhiteSpace(outFileName))
+                {
+                    outFileName = DateTime.Now.ToString("yyyyMMdd_HHmmss") + "_" + type + ".csv";
+                }
+
+                filePathList.Add(outFileName);
+
+
+                if (string.IsNullOrEmpty(outFilePath))
+                {
+                    outFilePath = CommonHelp.GetAbsPath(filePathList.ToArray());
+                }
+
+                Directory.CreateDirectory(Path.GetDirectoryName(outFilePath));
+
+
+                bool isFirstTable = true;
+              
+
+                GetDataTableWriter = () =>
+                {
+                    bool isFirstRow = true;
+
+                    return new DataTableWriter
+                    {
+                        OnDispose = () =>
+                        {                   
+                        },
+                        WriteData =
+                        (dt) =>
+                        {
+                            if (isFirstTable)
+                            {
+                                isFirstTable = false;
+                            }   
+                         
+
+                            CsvHelp.SaveToCsv(outFilePath, dt, isFirstRow, true);
+                            if (isFirstRow)
+                                isFirstRow = false;
+                        }
+                    };
+                };
+                #endregion
+            }
             else 
             {
                 #region txt
@@ -264,8 +316,8 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 Directory.CreateDirectory(Path.GetDirectoryName(outFilePath));
 
                 string fieldSeparator = ",";
-                string rowSeparator = Environment.NewLine;
-                string tableSeparator = Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+                string rowSeparator = NewLine;
+                string tableSeparator = NewLine + NewLine + NewLine + NewLine;
 
 
                 sqlRunConfig.TryGetValue("fieldSeparator", out fieldSeparator);
@@ -278,7 +330,10 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 GetDataTableWriter = () =>
                 {                   
 
-                    StreamWriter writer = new StreamWriter(outFilePath, true); 
+                    StreamWriter writer = new StreamWriter(outFilePath, true);
+                    writer.NewLine = NewLine;
+
+                    bool isFirstRow = true;
 
                     return new DataTableWriter
                     {
@@ -294,7 +349,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                             else
                                 writer.Write(tableSeparator);
 
-                            bool isFirstRow = true;
+                       
                             foreach (DataRow row in dt.Rows) 
                             {
                                 if (isFirstRow)
