@@ -9,15 +9,17 @@ cd image
 
 #构建镜像并推送到 镜像仓库
 cd sqler
-docker build -t sersms/sqler:2.23.277  . 
-docker push sersms/sqler:2.23.277
+docker build -t sersms/sqler:2.23.278  . 
 cd ..
+
+docker push sersms/sqler:2.23.278
+
 
 
 
 #添加tag latest
-docker pull sersms/sqler:2.23.277
-docker tag sersms/sqler:2.23.277 sersms/sqler
+docker pull sersms/sqler:2.23.278
+docker tag sersms/sqler:2.23.278 sersms/sqler
 docker push sersms/sqler
 
  
@@ -26,7 +28,7 @@ docker push sersms/sqler
 
 
 #强制删除镜像名称中包含“sqler”的镜像
-docker rmi --force $(docker images | grep sqler | awk '{print $3}')
+# docker rmi --force $(docker images | grep sqler | awk '{print $3}')
 
 
 

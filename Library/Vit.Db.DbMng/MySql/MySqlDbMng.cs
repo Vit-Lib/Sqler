@@ -96,10 +96,9 @@ namespace Vit.Db.DbMng
         #endregion
 
 
-        #region GetDataBaseState 获取数据库状态      
-
+        #region GetDataBaseState 获取数据库状态
         /// <summary>
-        /// 获取数据库状态
+        /// 获取数据库状态(online、none、unknow)
         /// </summary>
         /// <returns></returns>
         public EDataBaseState GetDataBaseState()

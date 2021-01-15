@@ -70,8 +70,13 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
 
 
         #region (x.9) RemoteRestore
-
-        public static void RemoteRestore(string filePath = null, string fileName = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="fileName"></param>
+        /// <param name="force">若数据库已经存在，是否仍然还原</param>
+        public static void RemoteRestore(string filePath = null, string fileName = null,bool force=true)
         {
             Logger.Info("[Sqler]MySqlDbMng 远程还原数据库...");
             var startTime = DateTime.Now;
@@ -83,6 +88,15 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
                 if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
                 {
                     filePath = dbMng.BackupFile_GetPathByName(fileName);
+                }
+
+                if (!force) 
+                {
+                    if (dbMng.GetDataBaseState()==Vit.Db.DbMng.EDataBaseState.online) 
+                    {
+                        Logger.Info("[Sqler]MySqlDbMng 已取消。数据库已经存在，且没有指定强制还原参数。");
+                        return;
+                    }
                 }
 
                 filePath = dbMng.RemoteRestore(filePath); 

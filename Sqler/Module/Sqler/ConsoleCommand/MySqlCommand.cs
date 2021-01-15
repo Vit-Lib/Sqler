@@ -60,6 +60,7 @@ namespace App.Module.Sqler.ConsoleCommand
         #region RemoteRestore
         [Command("MySql.RemoteRestore")]
         [Remarks("通过备份文件远程还原数据库。参数说明：备份文件名称和路径指定其一即可")]
+        [Remarks("-f[--force] 强制还原数据库。若指定此参数，则在数据库已经存在时仍然还原数据库；否则仅在数据库尚未存在时还原数据库。")]
         [Remarks("-fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 \"DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-fp[--filePath] (可选)备份文件路径，例如 \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
@@ -80,8 +81,10 @@ namespace App.Module.Sqler.ConsoleCommand
             string fileName = ConsoleHelp.GetArg(args, "-fn") ?? ConsoleHelp.GetArg(args, "--fileName");
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
+            bool force = (ConsoleHelp.GetArg(args, "-f") ?? ConsoleHelp.GetArg(args, "--force"))!=null;
 
-            MySqlLogical.RemoteRestore(filePath: filePath, fileName: fileName);
+
+            MySqlLogical.RemoteRestore(filePath: filePath, fileName: fileName, force: force);
 
             ConsoleHelp.Log("操作成功");
         }

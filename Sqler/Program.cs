@@ -17,21 +17,18 @@ namespace App
 
             var runAsCmd = (args != null && args.Length >= 1 && false == args[0]?.StartsWith("-"));
 
-            if (!runAsCmd)
-            {
-                Logger.OnLog = (level, msg) => { Console.WriteLine((level == Level.INFO ? "" : "[" + level + "]") + msg); };
-            }
+
+            Logger.OnLog = (level, msg) => { Console.WriteLine((level == Level.INFO ? "" : "[" + level + "]") + msg); };  
+            //Logger.OnLog = (level, msg) => { Console.WriteLine("[" + level.ToString().ToLower() + "]" + msg); };
 
 
             //(x.1) 初始化Sqler
             try
-            {                
-
+            { 
                 Logger.Info("[Sqler] version: "+ System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion );
 
                 string dataDirectoryPath = ConsoleHelp.GetArg(args, "--DataPath");
-                App.Module.Sqler.Logical.SqlerHelp.InitEnvironment(dataDirectoryPath);
-              
+                App.Module.Sqler.Logical.SqlerHelp.InitEnvironment(dataDirectoryPath);              
             }
             catch (System.Exception ex)
             {
@@ -43,8 +40,6 @@ namespace App
 
             if (runAsCmd)
             {
-                Logger.OnLog = (level, msg) => { Console.WriteLine((level == Level.INFO ? "" : "[" + level + "]") + msg); };
-
                 Vit.ConsoleUtil.ConsoleHelp.Log = (msg) => { Logger.Info(msg);  };
                 Vit.ConsoleUtil.ConsoleHelp.Exec(args);
                 return;
