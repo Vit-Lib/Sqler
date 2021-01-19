@@ -5,7 +5,7 @@
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject /> 
-    <Version>2.23.282</Version>
+    <Version>2.24.304</Version>
     <Description>https://github.com/sersms/Sqler</Description>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <PreserveCompilationContext>true</PreserveCompilationContext>
@@ -28,11 +28,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Library\Vit.Db.DbMng\Vit.Db.DbMng.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\Library\Vit.Db.DbMng\Vit.Db.DbMng.csproj" />
-  </ItemGroup>
+  </ItemGroup> 
 
 
   <ItemGroup>

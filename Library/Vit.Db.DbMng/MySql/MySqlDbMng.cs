@@ -356,7 +356,7 @@ namespace Vit.Db.DbMng
 
                         #region(x.x.x.1)建表语句
                         {
-                            var dt = conn.ExecuteDataTable("SHOW CREATE table " + name);
+                            var dt = conn.ExecuteDataTable("SHOW CREATE table `" + name+"`");
                             string sql = dt.Rows[0][1] as string;
                             builder.Append(sql).AppendLine(";");
                             builder.AppendLine(delimiter);
@@ -429,7 +429,7 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
                     {
                         builder.AppendLine("  -- (x.x." + (++index) + ")创建触发器 " + name);
 
-                        var dt = conn.ExecuteDataTable("SHOW CREATE TRIGGER " + name);
+                        var dt = conn.ExecuteDataTable("SHOW CREATE TRIGGER `" + name + "`");
                         string sql = dt.Rows[0][2] as string;
                         builder.Append(sql).AppendLine(";");
                         builder.AppendLine(delimiter);
@@ -458,7 +458,7 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
                         //(x.x.1)创建事件
                         {
                             builder.AppendLine("  -- (x.x." + (++index) + ")创建事件 " + name);
-                            var dt = conn.ExecuteDataTable("SHOW CREATE EVENT " + name);
+                            var dt = conn.ExecuteDataTable("SHOW CREATE EVENT `" + name + "`");
                             string sql = dt.Rows[0][3] as string;
                             builder.Append(sql).AppendLine(";");
                             builder.AppendLine(delimiter);
@@ -469,7 +469,7 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
                         if (enabled)
                         {
                             builder.AppendLine("  -- (x.x." + index + ")启用事件 " + name);
-                            string sql = "ALTER EVENT " + name + " ON COMPLETION PRESERVE ENABLE";
+                            string sql = "ALTER EVENT `" + name + "` ON COMPLETION PRESERVE ENABLE";
                             builder.Append(sql).AppendLine(";");
                             builder.AppendLine(delimiter);
                             builder.AppendLine();
@@ -495,7 +495,7 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
 
                         builder.AppendLine("  -- (x.x." + (++index) + ")创建函数 " + name);
 
-                        var dt = conn.ExecuteDataTable("SHOW CREATE FUNCTION " + name);
+                        var dt = conn.ExecuteDataTable("SHOW CREATE FUNCTION `" + name + "`");
                         string sql = dt.Rows[0][2] as string;
                         builder.Append(sql).AppendLine(";");
                         builder.AppendLine(delimiter);
@@ -524,7 +524,7 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
 
                         builder.AppendLine("  -- (x.x." + (++index) + ")创建存储过程 " + name);
 
-                        var dt = conn.ExecuteDataTable("SHOW CREATE procedure " + name);
+                        var dt = conn.ExecuteDataTable("SHOW CREATE procedure `" + name + "`");
                         string sql = dt.Rows[0][2] as string;
                         builder.Append(sql).AppendLine(";");
                         builder.AppendLine(delimiter);
@@ -549,7 +549,7 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
 
                         builder.AppendLine("  -- (x.x." + (++index) + ")创建存储过程 " + name);
 
-                        var dt = conn.ExecuteDataTable("SHOW CREATE view " + name);
+                        var dt = conn.ExecuteDataTable("SHOW CREATE view `" + name + "`");
                         string sql = dt.Rows[0][1] as string;
                         builder.Append(sql).AppendLine(";");
                         builder.AppendLine(delimiter);
