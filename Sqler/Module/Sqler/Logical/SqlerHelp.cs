@@ -43,9 +43,12 @@ namespace App.Module.Sqler.Logical
 
         public static System.Data.IDbConnection SqlServerBackup_CreateDbConnection() 
         {
-            //Vit.Orm.Dapper.ConnectionFactory.GetConnectionCreator(new ConnectionInfo { type = "mssql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") });
-
-            return Vit.Orm.Dapper.ConnectionFactory.GetConnection(new ConnectionInfo { type = "mssql", ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") });
+            //确保连接字符串包含 "persist security info=true;"（用以批量导入数据）
+            return Vit.Orm.Dapper.ConnectionFactory.GetConnection(new ConnectionInfo 
+            { 
+                type = "mssql",
+                ConnectionString = "persist security info=true;" + sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") 
+            });
         }
 
 
@@ -78,7 +81,7 @@ namespace App.Module.Sqler.Logical
 
         public static MySqlConnection MySqlBackup_CreateDbConnection()
         {
-            //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
+            //确保连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
             return Vit.Orm.Dapper.ConnectionFactory.GetConnection(
                 new ConnectionInfo
                 {

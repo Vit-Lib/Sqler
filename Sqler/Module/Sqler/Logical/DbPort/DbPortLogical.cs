@@ -36,7 +36,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             //var regXml = new Regex(@"\<SqlRunConfig\>[\s\S]+?\<\/SqlRunConfig\>"); //正则匹配 <SqlRunConfig></SqlRunConfig>
             //var regTag = new Regex(@"\<[^\\]+?\>"); ; //正则匹配 <>
 
-            var regXml = new Regex(@"(?<=\<SqlRunConfig\>)[\s\S]+?(?=\<\/SqlRunConfig\>)"); //正则匹配 <SqlRunConfig></SqlRunConfig> 中间的字符串
+            var regXml = new Regex(@"(?<=\<SqlRunConfig\>)[\s\S]*?(?=\<\/SqlRunConfig\>)"); //正则匹配 <SqlRunConfig></SqlRunConfig> 中间的字符串
             var regTag = new Regex(@"(?<=\<)[^\/\<\>]+?(?=\>)"); //正则匹配 <> 中间的字符串(不含/)
 
 
@@ -46,7 +46,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             var xml = matches[0].Value;
             foreach (string tagName in regTag.Matches(xml).Select(i => i.Value).Distinct())
             {
-                var values = new Regex($@"(?<=\<{tagName}\>)[\s\S]+?(?=\<\/{tagName}\>)").Matches(xml).Select(m => m.Value).ToArray();
+                var values = new Regex($@"(?<=\<{tagName}\>)[\s\S]*?(?=\<\/{tagName}\>)").Matches(xml).Select(m => m.Value).ToArray();
                 sqlRunConfig[tagName] = string.Join("", values);
             }
             return sqlRunConfig;
