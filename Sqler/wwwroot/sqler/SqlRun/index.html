@@ -238,17 +238,17 @@
             var sqlDemo = "/\
 * <SqlRunConfig>                                       \n\
 <fileName>表数据.txt</fileName>                        \n\
-<tableNames>[\"aaa\",\"bbb\"]</tableNames>             \n\
-<tableSeparator>                                       \n\
-</tableSeparator>                                      \n\
-<rowSeparator>                                         \n\
-</rowSeparator>                                        \n\
+<tableNames>[\"aaa\",\"bbb\"]</tableNames>\n\
+<tableSeparator>\n\n\
+</tableSeparator>\n\
+<rowSeparator>\n\
+</rowSeparator>\n\
 <fieldSeparator>,</fieldSeparator>                     \n\
 </SqlRunConfig> *\
 /                                                      \n\
                                                            \n\
-select 1 as name union all select 2;                   \n\
-select 3 as name union all select 4;                   \n\
+select 10 as name,11 as name1 union all select 20,21;      \n\
+select 30 as name,31 as name1 union all select 40,41;      \n\
 ";
 
 
