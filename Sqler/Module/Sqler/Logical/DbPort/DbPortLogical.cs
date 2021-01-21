@@ -122,10 +122,16 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 ConnectionString = SqlerHelp.sqlerConfig.GetStringByPath(ConnectionString.Substring("sqler.config:".Length));
             }
 
-            //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
+ 
             if (type == "mysql")
             {
+                //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
                 ConnectionString = "AllowLoadLocalInfile=true;" + ConnectionString;
+            }
+            else if (type == "mssql")
+            {
+                //确保mssql连接字符串包含 "persist security info=true;"（用以批量导入数据）
+                ConnectionString = "persist security info=true;" + ConnectionString;
             }
             #endregion
 
@@ -574,10 +580,16 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 ConnectionString = SqlerHelp.sqlerConfig.GetStringByPath(ConnectionString.Substring("sqler.config:".Length));
             }
 
-            //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
+
             if (type == "mysql")
             {
+                //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
                 ConnectionString = "AllowLoadLocalInfile=true;" + ConnectionString;
+            }
+            else if (type == "mssql")
+            {
+                //确保mssql连接字符串包含 "persist security info=true;"（用以批量导入数据）
+                ConnectionString = "persist security info=true;" + ConnectionString;
             }
             #endregion
 

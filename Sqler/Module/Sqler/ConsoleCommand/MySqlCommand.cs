@@ -84,7 +84,7 @@ namespace App.Module.Sqler.ConsoleCommand
             bool force = (ConsoleHelp.GetArg(args, "-f") ?? ConsoleHelp.GetArg(args, "--force"))!=null;
 
 
-            MySqlLogical.RemoteRestore(filePath: filePath, fileName: fileName, force: force);
+            MySqlLogical.Restore(filePath: filePath, fileName: fileName, force: force);
 
             ConsoleHelp.Log("操作成功");
         }
@@ -115,7 +115,7 @@ namespace App.Module.Sqler.ConsoleCommand
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
 
-            MySqlLogical.RemoteBackup(filePath, fileName);
+            MySqlLogical.SqlerBackup(filePath, fileName);
 
             ConsoleHelp.Log("操作成功");
         }

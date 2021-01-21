@@ -1,29 +1,48 @@
+﻿ 
+
+namespace Vit.Db.DbMng.MsSql
+{
+ 
+    public partial class MsSqlDbMng 
+    {
+
+        public static string DataBaseStructBuilder = @"
+
 -------------------
 --生成建库语句
 --1.生成 表字段、字段备注、默认值约束 、unique约束、primary key约束、索引的创建语句
 --2.生成触发器、函数、存储过程、视图的创建语句
 -- by lith on 2021-01-21 v2.3
--------------------
-
-
---指定文件名称
-/*
-<SqlRunConfig>
-<fileName>CreateDataBase.sql</fileName>
-<tableSeparator></tableSeparator> 
-<rowSeparator></rowSeparator>
-<fieldSeparator></fieldSeparator>
-</SqlRunConfig>
-*/
+------------------- 
 
 
 -- ------------------------------------------------------------------------------------
--- 1.生成 表字段、字段备注、默认值约束 、unique约束、primary key约束、索引的创建语句
+-- 1.构建表头  备份时间、数据库版本、数据库名称 
+
+select '
+-- (x.1)备份信息
+/* ';
+
+select '
+  备份时间      ：',CONVERT(varchar(100), GETDATE(), 120);
+
+select '
+  SqlServer版本 ：',CONVERT(varchar(1000),@@version);
+
+--select '
+-- 数据库名称   ：',(Select Name From Master..SysDataBases Where DbId=(Select Dbid From Master..SysProcesses Where Spid = @@spid)) as dbName;
+
+select '
+*/
+';
+
+-- ------------------------------------------------------------------------------------
+-- 2.生成 表字段、字段备注、默认值约束 、unique约束、primary key约束、索引的创建语句
 
 select ('
 
 
-/* 表 */
+/* (x.2)表 */
 ') comment;
 
 --(x.1)创建表用来存储数据库表的结构
@@ -280,7 +299,7 @@ drop table #Proc_S_TableStruct_SqlCreateTb;
 
 
 -- ------------------------------------------------------------------------------------
--- 2.生成触发器、函数、存储过程、视图的创建语句
+-- 3.生成触发器、函数、存储过程、视图的创建语句
 
 
 
@@ -327,11 +346,11 @@ end
 
 
   
---(x.2)触发器
+--(x.3)触发器
 select ('
 
 
-/* 触发器 */
+/* (x.3)触发器 */
 ') comment;
 
 select [声明语句],'
@@ -343,11 +362,11 @@ GO
 
 
 
---(x.3)函数
+--(x.4)函数
 select ('
 
 
-/* 函数 */
+/* (x.4)函数 */
 ') comment;
 
 select [声明语句],'
@@ -363,11 +382,11 @@ GO
 
 
 
---(x.4)存储过程
+--(x.5)存储过程
 select ('
 
 
-/* 存储过程 */
+/* (x.5)存储过程 */
 ') comment;
 
 select [声明语句],'
@@ -377,11 +396,11 @@ GO
 
 
 
---(x.5)视图 （考虑 依附关系）
+--(x.6)视图 （考虑 依附关系）
 select ('
 
 
-/* 视图 */
+/* (x.6)视图 */
 ') comment;
 
 select identity(int,1,1) [id],[对象名] [name], convert(smallint,null) SortCode  into #tmp_Enty  from #tb   where xtype='V'; 
@@ -423,3 +442,15 @@ drop table #tmp_R;
 drop table #tb;
 
  
+
+
+
+
+
+
+
+
+";
+
+    }
+}

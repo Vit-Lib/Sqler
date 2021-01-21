@@ -82,7 +82,7 @@ namespace App.Module.Sqler.ConsoleCommand
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
 
-            SqlServerLogical.Restore(filePath: filePath, fileName: fileName);
+            SqlServerLogical.RestoreLocalBak(filePath: filePath, fileName: fileName);
 
             ConsoleHelp.Log("操作成功");
         }
@@ -114,7 +114,7 @@ namespace App.Module.Sqler.ConsoleCommand
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
 
-            SqlServerLogical.RemoteRestore(filePath: filePath, fileName: fileName);
+            SqlServerLogical.Restore(filePath: filePath, fileName: fileName);
 
             ConsoleHelp.Log("操作成功");
         }
@@ -147,7 +147,7 @@ namespace App.Module.Sqler.ConsoleCommand
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
 
-            SqlServerLogical.Backup(filePath, fileName);
+            SqlServerLogical.BackupLocalBak(filePath, fileName);
 
             ConsoleHelp.Log("操作成功");
         }
@@ -179,7 +179,7 @@ namespace App.Module.Sqler.ConsoleCommand
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
 
-            SqlServerLogical.RemoteBackup(filePath, fileName);
+            SqlServerLogical.BackupBak(filePath, fileName);
 
             ConsoleHelp.Log("操作成功");
         }

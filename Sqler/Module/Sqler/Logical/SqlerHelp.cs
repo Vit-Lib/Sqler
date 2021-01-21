@@ -9,8 +9,7 @@ using Vit.Core.Util.ConfigurationManager;
 using Vit.Db.DbMng;
 using Vit.Db.DbMng.MsSql;
 using Vit.Extensions;
-using Vit.Orm.Dapper;
- 
+
 
 namespace App.Module.Sqler.Logical
 {
@@ -41,19 +40,17 @@ namespace App.Module.Sqler.Logical
 
         #region (Member.3)SqlServerBackup     
 
-        public static System.Data.IDbConnection SqlServerBackup_CreateDbConnection() 
+        public static System.Data.SqlClient.SqlConnection SqlServerBackup_CreateDbConnection() 
         {
-            //确保连接字符串包含 "persist security info=true;"（用以批量导入数据）
-            return Vit.Orm.Dapper.ConnectionFactory.GetConnection(new ConnectionInfo 
-            { 
-                type = "mssql",
-                ConnectionString = "persist security info=true;" + sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString") 
-            });
+            //确保MsSql连接字符串包含 "persist security info=true;"（用以批量导入数据）
+            var ConnectionString = "persist security info=true;" + sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString");
+
+            return Vit.Orm.Dapper.ConnectionFactory.MsSql_GetConnection(ConnectionString);
         }
 
 
 
-        public static MsSqlDbMng SqlServerBackup_CreateDbMng(System.Data.IDbConnection conn)
+        public static MsSqlDbMng SqlServerBackup_CreateDbMng(System.Data.SqlClient.SqlConnection conn)
         {
             var BackupPath = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.BackupPath");
             if (string.IsNullOrWhiteSpace(BackupPath))
@@ -82,12 +79,8 @@ namespace App.Module.Sqler.Logical
         public static MySqlConnection MySqlBackup_CreateDbConnection()
         {
             //确保连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
-            return Vit.Orm.Dapper.ConnectionFactory.GetConnection(
-                new ConnectionInfo
-                {
-                    type = "mysql",
-                    ConnectionString = "AllowLoadLocalInfile=true;" + sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.ConnectionString")
-                }) as MySqlConnection;
+            var ConnectionString = "AllowLoadLocalInfile=true;" + sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.ConnectionString");
+            return Vit.Orm.Dapper.ConnectionFactory.MySql_GetConnection(ConnectionString);
         }
 
         public static MySqlDbMng MySqlBackup_CreateDbMng(MySqlConnection conn)

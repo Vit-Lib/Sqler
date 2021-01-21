@@ -33,7 +33,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 dbMng.DropDataBase();
-                Logger.Info("[Sqler]MsDbMng-DropDataBase");
+                Logger.Info("[Sqler]MsSqlDbMng-DropDataBase");
             }       
         }
         #endregion
@@ -49,7 +49,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 dbMng.Attach();
-                Logger.Info("[Sqler]MsDbMng-AttachDataBase");
+                Logger.Info("[Sqler]MsSqlDbMng-AttachDataBase");
             }      
         }
         #endregion
@@ -62,7 +62,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 dbMng.Detach();
-                Logger.Info("[Sqler]MsDbMng-DetachDataBase");
+                Logger.Info("[Sqler]MsSqlDbMng-DetachDataBase");
             }         
         }
         #endregion
@@ -76,7 +76,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
                 dbMng.KillProcess();
-                Logger.Info("[Sqler]MsDbMng-KillProcess");
+                Logger.Info("[Sqler]MsSqlDbMng-KillProcess");
             }       
         }
         #endregion
@@ -84,11 +84,64 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 
 
 
-        #region (x.6) Backup
- 
-        public static void Backup(string filePath = null,string fileName=null)
+        #region (x.6) BackupBak
+        public static void BackupBak(string filePath = null, string fileName = null)
         {
-            Logger.Info("[Sqler]MsDbMng 备份数据库...");
+            Logger.Info("[Sqler]MsSqlDbMng 远程bak备份数据库...");
+            var startTime = DateTime.Now;
+
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
+                {
+                    filePath = dbMng.BackupFile_GetPathByName(fileName);
+                }
+
+                filePath = dbMng.BackupToBak(filePath);
+            }
+
+            var span = (DateTime.Now - startTime);
+            Logger.Info("[Sqler]MsSqlDbMng 数据库已远程bak备份");
+            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+            Logger.Info("       filePath:" + filePath);
+        }
+        #endregion
+
+
+
+        #region (x.7) BackupSqler
+
+        public static void BackupSqler(string filePath = null, string fileName = null)
+        {
+            Logger.Info("[Sqler]MsSqlDbMng Sqler备份数据库...");
+            var startTime = DateTime.Now;
+
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
+                {
+                    filePath = dbMng.BackupFile_GetPathByName(fileName);
+                }
+
+                filePath = dbMng.BackupSqler(filePath);
+            }
+
+            var span = (DateTime.Now - startTime);
+            Logger.Info("[Sqler]MsSqlDbMng 数据库已Sqler备份");
+            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+            Logger.Info("       filePath:" + filePath);
+        }
+        #endregion
+
+
+
+        #region (x.8) BackupLocalBak
+
+        public static void BackupLocalBak(string filePath = null,string fileName=null)
+        {
+            Logger.Info("[Sqler]MsSqlDbMng 本地bak备份数据库...");
             var startTime = DateTime.Now;
 
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
@@ -100,98 +153,74 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
                     filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }
 
-                filePath = dbMng.Backup(filePath);
+                filePath = dbMng.BackupToLocalBak(filePath);               
+            }
+
+            var span = (DateTime.Now - startTime);
+            Logger.Info("[Sqler]MsSqlDbMng 数据库已本地bak备份"); 
+            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+            Logger.Info("       filePath:" + filePath);
+        }
+        #endregion
+
+
+
+
+        #region (x.9) Restore
+
+        public static void Restore(string filePath = null, string fileName = null)
+        {
+            Logger.Info("[Sqler]MsSqlDbMng 远程还原数据库...");
+            var startTime = DateTime.Now;
+
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+
+                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
+                {
+                    filePath = dbMng.BackupFile_GetPathByName(fileName);
+                }
+
+                dbMng.Restore(filePath);
+            }
+
+            var span = (DateTime.Now - startTime);
+            Logger.Info("[Sqler]MsSqlDbMng 数据库已远程还原");
+            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+            Logger.Info("       filePath:" + filePath);
+        }
+        #endregion
+
+
+        #region (x.10) RestoreLocalBak
+        public static void RestoreLocalBak( string filePath=null, string fileName = null)
+        {
+            Logger.Info("[Sqler]MsSqlDbMng 还原本地数据库...");
+            var startTime = DateTime.Now;
+
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+
+                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
+                {
+                    filePath = dbMng.BackupFile_GetPathByName(fileName);
+                }
+                filePath = dbMng.RestoreLocalBak(filePath);
+
+ 
+            }
+            var span = (DateTime.Now - startTime);
+            Logger.Info("[Sqler]MsSqlDbMng 数据库已本地还原");
+            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+            Logger.Info("       filePath:" + filePath);
+        }
+        #endregion
+
                
-            }
-
-            var span = (DateTime.Now - startTime);
-            Logger.Info("[Sqler]MsDbMng 数据库已备份"); 
-            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-            Logger.Info("       filePath:" + filePath);
-        }
-        #endregion
 
 
-        #region (x.7) Restore
-    
-        public static void Restore( string filePath=null, string fileName = null)
-        {
-            Logger.Info("[Sqler]MsDbMng 还原数据库...");
-            var startTime = DateTime.Now;
-
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-
-                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
-                {
-                    filePath = dbMng.BackupFile_GetPathByName(fileName);
-                }
-                filePath = dbMng.Restore(filePath);
-
- 
-            }
-            var span = (DateTime.Now - startTime);
-            Logger.Info("[Sqler]MsDbMng 数据库已还原");
-            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-            Logger.Info("       filePath:" + filePath);
-        } 
-        #endregion
-
-
-
-        #region (x.8) RemoteBackup
-
-        public static void RemoteBackup(string filePath = null, string fileName = null)
-        {
-            Logger.Info("[Sqler]MsDbMng 远程备份数据库...");
-            var startTime = DateTime.Now;
-
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
-                {
-                    filePath = dbMng.BackupFile_GetPathByName(fileName);
-                }                
-
-                filePath = dbMng.RemoteBackup(filePath); 
-            }
-
-            var span = (DateTime.Now - startTime);
-            Logger.Info("[Sqler]MsDbMng 数据库已远程备份");
-            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-            Logger.Info("       filePath:" + filePath);
-        }
-        #endregion
-
-
-
-        #region (x.9) RemoteRestore
-     
-        public static void RemoteRestore(string filePath = null, string fileName = null)
-        {
-            Logger.Info("[Sqler]MsDbMng 远程还原数据库...");
-            var startTime = DateTime.Now;
-
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-
-                if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
-                {
-                    filePath = dbMng.BackupFile_GetPathByName(fileName);
-                }
-
-                filePath = dbMng.RemoteRestore(filePath);           
-            }
-
-            var span = (DateTime.Now - startTime);
-            Logger.Info("[Sqler]MsDbMng 数据库已远程还原");
-            Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-            Logger.Info("       filePath:" + filePath);
-        }  
-        #endregion
 
 
     }

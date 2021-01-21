@@ -8,11 +8,10 @@ using Vit.Extensions;
 using Vit.Core.Util.ComponentModel.SsError;
 using System.Linq;
 using System;
-using App.Module.Sqler.Logical; 
+using App.Module.Sqler.Logical;
 using System.IO;
 using Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup;
 using Vit.Db.DbMng;
-using Vit.Db.DbMng.MsSql;
 
 namespace App.Module.Sqler.Controllers.SqlBackup
 {
@@ -70,7 +69,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
                 list:{
                     rowButtons:[                          
-                            {text:'远程还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/RemoteRestore?fileName={id}'    }     }
+                            {text:'还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/Restore?fileName={id}'    }     }
                     ]
                 },
 
@@ -131,10 +130,10 @@ namespace App.Module.Sqler.Controllers.SqlBackup
           
  
 
-            #region (x.x.8)RemoteBackup
+            #region (x.x.8)SqlerBackup
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
             {
-                var strButton = "{text:'远程备份数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/RemoteBackup'    }     }";
+                var strButton = "{text:'Sqler备份',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/SqlerBackup'    }     }";
                 buttons.Add(strButton.Deserialize<JObject>());
             }
             #endregion
@@ -299,25 +298,25 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         #endregion
 
 
-         
 
 
-        #region (x.8) RemoteBackup
-        [HttpPost("RemoteBackup")]
-        public ApiReturn RemoteBackup()
+
+        #region (x.8) SqlerBackup
+        [HttpPost("SqlerBackup")]
+        public ApiReturn SqlerBackup()
         {
-            MySqlLogical.RemoteBackup();
+            MySqlLogical.SqlerBackup();
             return new ApiReturn();
         }
         #endregion
 
 
 
-        #region (x.9) RemoteRestore
-        [HttpPost("RemoteRestore")]
-        public ApiReturn RemoteRestore([FromQuery]string fileName)
+        #region (x.9) Restore
+        [HttpPost("Restore")]
+        public ApiReturn Restore([FromQuery]string fileName)
         {
-            MySqlLogical.RemoteRestore(fileName: fileName);
+            MySqlLogical.Restore(fileName: fileName);
             return new ApiReturn();
         }
         #endregion
@@ -334,7 +333,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             {
                 var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
 
-                sql=dbMng.BuildCreateSql();              
+                sql=dbMng.BuildCreateDataBaseSql();              
             }
             var bytes = sql.StringToBytes();
             return File(bytes, "text/plain", "CreateDataBase.sql");

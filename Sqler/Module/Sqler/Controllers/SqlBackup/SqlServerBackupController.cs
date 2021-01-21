@@ -70,8 +70,8 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
                 list:{
                     rowButtons:[                            
-                            {text:'还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/Restore?fileName={id}'    }     },
-                            {text:'远程还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/RemoteRestore?fileName={id}'    }     }
+                        {text:'还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/Restore?fileName={id}'    }     },
+                        {text:'还原本地bak',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/RestoreLocalBak?fileName={id}'    }     }                  
                     ]
                 },
 
@@ -157,19 +157,28 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             #endregion
 
 
-            #region (x.x.6)Backup
+
+            #region (x.x.6)BackupBak
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
             {
-                var strButton = "{text:'备份数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/Backup'    }     }";
+                var strButton = "{text:'bak备份',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/BackupBak'    }     }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
+
+            #region (x.x.7)BackupSqler
+            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'sqler备份',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/BackupSqler'    }     }";
                 buttons.Add(strButton.Deserialize<JObject>());
             }
             #endregion
 
 
-            #region (x.x.8)RemoteBackup
+            #region (x.x.8)BackupLocalBak
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
             {
-                var strButton = "{text:'远程备份数据库',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/RemoteBackup'    }     }";
+                var strButton = "{text:'本地bak备份',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/BackupLocalBak'    }     }";
                 buttons.Add(strButton.Deserialize<JObject>());
             }
             #endregion
@@ -184,7 +193,13 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             }
             #endregion
 
-
+            #region (x.x.11)下载建库脚本
+            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'下载建库脚本', handler: \"function(callback){ callback(); window.open('/sqler/Sqler_SqlBackup_SqlServerBackup/CreateDataBaseSql'); }\"   }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
 
             #endregion
 
@@ -371,18 +386,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
 
-
-        #region (x.6) Backup
-        [HttpPost("Backup")]
-        public ApiReturn Backup()
-        {
-            SqlServerLogical.Backup();
-            return new ApiReturn();
-        }
-        #endregion
-
-
-        #region (x.7) Restore
+        #region (x.6) Restore
         [HttpPost("Restore")]
         public ApiReturn Restore([FromQuery]string fileName)
         {
@@ -393,28 +397,64 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
 
-        #region (x.8) RemoteBackup
-        [HttpPost("RemoteBackup")]
-        public ApiReturn RemoteBackup()
+        #region (x.7) RestoreLocalBak
+        [HttpPost("RestoreLocalBak")]
+        public ApiReturn RestoreLocalBak([FromQuery]string fileName)
         {
-            SqlServerLogical.RemoteBackup();
+            SqlServerLogical.RestoreLocalBak(fileName: fileName);
             return new ApiReturn();
         }
         #endregion
 
 
 
-        #region (x.9) RemoteRestore
-        [HttpPost("RemoteRestore")]
-        public ApiReturn RemoteRestore([FromQuery]string fileName)
+        #region (x.8) BackupBak
+        [HttpPost("BackupBak")]
+        public ApiReturn BackupBak()
         {
-            SqlServerLogical.RemoteRestore(fileName: fileName);
+            SqlServerLogical.BackupBak();
             return new ApiReturn();
         }
         #endregion
 
 
-         
+        #region (x.9) BackupSqler
+        [HttpPost("BackupSqler")]
+        public ApiReturn BackupSqler()
+        {
+            SqlServerLogical.BackupSqler();
+            return new ApiReturn();
+        }
+        #endregion
+
+
+
+        #region (x.10) BackupLocalBak
+        [HttpPost("BackupLocalBak")]
+        public ApiReturn BackupLocalBak()
+        {
+            SqlServerLogical.BackupLocalBak();
+            return new ApiReturn();
+        }
+        #endregion
+
+
+
+        #region (x.11) 下载建库脚本
+        [HttpGet("CreateDataBaseSql")]
+        public IActionResult CreateDataBaseSql()
+        {
+            var sql = "";
+            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
+            {
+                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+
+                sql = dbMng.BuildCreateDataBaseSql();
+            }            
+            var bytes = sql.StringToBytes();
+            return File(bytes, "text/plain", "CreateDataBase.sql");
+        }
+        #endregion
 
 
         #endregion

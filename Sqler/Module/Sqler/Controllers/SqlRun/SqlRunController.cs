@@ -235,6 +235,34 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
 
 
+
+
+        #region GetMsSqlStructBuilder
+        [HttpGet("GetMsSqlStructBuilder.sql")]
+        public IActionResult GetMsSqlStructBuilder()
+        {
+            var DataBaseStructBuilder = @"
+/*
+<SqlRunConfig>
+<fileName>CreateDataBase.sql</fileName>
+<tableSeparator></tableSeparator> 
+<rowSeparator></rowSeparator>
+<fieldSeparator></fieldSeparator>
+</SqlRunConfig>
+*/
+
+";           
+       
+            DataBaseStructBuilder += Vit.Db.DbMng.MsSql.MsSqlDbMng.DataBaseStructBuilder;
+            var bytes = DataBaseStructBuilder.StringToBytes();
+            return File(bytes, "text/plain", "CreateDataBase.sql");
+        }
+        #endregion
+
+
+
+
+
         #region Util
         void SendMsg(EMsgType type, String msg)
         {
