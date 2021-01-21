@@ -414,13 +414,13 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                             return;
                         }
 
-                        sql = String.Join(";select * from ", inTableNames);
+                        sql = String.Join(";select * from ", inTableNames.Select(n=> conn.Quote(n)) );
                         sql = "select * from " + sql + ";";
 
                         sumTableCount = inTableNames.Count;
 
                         rowCounts = inTableNames.Select(tableName =>
-                                Convert.ToInt32(conn.ExecuteScalar($"select Count(*) from {tableName}", commandTimeout: commandTimeout))
+                                Convert.ToInt32(conn.ExecuteScalar("select Count(*) from "+ conn.Quote(tableName), commandTimeout: commandTimeout))
                             ).ToList();
 
                         sourceSumRowCount = rowCounts.Sum();
@@ -603,7 +603,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 Func<int, DataTableReader> GetDataTableReader;
 
 
-                #region (x.5)get data from file
+                #region (x.3)get data from file
                 if (Path.GetExtension(filePath).ToLower().IndexOf(".xls") >= 0)
                 {
                     SendMsg(EMsgType.Title, "   import data from excel file");
@@ -638,7 +638,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                         tableNames = connSqlite.Sqlite_GetAllTableName();
 
                         rowCounts = tableNames.Select(tableName =>
-                            Convert.ToInt32(connSqlite.ExecuteScalar($"select Count(*) from {tableName}", commandTimeout: DbPortLogical.commandTimeout))
+                            Convert.ToInt32(connSqlite.ExecuteScalar("select Count(*) from "+ connSqlite.Quote(tableName), commandTimeout: DbPortLogical.commandTimeout))
                         ).ToList();
                     }
 
@@ -649,7 +649,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                         {
                             var tableName = tableNames[index];
                             var connSqlite = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(filePath);
-                            var dataReader = connSqlite.ExecuteReader($"select * from {tableName}", commandTimeout: DbPortLogical.commandTimeout);
+                            var dataReader = connSqlite.ExecuteReader("select * from " + connSqlite.Quote(tableName), commandTimeout: DbPortLogical.commandTimeout);
 
                             return new DataTableReader
                             {
@@ -725,7 +725,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                                 SendMsg(EMsgType.Title, "           [x.x.3]delete table ");
                                 try
                                 {
-                                    conn.Execute("delete from  " + dt.TableName);
+                                    conn.Execute("delete from  " + conn.Quote(dt.TableName) );
                                 }
                                 catch (Exception ex)
                                 {
@@ -740,7 +740,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                                 SendMsg(EMsgType.Title, "           [x.x.4]truncate table ");
                                 try
                                 {
-                                    conn.Execute("truncate table " + dt.TableName);
+                                    conn.Execute("truncate table " + conn.Quote(dt.TableName));
                                 }
                                 catch (Exception ex)
                                 {
@@ -870,10 +870,10 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                     if (string.IsNullOrWhiteSpace(from_sql))
                     {
                         tableNames = conn.GetAllTableName();
-                        from_sql = string.Join(';', tableNames.Select(m => "select * from " + m));
+                        from_sql = string.Join(';', tableNames.Select(tableName => "select * from " + conn.Quote(tableName)));
 
                         rowCounts = tableNames.Select(tableName =>
-                            Convert.ToInt32(conn.ExecuteScalar($"select Count(*) from {tableName}", commandTimeout: DbPortLogical.commandTimeout))
+                            Convert.ToInt32(conn.ExecuteScalar("select Count(*) from " + conn.Quote(tableName), commandTimeout: DbPortLogical.commandTimeout))
                         ).ToList();
                     }
                 }
@@ -990,7 +990,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                                 SendMsg(EMsgType.Title, "           [x.x.3]delete table ");
                                 try
                                 {
-                                    conn.Execute("delete from  " + dt.TableName);
+                                    conn.Execute("delete from  " + conn.Quote(dt.TableName));
                                 }
                                 catch (Exception ex)
                                 {
@@ -1005,7 +1005,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                                 SendMsg(EMsgType.Title, "           [x.x.4]truncate table ");
                                 try
                                 {
-                                    conn.Execute("truncate table " + dt.TableName);
+                                    conn.Execute("truncate table " + conn.Quote(dt.TableName));
                                 }
                                 catch (Exception ex)
                                 {
