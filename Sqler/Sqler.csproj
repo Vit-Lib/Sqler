@@ -75,6 +75,9 @@
     <None Update="Data\Temp\readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="help.bat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Start Sqler.bat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
