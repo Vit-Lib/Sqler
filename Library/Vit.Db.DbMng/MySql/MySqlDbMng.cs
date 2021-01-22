@@ -508,26 +508,14 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
         /// </summary>
         /// <param name="filePath">数据库备份文件的路径</param>
         /// <returns>备份文件的路径</returns>
-        public string Restore(string filePath)
+        public void Restore(string filePath)
         {
-            RestoreSqler(filePath);
-            return filePath;
+            RestoreSqler(filePath);     
         }
         #endregion
 
 
-        #region RestoreByFileName
-
-        /// <summary>
-        /// 通过备份文件名称远程还原数据库，备份文件在当前管理的备份文件夹中
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public string RestoreByFileName(string fileName)
-        {
-            return Restore(BackupFile_GetPathByName(fileName));
-        }
-        #endregion
+      
                                  
 
 

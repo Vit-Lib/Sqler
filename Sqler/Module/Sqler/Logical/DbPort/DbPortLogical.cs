@@ -23,8 +23,8 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
         public static int? commandTimeout => Vit.Orm.Dapper.DapperConfig.CommandTimeout;
 
-        //public static readonly int batchRowCount = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<int?>("Sqler.DbPort_batchRowCount") ?? 100000;
-        public static readonly int batchRowCount = 1000;
+        public static readonly int batchRowCount = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<int?>("Sqler.DbPort_batchRowCount") ?? 100000;
+  
 
         #region GetSqlRunConfig
         public static Dictionary<string, string> GetSqlRunConfig(string sql)
@@ -54,6 +54,8 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
         #endregion
 
+                   
+     
 
 
 
@@ -517,23 +519,19 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
 
 
+
+
+
+
         #region (x.2)Import
-        class DataTableReader : IDisposable
-        {
-            public Action OnDispose=null;     
-            public void Dispose()
-            {
-                OnDispose?.Invoke();
-            }
-            public Func<IDataReader> GetDataReader=null;
-            public Func<DataTable> GetDataTable=null;
-        }
+      
 
 
  
         public static void Import(
              Action<EMsgType, string> SendMsg,
              string filePath,
+
              string type,
              string ConnectionString, //数据库连接字符串。亦可从配置文件获取，如 sqler.config:SqlBackup.SqlServerBackup.ConnectionString
              bool createTable,
@@ -651,253 +649,38 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 }
                 #endregion
 
-
-                int sourceSumRowCount = rowCounts.Sum();
-                int importedSumRowCount = 0;
-                int sourceRowCount;
-
-                #region WriteProcess
-                void WriteProcess(int importedRowCount)
-                {
-                    SendMsg(EMsgType.Nomal, "");
-
-                    var process = (((float)importedRowCount) / sourceRowCount * 100).ToString("f2");
-                    SendMsg(EMsgType.Nomal, $"           cur: [{process}%] {importedRowCount }/{sourceRowCount}");
-
-                    process = (((float)importedSumRowCount) / sourceSumRowCount * 100).ToString("f2");
-                    SendMsg(EMsgType.Nomal, $"           sum: [{process}%] {importedSumRowCount }/{sourceSumRowCount}");
-                }
-                #endregion
-
-
-                #region (x.5)import data to database
-              
-      
-                using (var conn = ConnectionFactory.GetConnection(new Vit.Orm.Dapper.ConnectionInfo { type = type, ConnectionString = ConnectionString }))
-                {
-                    var startTime = DateTime.Now;
-
-
-                    SendMsg(EMsgType.Title, "   to database " + conn.Database);
-
-                    SendMsg(EMsgType.Title, "   sum row count: " + sourceSumRowCount);
-                    SendMsg(EMsgType.Title, "   table count: " + tableNames.Count);
-                    SendMsg(EMsgType.Title, "   table name: " + tableNames.Serialize());
-
                  
-                    for (var curTbIndex = 0; curTbIndex < tableNames.Count; curTbIndex++)
-                    {
-                        var tableName = tableNames[curTbIndex];
-                
-                        sourceRowCount = rowCounts[curTbIndex];
 
-                        using (var tableReader = GetDataTableReader(tableName,curTbIndex))
-                        {
-                            int importedRowCount = 0;
+ 
 
-                            SendMsg(EMsgType.Title, "");
-                            SendMsg(EMsgType.Title, "");
-                            SendMsg(EMsgType.Title, "");
-                            SendMsg(EMsgType.Title, $"       [{(curTbIndex + 1)}/{tableNames.Count}]start import table " + tableName + ",sourceRowCount:" + sourceRowCount);
+                #region (x.4)import data to database
 
+                //(x.x.1)初始化
+                var output = new DataOutput();
+                output.SendMsg=SendMsg;
+                output.type=type;
+                output.ConnectionString=ConnectionString;  
+                output.createTable=createTable;
+                output.delete=delete;
+                output.truncate=truncate;
+                output.tableInfos = tableNames.Select( (tableName, index) =>
+                    new TableInfo { tableName = tableName, tableIndex = index, rowCount = rowCounts[index] }
+                ).ToList();
+                output.sourceSumRowCount= rowCounts.Sum();
 
-                            #region (x.1)数据源为DataReader
-                            if (tableReader.GetDataReader != null)
-                            {
+                output.GetDataTableReader = GetDataTableReader;
 
-                                //(x.x.1)read data
-                                SendMsg(EMsgType.Nomal, " ");
-                                SendMsg(EMsgType.Nomal, "           [x.x.1]read data ");
-                                var dr = tableReader.GetDataReader();
-                               
+                //(x.x.2)数据导入
+                var startTime = DateTime.Now;
+                output.Output();
 
-                                //(x.x.2)
-                                if (createTable)
-                                {
-                                    SendMsg(EMsgType.Title, "           [x.x.2]create table ");
-                                    try
-                                    {
-                                        conn.CreateTable(dr, tableName);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Error(ex);
-                                        SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                                    }
-                                }
-
-                                //(x.x.3)
-                                if (delete)
-                                {
-                                    SendMsg(EMsgType.Title, "           [x.x.3]delete table ");
-                                    try
-                                    {
-                                        conn.Execute("delete from  " + conn.Quote(tableName));
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Error(ex);
-                                        SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                                    }
-                                }
-
-                                //(x.x.4)
-                                if (truncate)
-                                {
-                                    SendMsg(EMsgType.Title, "           [x.x.4]truncate table ");
-                                    try
-                                    {
-                                        conn.Execute("truncate table " + conn.Quote(tableName));
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Error(ex);
-                                        SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                                    }
-                                }
-
-
-                                //(x.x.5)import data   
-                                SendMsg(EMsgType.Nomal, "           [x.x.5]write data");
-                                try
-                                {
-                                    while (true)
-                                    {
-
-                                        int rowCount = conn.BulkImport(dr, tableName, maxRowCount: batchRowCount);
-
-                                        
-
-                                        importedRowCount += rowCount;
-                                        importedSumRowCount += rowCount;
-
-                                        WriteProcess(importedRowCount);
-
-                                        if (rowCount < batchRowCount)
-                                        {
-                                            break;
-                                        }
-
-                                    }
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.Error(ex);
-                                    SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                                }
-
-                            }
-                            #endregion
-
-
-                            #region (x.2)数据源为DataTable
-                            if (tableReader.GetDataTable != null)
-                            {
-                                //(x.x.1)read data
-                                SendMsg(EMsgType.Nomal, " ");
-                                SendMsg(EMsgType.Nomal, "           [x.x.1]read data ");
-                                var dt = tableReader.GetDataTable();
-                                dt.TableName = tableName;
-
-                                //(x.x.2)
-                                if (createTable)
-                                {
-                                    SendMsg(EMsgType.Title, "           [x.x.2]create table ");
-                                    try
-                                    {
-                                        conn.CreateTable(dt);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Error(ex);
-                                        SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                                    }
-                                }
-
-                                //(x.x.3)
-                                if (delete)
-                                {
-                                    SendMsg(EMsgType.Title, "           [x.x.3]delete table ");
-                                    try
-                                    {
-                                        conn.Execute("delete from  " + conn.Quote(tableName));
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Error(ex);
-                                        SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                                    }
-                                }
-
-                                //(x.x.4)
-                                if (truncate)
-                                {
-                                    SendMsg(EMsgType.Title, "           [x.x.4]truncate table ");
-                                    try
-                                    {
-                                        conn.Execute("truncate table " + conn.Quote(tableName));
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Logger.Error(ex);
-                                        SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                                    }
-                                }
-
-
-                                //(x.x.5)import data   
-                                SendMsg(EMsgType.Nomal, "           [x.x.5]write data,row count:" + dt.Rows.Count);
-                                try
-                                {
-                                    while (true)
-                                    {
-
-                                    
-                                        dt.TableName = tableName;
-                                        conn.BulkImport(dt);
-
-                                        int rowCount = dt.Rows.Count;
-                                        importedRowCount += dt.Rows.Count;
-                                        importedSumRowCount += dt.Rows.Count;
-
-
-                                        WriteProcess(importedRowCount);
-
-
-                                        SendMsg(EMsgType.Nomal, " ");
-                                        SendMsg(EMsgType.Nomal, "           [x.x.x.1]read data ");
-                                        dt = tableReader.GetDataTable();
-                                        if (dt == null)
-                                        {                                           
-                                            break;
-                                        }
-                                    }
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.Error(ex);
-                                    SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                                }
-
-                            }
-                            #endregion
-
-
-                            SendMsg(EMsgType.Title, "                    import table " + tableName + " success,row count:" + importedRowCount);
-                        }
-                    }
-
-                    var span = (DateTime.Now - startTime);
-
-                    SendMsg(EMsgType.Title, "");
-                    SendMsg(EMsgType.Title, "");
-                    SendMsg(EMsgType.Title, "");
-                    SendMsg(EMsgType.Title, "   Import success");
-                    SendMsg(EMsgType.Title, "   sum row count:" + importedSumRowCount);
-                    SendMsg(EMsgType.Nomal, $"   耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-                }
+                var span = (DateTime.Now - startTime);
+                SendMsg(EMsgType.Title, "");
+                SendMsg(EMsgType.Title, "");
+                SendMsg(EMsgType.Title, "");
+                SendMsg(EMsgType.Title, "   Import success");
+                SendMsg(EMsgType.Title, "   sum row count:" + output.importedSumRowCount);
+                SendMsg(EMsgType.Nomal, $"   耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
                 #endregion
 
             }
@@ -920,9 +703,9 @@ namespace Sqler.Module.Sqler.Logical.DbPort
            string from_type,
            string from_ConnectionString,
            string from_sql,
+
            string to_type,
            string to_ConnectionString,
-
            bool createTable,
            bool delete,
            bool truncate
@@ -971,7 +754,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 List<string> tableNames = null;
                 List<int> rowCounts = null;
 
-                Func<DataTableReader> GetDataTableReader;
+                Func<string,int,DataTableReader> GetDataTableReader;
 
                 #region (x.2)init from_data
                 SendMsg(EMsgType.Title, "   init from_data");
@@ -998,10 +781,9 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 }
                 #endregion
 
-                var curTbIndex = 0;
-
+            
                 GetDataTableReader =
-                    () =>
+                    (tableName, curTbIndex) =>
                     {
                         var conn = ConnectionFactory.GetConnection(new Vit.Orm.Dapper.ConnectionInfo
                         { type = from_type, ConnectionString = from_ConnectionString });
@@ -1014,12 +796,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                                 dataReader.Dispose();
                                 conn.Dispose();
                             },
-                            GetDataTable = () =>
-                            {
-                                if (curTbIndex < tableIndex)
-                                {
-                                    throw new Exception("系统出错！lith_20201004_01");
-                                }
+                            GetDataReader = () => {
 
                                 while (curTbIndex > tableIndex)
                                 {
@@ -1027,165 +804,46 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                                     tableIndex++;
                                 }
 
-
-                                var dt = dataReader.ReadDataToDataTable(DbPortLogical.batchRowCount);
-
-                                if (dt == null)
-                                {
-                                    dataReader.NextResult();
-                                    tableIndex++;
-                                }
-                                else
-                                {
-                                    dt.TableName = tableNames[tableIndex];
-                                }
-                                return dt;
+                                return dataReader;
                             }
                         };
                     };
                 #endregion
 
 
-                #region (x.3)import data to to_data
-                int? sourceSumRowCount = rowCounts?.Sum();
-                using (var conn = ConnectionFactory.GetConnection(new Vit.Orm.Dapper.ConnectionInfo { type = to_type, ConnectionString = to_ConnectionString }))
-                using (var tableReader = GetDataTableReader())
-                {
-                    var startTime = DateTime.Now;
 
-                    SendMsg(EMsgType.Title, "   to database " + conn.Database);
+                #region (x.3)import data to database
 
-                    SendMsg(EMsgType.Title, "   sum row count: " + sourceSumRowCount);
-                    SendMsg(EMsgType.Title, "   table count: " + tableNames.Count);
-                    SendMsg(EMsgType.Title, "   table name: " + tableNames.Serialize());
+                //(x.x.1)初始化
+                var output = new DataOutput();
+                output.SendMsg = SendMsg;
+                output.type = to_type;
+                output.ConnectionString = to_ConnectionString;
+                output.createTable = createTable;
+                output.delete = delete;
+                output.truncate = truncate;
+                output.tableInfos = tableNames.Select((tableName, index) =>
+                   new TableInfo { tableName = tableName, tableIndex = index, rowCount = rowCounts?[index]??-1 }
+                ).ToList();
+                output.sourceSumRowCount = rowCounts?.Sum()??-1;
 
-                    int importedSumRowCount = 0;
-                    for (; curTbIndex < tableNames.Count; curTbIndex++)
-                    {
-                        var tableName = tableNames[curTbIndex];
-                        int? sourceRowCount = rowCounts?[curTbIndex];
-                        {
-                            SendMsg(EMsgType.Title, "");
-                            SendMsg(EMsgType.Title, "");
-                            SendMsg(EMsgType.Title, "");
-                            SendMsg(EMsgType.Title, $"       [{(curTbIndex + 1)}/{tableNames.Count}]start import table " + tableName + ",sourceRowCount:" + sourceRowCount);
+                output.GetDataTableReader = GetDataTableReader;
 
-                            //(x.x.1)read data
-                            SendMsg(EMsgType.Nomal, " ");
-                            SendMsg(EMsgType.Nomal, "           [x.x.1]read data ");
+                //(x.x.2)数据导入
+                var startTime = DateTime.Now;
+                output.Output();
 
-                            var dt = tableReader.GetDataTable();
-                            if (dt == null)
-                            {
-                                SendMsg(EMsgType.Nomal, "           read none data！");
-                                continue;
-                            }
-                            //(x.x.2)
-                            if (createTable)
-                            {
-                                SendMsg(EMsgType.Title, "           [x.x.2]create table ");
-                                try
-                                {
-                                    conn.CreateTable(dt);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.Error(ex);
-                                    SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                                }
-                            }
-
-                            //(x.x.3)
-                            if (delete)
-                            {
-                                SendMsg(EMsgType.Title, "           [x.x.3]delete table ");
-                                try
-                                {
-                                    conn.Execute("delete from  " + conn.Quote(dt.TableName));
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.Error(ex);
-                                    SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                                }
-                            }
-
-                            //(x.x.4)
-                            if (truncate)
-                            {
-                                SendMsg(EMsgType.Title, "           [x.x.4]truncate table ");
-                                try
-                                {
-                                    conn.Execute("truncate table " + conn.Quote(dt.TableName));
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logger.Error(ex);
-                                    SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                                }
-                            }
-
-
-                            //(x.x.5)import data
-                            int importedRowCount = 0;
-                            try
-                            {
-                                
-
-                                while (true)
-                                {
-
-                                    SendMsg(EMsgType.Nomal, "           [x.x.5]write data,row count:" + dt.Rows.Count);
-
-                                    conn.BulkImport(dt);
-
-                                    importedRowCount += dt.Rows.Count;
-                                    importedSumRowCount += dt.Rows.Count;
-
-                                    SendMsg(EMsgType.Nomal, "                      current              sum");
-                                    SendMsg(EMsgType.Nomal, $"            imported: {importedRowCount }      {importedSumRowCount }");
-
-                                    if (sourceRowCount.HasValue || sourceSumRowCount.HasValue)
-                                    {
-                                        SendMsg(EMsgType.Nomal, $"            total :   {sourceRowCount ?? 0}    {sourceSumRowCount ?? 0}");
-
-                                        SendMsg(EMsgType.Nomal, $@"            progress:   {
-                                            (sourceRowCount.HasValue ? (((float)importedRowCount) / sourceRowCount.Value * 100).ToString("f2") : "    ")
-                                            }%   {
-                                            (sourceSumRowCount.HasValue ? (((float)importedSumRowCount) / sourceSumRowCount.Value * 100).ToString("f2") : "")
-                                            }%");
-                                    }
-
-
-                                    SendMsg(EMsgType.Nomal, " ");
-                                    SendMsg(EMsgType.Nomal, "           [x.x.1]read data ");
-                                    dt = tableReader.GetDataTable();
-                                    if (dt == null)
-                                    {
-                                        SendMsg(EMsgType.Nomal, "           already read all data！");
-                                        break;
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Error(ex);
-                                SendMsg(EMsgType.Err, "出错。" + ex.GetBaseException().Message);
-                            }
-                            SendMsg(EMsgType.Title, "                    import table " + tableName + " success,row count:" + importedRowCount);
-                        }
-                    }
-
-                    var span = (DateTime.Now - startTime);
-
-                    SendMsg(EMsgType.Title, "");
-                    SendMsg(EMsgType.Title, "");
-                    SendMsg(EMsgType.Title, "");
-                    SendMsg(EMsgType.Title, "   DataTransfer success");
-                    SendMsg(EMsgType.Title, "   sum row count:" + importedSumRowCount);
-                    SendMsg(EMsgType.Nomal, $"   耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-                }
+                var span = (DateTime.Now - startTime);
+                SendMsg(EMsgType.Title, "");
+                SendMsg(EMsgType.Title, "");
+                SendMsg(EMsgType.Title, "");
+                SendMsg(EMsgType.Title, "   DataTransfer success");
+                SendMsg(EMsgType.Title, "   sum row count:" + output.importedSumRowCount);
+                SendMsg(EMsgType.Nomal, $"   耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
                 #endregion
+
+
+ 
 
             }
             catch (Exception ex)

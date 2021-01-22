@@ -42,9 +42,9 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
 
 
 
-        #region (x.8) SqlerBackup
+        #region (x.8) BackupSqler
 
-        public static void SqlerBackup(string filePath = null, string fileName = null)
+        public static void BackupSqler(string filePath = null, string fileName = null)
         {
             Logger.Info("[Sqler]MySqlDbMng Sqler备份数据库...");
             var startTime = DateTime.Now;
@@ -69,7 +69,7 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
 
 
 
-        #region (x.9) RemoteRestore
+        #region (x.9) Restore
         /// <summary>
         /// 
         /// </summary>
@@ -99,7 +99,7 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
                     }
                 }
 
-                filePath = dbMng.Restore(filePath); 
+                dbMng.Restore(filePath); 
             }
 
             var span = (DateTime.Now - startTime);

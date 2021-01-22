@@ -661,22 +661,10 @@ deallocate   cDblogin
         }
         #endregion
 
-        #region RestoreBakByFileName 通过bak远程还原
-        /// <summary>
-        /// 通过备份文件名称远程还原数据库，备份文件在当前管理的备份文件夹中
-        /// </summary>
-        /// <param name="fileName"></param>
-        /// <returns></returns>
-        public string RestoreBakByFileName(string fileName)
-        {
-            return RestoreBak(BackupFile_GetPathByName(fileName));
-        }
-        #endregion
-
-   
+        
 
 
-        #region RestoreLocalBak  by filePath
+        #region RestoreLocalBak
         /// <summary>
         /// 还原数据库   
         /// </summary>

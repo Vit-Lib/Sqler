@@ -305,7 +305,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         [HttpPost("SqlerBackup")]
         public ApiReturn SqlerBackup()
         {
-            MySqlLogical.SqlerBackup();
+            MySqlLogical.BackupSqler();
             return new ApiReturn();
         }
         #endregion

@@ -168,7 +168,13 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 
         #region (x.9) Restore
 
-        public static void Restore(string filePath = null, string fileName = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="fileName"></param>
+        /// <param name="force">若数据库已经存在，是否仍然还原</param>
+        public static void Restore(string filePath = null, string fileName = null, bool force = true)
         {
             Logger.Info("[Sqler]MsSqlDbMng 远程还原数据库...");
             var startTime = DateTime.Now;
@@ -180,6 +186,15 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
                 if (string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(fileName))
                 {
                     filePath = dbMng.BackupFile_GetPathByName(fileName);
+                }
+
+                if (!force)
+                {
+                    if (dbMng.GetDataBaseState() == Vit.Db.DbMng.EDataBaseState.online)
+                    {
+                        Logger.Info("[Sqler]MsSqlDbMng 已取消。数据库已经存在，且没有指定强制还原参数。");
+                        return;
+                    }
                 }
 
                 dbMng.Restore(filePath);
@@ -196,7 +211,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         #region (x.10) RestoreLocalBak
         public static void RestoreLocalBak( string filePath=null, string fileName = null)
         {
-            Logger.Info("[Sqler]MsSqlDbMng 还原本地数据库...");
+            Logger.Info("[Sqler]MsSqlDbMng 通过本地bak文件还原数据库...");
             var startTime = DateTime.Now;
 
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
@@ -212,7 +227,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
  
             }
             var span = (DateTime.Now - startTime);
-            Logger.Info("[Sqler]MsSqlDbMng 数据库已本地还原");
+            Logger.Info("[Sqler]MsSqlDbMng 数据库已通过本地bak文件还原");
             Logger.Info($"       耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
             Logger.Info("       filePath:" + filePath);
         }
