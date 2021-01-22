@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using Vit.Core.Module.Log;
 using Vit.Extensions;
 using Vit.Orm.Dapper;
+using Vit.Orm.Dapper.Data.Sqlite;
 
 namespace Vit.Db.DbMng
 {
@@ -66,92 +67,103 @@ namespace Vit.Db.DbMng
 
         protected abstract string Quote(string name);
 
+        protected virtual void Log(string msg) 
+        {
+            Logger.Info(msg);
+        }
 
         #region BackupSqler
         /// <summary>
         /// 备份数据库
         /// </summary>
         /// <param name="filePath">备份的文件路径。demo:@"F:\\website\appdata\dbname_2020-02-02_121212.bak"</param>
+        /// <param name="useMemoryCache">是否使用内存进行全量缓存，默认:true。缓存到内存可以加快备份速度。在数据源特别庞大时请禁用此功能。</param>
         /// <returns>备份的文件路径</returns>
-        public virtual string BackupSqler(string filePath)
+        public virtual string BackupSqler(string filePath,bool useMemoryCache = true)
         {
-            var tempPath = filePath + "_Temp";
-
+            var tempPath = filePath + "_Temp"; 
 
             try
             {
-                //(x.1)创建临时文件夹
+                var startTime = DateTime.Now;
+                var lastTime = DateTime.Now;
+                TimeSpan span;
+
+                Log("");
+                Log("[BackupSqler]start backup");
+
+                //创建临时文件夹
                 Directory.CreateDirectory(tempPath);
 
 
-
-                #region (x.2)构建备份文件
-
-                #region (x.x.1)创建建库语句文件（CreateDataBase.sql）
+                #region (x.1)创建建库语句文件（CreateDataBase.sql）
+                Log("");
+                Log(" --(x.1)创建建库语句文件（CreateDataBase.sql）");
                 var sqlPath = Path.Combine(tempPath, "CreateDataBase.sql");
                 var sqlText = BuildCreateDataBaseSql();
                 File.WriteAllText(sqlPath, sqlText, System.Text.Encoding.GetEncoding("utf-8"));
+
+                Log("     成功");
+                span = (DateTime.Now - lastTime);
+                Log($"     当前耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                span = (DateTime.Now - startTime);
+                Log($"     总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                lastTime = DateTime.Now;
                 #endregion
 
 
-                #region (x.x.2)获取所有表数据（Data.sqlite3）
+                #region (x.2)备份所有表数据（Data.sqlite3）
+                Log("");
+                Log(" --(x.2)备份所有表数据（Data.sqlite3）");
 
+                int sumRowCount = 0;
+                int sumTableCount;
                 string sqlitePath = Path.Combine(tempPath, "Data.sqlite3");
 
-                #region backup to sqlite           
-                //using (var conn = ConnectionFactory.MySql_GetOpenConnection(sqlConnectionString))
-                using (var connSqlite = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(sqlitePath))
+                using (var connSqlite = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(useMemoryCache ? null : sqlitePath,Version:3))
+                using (new SQLiteBackup(connSqlite, filePath: useMemoryCache ? sqlitePath : null, Version: 3))
                 {
-                    //Logger.Info("   mysql backup");
-                    //Logger.Info("   backup database " + conn.Database);
-
                     var tableNames = conn.GetAllTableName();
-                    int tbCount = 0;
-                    int sumRowCount = 0;
+                    sumTableCount = tableNames.Count;
+
+                    int tbIndex = 0;
+
                     foreach (var tableName in tableNames)
                     {
-                        tbCount++;
-                        //try
-                        //{
-                        //Logger.Info($"      [{tbCount}/{tableNames.Count}]start backup table " + tableName);
+                        tbIndex++;
 
-                           
+                        Log("");
+                        Log($" ----[{tbIndex}/{sumTableCount}]backup table " + tableName);
+
                         int rowCount;
                         using (IDataReader dr = conn.ExecuteReader($"select * from {Quote(tableName)}"))
                         {
-                            //(x.x.1)create table
-                            //Logger.Info("           [x.x.1]create table " + tableName);
                             connSqlite.Sqlite_CreateTable(dr, tableName);
 
-                            //(x.x.2)import table
-                            //Logger.Info("           [x.x.2]import table " + tableName + " start...");
-                            rowCount = connSqlite.Import(dr, tableName);
+                            rowCount = connSqlite.Import(dr, tableName, useTransaction: true);
                         }
-
                         sumRowCount += rowCount;
-                        //Logger.Info("            import table " + tableName + " success,row count:" + rowCount);
-                        //}
-                        //catch (Exception ex)
-                        //{
-                        //    Logger.Error(ex);
-                        //}
+                        Log($"      table backuped. cur: " + rowCount + "  sum: " + sumRowCount);
                     }
-                    //var span = (DateTime.Now - startTime);
-                    //Logger.Info("   mysql backup success,sum row count:" + sumRowCount + $",耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
                 }
 
+                Log("");
+                Log("     成功,sum table count: " + sumTableCount + ",sum row count: " + sumRowCount);
+                span = (DateTime.Now - lastTime);
+                Log($"     当前耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                span = (DateTime.Now - startTime);
+                Log($"     总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                lastTime = DateTime.Now;
+
                 #endregion
 
 
-                #endregion
 
 
+                #region (x.3)压缩备份文件
+                Log("");
+                Log(" --(x.3)压缩备份文件");
 
-                #endregion
-
-
-
-                #region (x.3)压缩备份文件        
                 //待压缩文件夹
                 string input = tempPath;
                 //压缩后文件名
@@ -168,7 +180,21 @@ namespace Vit.Db.DbMng
                 {
                     writer.WriteAll(input, "*", SearchOption.AllDirectories);
                 }
+
+                Log("     成功");
+                span = (DateTime.Now - lastTime);
+                Log($"     当前耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                span = (DateTime.Now - startTime);
+                Log($"     总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                lastTime = DateTime.Now;
                 #endregion
+                
+
+                Log("");
+                Log("   backup success,sum table count: "+ sumTableCount + ",sum row count: " + sumRowCount);
+                span = (DateTime.Now - startTime);
+                Log($"   总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                Log("");
 
             }
             finally
@@ -201,11 +227,39 @@ namespace Vit.Db.DbMng
 
             try
             {
-                //(x.1)创建临时文件夹
+                var startTime = DateTime.Now;
+                var lastTime = DateTime.Now;
+                TimeSpan span;
+
+                Log("");
+                Log("[RestoreSqler]start restore");
+
+                //(x.1)若数据库存在，则删除数据库
+                Log("");
+                Log(" --(x.1)若数据库存在，则删除数据库");
+                if (DataBaseIsOnline())
+                {
+                    Log("     数据库存在，删除数据库");
+                    DropDataBase();
+                }
+                else
+                {
+                    Log("     数据库不存在，无需删除");
+                }
+
+                //(x.2)创建数据库
+                Log("");
+                Log(" --(x.2)创建数据库");
+                CreateDataBase();
+
+
+                #region (x.3)解压备份文件到临时文件夹
+                Log("");
+                Log(" --(x.3)解压备份文件到临时文件夹");
+
+                //创建临时文件夹
                 Directory.CreateDirectory(tempPath);
 
-
-                #region (x.1)解压备份文件到临时文件夹
                 //待解压文件
                 var input = filePath;
                 var output = tempPath;
@@ -216,65 +270,56 @@ namespace Vit.Db.DbMng
                         entry.WriteToDirectory(output, new ExtractionOptions() { ExtractFullPath = true, Overwrite = true });
                     }
                 }
+
+                Log("");
+                Log("     成功");
+                span = (DateTime.Now - lastTime);
+                Log($"     当前耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                span = (DateTime.Now - startTime);
+                Log($"     总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                lastTime = DateTime.Now;
                 #endregion
 
 
-                #region (x.2)还原数据库
 
-                //(x.x.1)若数据库存在，则删除数据库
-                if (DataBaseIsOnline()) DropDataBase();
+                #region (x.4)执行建库语句文件（CreateDataBase.sql）
+                Log("");
+                Log(" --(x.4)执行建库语句文件（CreateDataBase.sql）");
 
-                //创建数据库
-                CreateDataBase();
-
-
-                #region (x.x.2)创建建库语句文件（CreateDataBase.sql）
                 var sqlPath = Path.Combine(tempPath, "CreateDataBase.sql");
                 var sqlText = File.ReadAllText(sqlPath, System.Text.Encoding.GetEncoding("utf-8"));
 
-                Action runSql = () => { 
-
-                using (var tran = conn.BeginTransaction())
+                Action runSql = () =>
                 {
-                    try
+                    using (var tran = conn.BeginTransaction())
                     {
-                        int index = 1;
-              
-              
-                        Regex reg = RestoreSqler_SqlSplit;
-                        if (reg == null)
+                        try
                         {
-                            conn.Execute(sqlText, transaction: tran);
-                        }
-                        else
-                        {
-                            var sqls = reg.Split(sqlText);
-                            foreach (String sql in sqls)
+                            Regex reg = RestoreSqler_SqlSplit;
+                            if (reg == null)
                             {
-                                if (String.IsNullOrEmpty(sql.Trim()))
+                                conn.Execute(sqlText, transaction: tran);
+                            }
+                            else
+                            {
+                                var sqls = reg.Split(sqlText);
+                                foreach (String sql in sqls)
                                 {
-                                    //sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]空语句，无需执行.");
-                                }
-                                else
-                                {
-                                    conn.Execute(sql,transaction: tran);
-                                    //sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]执行sql语句：");
-                                    //sendMsg(EMsgType.Nomal, sql);
-                                    //var result = "执行结果:" + conn.Execute(sql, null, tran) + " Lines effected.";
-                                    //sendMsg(EMsgType.Title, result);
+                                    if (!String.IsNullOrEmpty(sql.Trim()))                                   
+                                    {
+                                        conn.Execute(sql, transaction: tran);                                
+                                    }
                                 }
                             }
+                            tran.Commit();
                         }
-                        tran.Commit();               
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex);
+                            tran.Rollback();
+                            throw;
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(ex);
-                        tran.Rollback();
-                        throw;
-                    }
-                }
-
                 };
 
 
@@ -283,7 +328,7 @@ namespace Vit.Db.DbMng
                 {
                     runSql();
                 }
-                else 
+                else
                 {
                     try
                     {
@@ -296,60 +341,66 @@ namespace Vit.Db.DbMng
                     }
                 }
 
+                Log("     成功");
+                span = (DateTime.Now - lastTime);
+                Log($"     当前耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                span = (DateTime.Now - startTime);
+                Log($"     总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                lastTime = DateTime.Now;
                 #endregion
 
 
-                #region (x.x.3)导入所有表数据（Data.sqlite3）
+                #region (x.5)导入所有表数据（Data.sqlite3）
+                Log("");
+                Log(" --(x.5)导入所有表数据（Data.sqlite3）");
+
+                int sumRowCount = 0;
+                int sumTableCount;
 
                 string sqlitePath = Path.Combine(tempPath, "Data.sqlite3");
-
-            
-
-
-                //using (var conn = ConnectionFactory.MySql_GetOpenConnection(sqlConnectionString))
-                using (var connSqlite = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(sqlitePath))
-                {
+                using (var connSqlite = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(sqlitePath, Version: 3)) 
+                {                 
                     var tableNames = connSqlite.Sqlite_GetAllTableName();
-                    int tbCount = 0;
-                    int sumRowCount = 0;
+                    sumTableCount = tableNames.Count;
+                    int tbIndex = 0;
+            
                     foreach (var tableName in tableNames)
                     {
-                        tbCount++;
+                        tbIndex++;
 
-                        //Logger.Info($"       [{tbCount}/{tableNames.Count}]start import table " + tableName);
+                        Log("");
+                        Log($" ----[{tbIndex}/{sumTableCount}]import table " + tableName);
 
-                        //get data
+                        int rowCount;
                         using (var dr = connSqlite.ExecuteReader($"select * from {connSqlite.Quote(tableName)}"))
-                        {
-                            //(x.4)
-                            //Logger.Info("           [x.x.4]import table " + dt.TableName + ",row count:" + dt.Rows.Count);
-                            var rowCount = conn.BulkImport(dr, tableName);
-                            sumRowCount += rowCount;
-                            //Logger.Info("                    import table " + dt.TableName + " success");
+                        {                             
+                            rowCount = conn.BulkImport(dr, tableName);
+                            sumRowCount += rowCount;                         
                         }
-                    }
 
-                    //var span = (DateTime.Now - startTime);
-                    //Logger.Info("   mysql import success,sum row count:" + sumRowCount + $",耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                        Log($"     table imported. cur: " + rowCount + "  sum: " + sumRowCount);
+                    }       
                 }
 
-
+                Log("");
+                Log("     成功,sum table count: " + sumTableCount + ",sum row count: " + sumRowCount);
+                span = (DateTime.Now - lastTime);
+                Log($"     当前耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                span = (DateTime.Now - startTime);
+                Log($"     总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                lastTime = DateTime.Now;
                 #endregion
 
-
-
-                #endregion
-
-
-
-
+                Log(""); 
+                Log("   restore success,sum table count: " + sumTableCount + ",sum row count: " + sumRowCount);
+                span = (DateTime.Now - startTime);
+                Log($"   总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                Log("");
             }
             finally
             {
                 Directory.Delete(tempPath, true);
             }
-
-
             return filePath;
 
         }

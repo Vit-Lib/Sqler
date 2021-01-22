@@ -127,7 +127,7 @@ namespace App.Module.Sqler.ConsoleCommand
 
         #region BackupBak
         [Command("SqlServer.BackupBak")]
-        [Remarks("远程bak备份数据库。参数说明：备份文件名称和路径指定其一即可")]
+        [Remarks("远程bak备份数据库。参数说明：备份文件名称和路径指定其一即可,若均不指定则自动生成")]
         [Remarks("-fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 \"DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-fp[--filePath] (可选)备份文件路径，例如 \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
@@ -159,12 +159,13 @@ namespace App.Module.Sqler.ConsoleCommand
 
         #region BackupSqler
         [Command("SqlServer.BackupSqler")]
-        [Remarks("Sqler备份数据库。参数说明：备份文件名称和路径指定其一即可")]
-        [Remarks("-fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 \"DbDev_2020-06-08_135203.bak\"")]
-        [Remarks("-fp[--filePath] (可选)备份文件路径，例如 \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
+        [Remarks("Sqler备份数据库。参数说明：备份文件名称和路径指定其一即可,若均不指定则自动生成")]
+        [Remarks("-fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 \"DbDev_2020-06-08_135203.zip\"")]
+        [Remarks("-fp[--filePath] (可选)备份文件路径，例如 \"/root/docker/DbDev_2020-06-08_135203.zip\"")]
+        [Remarks("-c[--useMemoryCache] 若为false则不使用内存进行全量缓存，默认:true。缓存到内存可以加快备份速度。在数据源特别庞大时请禁用此功能（指定false）。")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
         [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]
-        [Remarks("示例： SqlServer.BackupSqler -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" --filePath \"/root/docker/DbDev_2020-06-08_135203.zip\"")]
+        [Remarks("示例： SqlServer.BackupSqler --useMemoryCache false -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" --filePath \"/root/docker/DbDev_2020-06-08_135203.zip\"")]
         public static void BackupSqler(string[] args)
         {
             ConsoleHelp.Log("Sqler备份数据库...");
@@ -180,8 +181,9 @@ namespace App.Module.Sqler.ConsoleCommand
             string fileName = ConsoleHelp.GetArg(args, "-fn") ?? ConsoleHelp.GetArg(args, "--fileName");
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
+            bool useMemoryCache = (ConsoleHelp.GetArg(args, "-c") ?? ConsoleHelp.GetArg(args, "--useMemoryCache")) != "false";
 
-            SqlServerLogical.BackupSqler(filePath, fileName);
+            SqlServerLogical.BackupSqler(filePath, fileName, useMemoryCache: useMemoryCache);
 
             ConsoleHelp.Log("操作成功");
         }
@@ -190,7 +192,7 @@ namespace App.Module.Sqler.ConsoleCommand
 
         #region BackupLocalBak
         [Command("SqlServer.BackupLocalBak")]
-        [Remarks("本地bak备份数据库。参数说明：备份文件名称和路径指定其一即可")]
+        [Remarks("本地bak备份数据库。参数说明：备份文件名称和路径指定其一即可,若均不指定则自动生成")]
         [Remarks("-fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 \"DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-fp[--filePath] (可选)备份文件路径，例如 \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]

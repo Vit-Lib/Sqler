@@ -316,11 +316,22 @@ select 30 as name,31 as name1 union all select 40,41;      \n\
                             </tr>                            
                             <tr>
                                 <td colspan="2" style="padding-top:5px;">
-                                    <a id="btn_export" iconcls="icon-sum" class="easyui-linkbutton" href="#" onclick="javascript:exportData();">导出数据</a>
-                                    <input type='radio' name='exportFileType' value="sqlite" />sqlite
-                                    <input type='radio' name='exportFileType' value="excel" />excel
-                                    <input type='radio' name='exportFileType' value="csv" />csv
-                                    <input type='radio' name='exportFileType' value="txt" checked="checked" />txt
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a id="btn_export" iconcls="icon-sum" class="easyui-linkbutton" href="#" onclick="javascript:exportData();">导出数据</a>
+                                            </td>
+                                            <td>
+                                                <input type='radio' name='exportFileType' value="sqlite" />sqlite
+                                                <input type='radio' name='exportFileType' value="sqlite-NoMemoryCache" />sqlite-NoMemoryCache  <br />
+                                                <input type='radio' name='exportFileType' value="excel" />excel
+                                                <input type='radio' name='exportFileType' value="csv" />csv
+                                                <input type='radio' name='exportFileType' value="txt" checked="checked" />txt
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    
+                                   
                                 </td>
                             </tr>
                         </table>

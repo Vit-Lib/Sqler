@@ -127,13 +127,21 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             }
             #endregion
 
-          
- 
 
-            #region (x.x.8)SqlerBackup
+
+
+            #region (x.x.8)BackupSqler
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
             {
-                var strButton = "{text:'Sqler备份',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/SqlerBackup'    }     }";
+                var strButton = "{text:'Sqler备份',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/BackupSqler'    }     }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
+
+            #region (x.x.9)BackupSqler_NoMemoryCache
+            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'Sqler备份-NoMemoryCache',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/BackupSqler_NoMemoryCache'    }     }";
                 buttons.Add(strButton.Deserialize<JObject>());
             }
             #endregion
@@ -301,11 +309,24 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
 
-        #region (x.8) SqlerBackup
-        [HttpPost("SqlerBackup")]
-        public ApiReturn SqlerBackup()
+        #region (x.7) BackupSqler
+        [HttpPost("BackupSqler")]
+        public ApiReturn BackupSqler()
         {
-            MySqlLogical.BackupSqler();
+            MySqlLogical.BackupSqler(useMemoryCache:true);
+            return new ApiReturn();
+        }
+        #endregion
+
+
+
+
+
+        #region (x.8) BackupSqler_NoMemoryCache
+        [HttpPost("BackupSqler_NoMemoryCache")]
+        public ApiReturn BackupSqler_NoMemoryCache()
+        {
+            MySqlLogical.BackupSqler(useMemoryCache: false);
             return new ApiReturn();
         }
         #endregion

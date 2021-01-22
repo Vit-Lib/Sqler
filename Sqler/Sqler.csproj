@@ -5,7 +5,7 @@
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject /> 
-    <Version>2.25.313</Version>
+    <Version>2.25.317</Version>
     <Description>https://github.com/sersms/Sqler</Description>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <PreserveCompilationContext>true</PreserveCompilationContext>
@@ -22,8 +22,8 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.8.0" />
  
-    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.459" />
-    <PackageReference Include="Vit.WebHost" Version="2.1.1.459" />
+    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.461" />
+    <PackageReference Include="Vit.WebHost" Version="2.1.1.461" />
   </ItemGroup>
   
   <ItemGroup>
@@ -74,12 +74,6 @@
     </None>
     <None Update="Data\Temp\readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="help.bat">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Start Sqler.bat">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

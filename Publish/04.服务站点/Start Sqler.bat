@@ -1,6 +1,9 @@
 start  http://localhost:4570/sqler/index.html
 
-cd /d sqler
+cd /d Sqler
+
+:: ²é¿´°ïÖú
+:: dotnet Sqler.dll help
 
 dotnet Sqler.dll
 

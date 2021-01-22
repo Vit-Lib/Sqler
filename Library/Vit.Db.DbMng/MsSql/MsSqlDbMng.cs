@@ -578,13 +578,14 @@ deallocate   cDblogin
         /// <summary>
         /// 备份数据库
         /// </summary>
-        /// <param name="filePath">备份的文件路径，若不指定则自动构建。demo:@"F:\\website\appdata\dbname_2020-02-02_121212.bak"</param>
+        /// <param name="filePath">备份的文件路径，若不指定则自动构建。demo:@"F:\\website\appdata\dbname_2020-02-02_121212.zip"</param>
+        /// <param name="useMemoryCache">是否使用内存进行全量缓存，默认:true。缓存到内存可以加快备份速度。在数据源特别庞大时请禁用此功能。</param>
         /// <returns>备份的文件路径</returns>
-        public override string BackupSqler(string filePath = null)
+        public override string BackupSqler(string filePath = null, bool useMemoryCache = true)
         {
             if (string.IsNullOrEmpty(filePath)) filePath = Path.Combine(BackupPath, GenerateBackupFileName(dbName,".zip"));
 
-            base.BackupSqler(filePath);
+            base.BackupSqler(filePath, useMemoryCache: useMemoryCache);
             return filePath;
         }
 

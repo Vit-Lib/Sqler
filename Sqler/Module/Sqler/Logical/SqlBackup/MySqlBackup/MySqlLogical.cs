@@ -44,7 +44,7 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
 
         #region (x.8) BackupSqler
 
-        public static void BackupSqler(string filePath = null, string fileName = null)
+        public static void BackupSqler(string filePath = null, string fileName = null, bool useMemoryCache = true)
         {
             Logger.Info("[Sqler]MySqlDbMng Sqler备份数据库...");
             var startTime = DateTime.Now;
@@ -57,7 +57,7 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
                     filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }
 
-                filePath = dbMng.BackupSqler(filePath);  
+                filePath = dbMng.BackupSqler(filePath, useMemoryCache: useMemoryCache);  
             }
 
             var span = (DateTime.Now - startTime);

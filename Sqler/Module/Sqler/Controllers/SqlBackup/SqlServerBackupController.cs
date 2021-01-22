@@ -166,16 +166,27 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             }
             #endregion
 
+ 
+
             #region (x.x.7)BackupSqler
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
             {
-                var strButton = "{text:'sqler备份',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/BackupSqler'    }     }";
+                var strButton = "{text:'Sqler备份',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/BackupSqler'    }     }";
+                buttons.Add(strButton.Deserialize<JObject>());
+            }
+            #endregion
+
+            #region (x.x.8)BackupSqler_NoMemoryCache
+            if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
+            {
+                var strButton = "{text:'Sqler备份-NoMemoryCache',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/BackupSqler_NoMemoryCache'    }     }";
                 buttons.Add(strButton.Deserialize<JObject>());
             }
             #endregion
 
 
-            #region (x.x.8)BackupLocalBak
+
+            #region (x.x.9)BackupLocalBak
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
             {
                 var strButton = "{text:'本地bak备份',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/BackupLocalBak'    }     }";
@@ -422,7 +433,17 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         [HttpPost("BackupSqler")]
         public ApiReturn BackupSqler()
         {
-            SqlServerLogical.BackupSqler();
+            SqlServerLogical.BackupSqler(useMemoryCache: true);
+            return new ApiReturn();
+        }
+        #endregion
+
+
+        #region (x.9) BackupSqler_NoMemoryCache
+        [HttpPost("BackupSqler_NoMemoryCache")]
+        public ApiReturn BackupSqler_NoMemoryCache()
+        {
+            SqlServerLogical.BackupSqler(useMemoryCache: false);
             return new ApiReturn();
         }
         #endregion
