@@ -91,7 +91,7 @@ namespace App.Module.Sqler.ConsoleCommand
         #endregion    
 
 
-        #region RemoteBackup
+        #region BackupSqler
         [Command("MySql.BackupSqler")]
         [Remarks("远程备份数据库。参数说明：备份文件名称和路径指定其一即可")]
         [Remarks("-fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 \"DbDev_2020-06-08_135203.bak\"")]

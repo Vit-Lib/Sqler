@@ -495,7 +495,7 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
         #region GenerateBackupFileName
         static string GenerateBackupFileNameBackupFileName(string dbName)
         {
-            // dbname_2010-02-02_121212.sqler.mysql.zip
+            // dbname_2010-02-02_121212.zip
             return $"{dbName}_{DateTime.Now.ToString("yyyy-MM-dd")}_{DateTime.Now.ToString("HHmmss")}.zip";
         }
         #endregion
