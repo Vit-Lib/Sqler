@@ -34,7 +34,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
                 () =>
                 {
                     var conn = ConnectionCreator();
-                    conn.Open();
+                    conn?.Open();
                     return conn;
                 };
             }

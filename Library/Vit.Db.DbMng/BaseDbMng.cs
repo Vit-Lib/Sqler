@@ -324,22 +324,7 @@ namespace Vit.Db.DbMng
 
 
                 //确保conn打开
-                if (conn.State == ConnectionState.Open)
-                {
-                    runSql();
-                }
-                else
-                {
-                    try
-                    {
-                        conn.Open();
-                        runSql();
-                    }
-                    finally
-                    {
-                        conn.Close();
-                    }
-                }
+                conn.MakeSureOpen(runSql);
 
                 Log("     成功");
                 span = (DateTime.Now - lastTime);

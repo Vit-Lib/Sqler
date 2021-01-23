@@ -517,6 +517,27 @@ deallocate   cDblogin
 
 
 
+        #region BackupToLocalBak
+
+        /// <summary>
+        /// 备份数据库
+        /// </summary>
+        /// <param name="bakFilePath">备份的文件路径，若不指定则自动构建。demo:@"F:\\website\appdata\dbname_2020-02-02_121212.bak"</param>
+        /// <returns>备份的文件路径</returns>
+        public string BackupToLocalBak(string bakFilePath = null)
+        {
+            if (string.IsNullOrEmpty(bakFilePath)) bakFilePath = BackupFile_GetPathByName(GenerateBackupFileName(dbName));
+
+            return Exec((conn) =>
+            {
+                conn.Execute("backup database @database to disk = @filePath ", new { database = this.dbName, filePath = bakFilePath }, commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+                return bakFilePath;
+            });
+        }
+
+        #endregion
+
+
 
         #region BackupToBak 远程备份数据库
         /// <summary>
@@ -547,11 +568,14 @@ deallocate   cDblogin
             BackupToLocalBak(remote_bakFilePath);
             #endregion
 
-            #region (x.3)从远程数据库服务器 获取备份文件二进制内容，并删除临时备份文件
-            byte[] fileContent;
+            #region (x.3)从远程数据库服务器 获取备份文件二进制内容，存储备份文件到本地，并删除临时备份文件
+
+            if (string.IsNullOrEmpty(bakFilePath)) 
+                bakFilePath = BackupFile_GetPathByName(GenerateBackupFileName(dbName));
+
             try
             {
-                fileContent = conn.MsSql_ReadFileFromDisk(remote_bakFilePath);
+                conn.ReadFileFromDisk(remote_bakFilePath, bakFilePath);
             }
             finally
             {
@@ -560,14 +584,7 @@ deallocate   cDblogin
             }
             #endregion
 
-
-            #region (x.4)存储备份文件到本地
-            if (string.IsNullOrEmpty(bakFilePath)) bakFilePath = BackupFile_GetPathByName(GenerateBackupFileName(dbName));
-
-            Directory.CreateDirectory(Path.GetDirectoryName(bakFilePath));
-            File.WriteAllBytes(bakFilePath, fileContent);
-            return bakFilePath;
-            #endregion
+            return bakFilePath;            
         }
         #endregion
 
@@ -592,27 +609,6 @@ deallocate   cDblogin
         #endregion
 
 
-        #region BackupToLocalBak ByFilePath
-
-        /// <summary>
-        /// 备份数据库
-        /// </summary>
-        /// <param name="bakFilePath">备份的文件路径，若不指定则自动构建。demo:@"F:\\website\appdata\dbname_2020-02-02_121212.bak"</param>
-        /// <returns>备份的文件路径</returns>
-        public string BackupToLocalBak(string bakFilePath = null)
-        {
-            if (string.IsNullOrEmpty(bakFilePath)) bakFilePath = BackupFile_GetPathByName(GenerateBackupFileName(dbName));
-
-            return Exec((conn) =>
-            {
-                conn.Execute("backup database @database to disk = @filePath ", new { database = this.dbName, filePath = bakFilePath }, commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
-                return bakFilePath;
-            });
-        }
-
-        #endregion
-
-
         #region GenerateBackupFileName
         static string GenerateBackupFileName(string dbName, string fileExtension = ".bak")
         {
@@ -622,47 +618,6 @@ deallocate   cDblogin
         #endregion
 
 
-
-        #region RestoreBak 通过bak远程还原
-        /// <summary>
-        /// 远程还原数据库   
-        /// </summary>
-        /// <param name="bakFilePath">数据库备份文件的路径</param>
-        /// <returns>备份文件的路径</returns>
-        public string RestoreBak(string bakFilePath)
-        {
-            //(x.1)若数据库不存在，则创建数据库
-            CreateDataBase();
-
-            #region (x.2)拼接在mdf同文件夹下的备份文件的路径
-            var remote_mdfDirectory = Path.GetDirectoryName(GetMdfPath());
-            var remote_bakFilePath = Path.Combine(remote_mdfDirectory, "sqler_temp_" + dbName + ".bak");
-            #endregion
-
-
-            #region (x.3)把本地备份文件写入到远程
-            conn.MsSql_WriteFileToDisk(remote_bakFilePath,File.ReadAllBytes(bakFilePath));            
-            #endregion
-
-            #region (x.4)还原远程数据库            
-            try
-            {
-                RestoreLocalBak(remote_bakFilePath);
-            }
-            finally
-            {
-                //远程删除文件
-                conn.MsSql_DeleteFileFromDisk(remote_bakFilePath);
-            }
-            #endregion
-
-
-            return bakFilePath;
-
-        }
-        #endregion
-
-        
 
 
         #region RestoreLocalBak
@@ -675,6 +630,7 @@ deallocate   cDblogin
         {
             //若数据库不存在，则创建数据库
             CreateDataBase();
+
             return Exec((conn) =>
             {
 
@@ -737,6 +693,51 @@ RESTORE DATABASE [Lit_Base1] FROM  DISK =@BakPath  WITH  FILE = 1,  RECOVERY ,  
              */
         }
         #endregion     
+
+
+
+
+        #region RestoreBak 通过bak远程还原
+        /// <summary>
+        /// 远程还原数据库   
+        /// </summary>
+        /// <param name="bakFilePath">数据库备份文件的路径</param>
+        /// <returns>备份文件的路径</returns>
+        public string RestoreBak(string bakFilePath)
+        {
+            //(x.1)若数据库不存在，则创建数据库
+            CreateDataBase();
+
+            #region (x.2)拼接在mdf同文件夹下的备份文件的路径
+            var remote_mdfDirectory = Path.GetDirectoryName(GetMdfPath());
+            var remote_bakFilePath = Path.Combine(remote_mdfDirectory, "sqler_temp_" + dbName + ".bak");
+            #endregion
+
+
+            #region (x.3)把本地备份文件写入到远程
+            conn.MsSql_WriteFileToDisk(remote_bakFilePath,File.ReadAllBytes(bakFilePath));            
+            #endregion
+
+            #region (x.4)还原远程数据库            
+            try
+            {
+                RestoreLocalBak(remote_bakFilePath);
+            }
+            finally
+            {
+                //远程删除文件
+                conn.MsSql_DeleteFileFromDisk(remote_bakFilePath);
+            }
+            #endregion
+
+
+            return bakFilePath;
+
+        }
+        #endregion
+
+        
+
 
 
 

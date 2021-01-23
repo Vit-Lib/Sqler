@@ -41,10 +41,8 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
         static void ExecSql( Action<EMsgType, String> sendMsg,string sqlCode)
         {
-
-            using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config")))
-            {
-                conn.Open();
+            using (var conn = ConnectionFactory.GetOpenConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config")))
+            {               
                 using (var tran = conn.BeginTransaction())
                 {
                     try
