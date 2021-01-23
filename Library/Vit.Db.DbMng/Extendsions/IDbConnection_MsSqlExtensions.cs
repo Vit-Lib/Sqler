@@ -141,37 +141,39 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
 
         #region MsSql_WriteFileToDisk    
         /// <summary>
-        /// 写入文件到磁盘
+        /// 写入文件到数据库所在服务器
         /// </summary>
         /// <param name="conn"></param>
-        /// <param name="filePath"></param>
+        /// <param name="serverFilePath"></param>
         /// <param name="fileContent"></param>
-        public static void MsSql_WriteFileToDisk(this IDbConnection conn, string filePath, byte[] fileContent)
+        public static void MsSql_WriteFileToDisk(this IDbConnection conn, string serverFilePath, byte[] fileContent)
         {
-            string fmtFilePath = filePath + ".sqler.temp.fmt";
-
             conn.MsSql_Cmdshell(runCmd =>
             {
-
-                #region (x.1)把文件内容写入到临时表
-                conn.Execute(@"
-if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuffer') and xtype='U')
-	drop table sqler_temp_filebuffer;
-select @fileContent as fileContent into sqler_temp_filebuffer;
-", new { fileContent }, commandTimeout: DapperConfig.CommandTimeout);
-                #endregion
+                string fmtFilePath = serverFilePath + ".MsDbMng.temp.fmt";
 
                 try
                 {
+                    DataTable cmdResult;
 
-                    #region (x.2)写入二进制文件到磁盘
-                    var log1 = runCmd("bcp \"select null union all select '0' union all select '0' union all select null union all select 'n' union all select null \" queryout \"" + fmtFilePath + "\" /T /c");
-                    Logger.Info("[sqler]-MsDbMng 写入文件到磁盘. 创建fmt文件，outlog: " + log1.Serialize());
 
-                    var log2 = runCmd("BCP \"SELECT fileContent FROM sqler_temp_filebuffer\" queryout \"" + filePath + "\" -T -i \"" + fmtFilePath + "\"");
-                    Logger.Info("[sqler]-MsDbMng 写入文件到磁盘.创建文件，outlog: " + log2.Serialize());
+                    //(x.1)创建fmt文件
+                    cmdResult = runCmd("bcp \"select null union all select '0' union all select '0' union all select null union all select 'n' union all select null \" queryout \"" + fmtFilePath + "\" /T /c");
+                    //Logger.Info("[MsDbMng] 写入文件到磁盘. 创建fmt文件，outlog: " + cmdResult.Serialize());
+              
 
-                    #endregion
+                    //(x.2)把文件内容写入到临时表
+                    conn.Execute(@"
+if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuffer') and xtype='U')
+	drop table sqler_temp_filebuffer;
+select @fileContent as fileContent into sqler_temp_filebuffer;
+", new { fileContent }, commandTimeout: DapperConfig.CommandTimeout);              
+
+
+                    //(x.3)从临时表读取二进制内容到目标文件
+                    cmdResult = runCmd("BCP \"SELECT fileContent FROM sqler_temp_filebuffer\" queryout \"" + serverFilePath + "\" -T -i \"" + fmtFilePath + "\"");
+                    //Logger.Info("[MsDbMng] 写入文件到磁盘.创建文件，outlog: " + cmdResult.Serialize());
+             
 
                 }
                 finally
@@ -187,10 +189,17 @@ select @fileContent as fileContent into sqler_temp_filebuffer;
                     }
 
                     //(x.2)删除临时表
-                    conn.Execute(@"
+                    try
+                    {
+                        conn.Execute(@"
 if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuffer') and xtype='U')
-	drop table sqler_temp_filebuffer;
-", commandTimeout: DapperConfig.CommandTimeout);
+	drop table sqler_temp_filebuffer;"
+                        , commandTimeout: DapperConfig.CommandTimeout);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                    }
                 }
 
             });
@@ -199,6 +208,118 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
         #endregion
 
 
+        #region MsSql_WriteFileToDisk    
+        /// <summary>
+        /// 分片写入文件到数据库所在服务器
+        /// </summary>
+        /// <param name="conn"></param>
+        /// <param name="serverFilePath"></param>
+        /// <param name="fileReader"></param>
+        /// <param name="sliceByte">每个文件分片的大小（byte）</param>
+        /// <returns>文件总大小(byte)</returns>
+        public static int MsSql_WriteFileToDisk(this SqlConnection conn, string serverFilePath, BinaryReader fileReader, int sliceByte = 100 * 1024 * 1024)
+        {
+
+            int fileSize = 0;
+
+            conn.MsSql_Cmdshell(runCmd =>
+            {
+                string serverTempFilePath = serverFilePath + ".MsDbMng.temp.tmp";
+                string fmtFilePath = serverFilePath + ".MsDbMng.temp.fmt";
+
+                try
+                {                  
+                    DataTable cmdResult;
+
+                    // (x.1)创建fmt文件
+                    cmdResult = runCmd("bcp \"select null union all select '0' union all select '0' union all select null union all select 'n' union all select null \" queryout \"" + fmtFilePath + "\" /T /c");
+                    //Logger.Info("[MsDbMng] 写入文件到磁盘. 创建fmt文件，outlog: " + cmdResult.Serialize());
+         
+
+
+                    #region (x.2)创建临时表
+                    conn.Execute(@"
+if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuffer') and xtype='U')
+	drop table sqler_temp_filebuffer;
+create table sqler_temp_filebuffer (fileContent varbinary(MAX) null);
+", commandTimeout: DapperConfig.CommandTimeout);
+                    #endregion
+
+
+                    #region (x.3)分片写入文件                
+                  
+                    var fileContent = new byte[sliceByte];         
+                    while (true) 
+                    {
+                        int readLen = fileReader.Read(fileContent, 0, sliceByte);
+                        if (readLen == 0) break;
+                        if (readLen < sliceByte) 
+                        {
+                            fileContent = fileContent.AsSpan().Slice(0, readLen).ToArray();
+                        }
+
+                        //(x.x.1)把二进制数据写入到临时表
+                        conn.Execute(@"
+truncate table sqler_temp_filebuffer;
+insert into sqler_temp_filebuffer select @fileContent as fileContent;
+", new { fileContent = fileContent }, commandTimeout: DapperConfig.CommandTimeout);
+
+                        // (x.x.2)从临时表读取二进制内容保存到临时文件
+                        cmdResult = runCmd("BCP \"SELECT fileContent FROM sqler_temp_filebuffer\" queryout \"" + serverTempFilePath + "\" -T -i \"" + fmtFilePath + "\"");
+                        //Logger.Info("[MsDbMng] 写入文件到磁盘.创建文件，outlog: " + cmdResult.Serialize());
+
+
+                        // (x.x.3)吧临时文件内容追加到目标文件
+                        cmdResult = runCmd("Type \"" + serverTempFilePath + "\" >> \"" + serverFilePath + "\"");
+
+
+                        fileSize += readLen;
+                        if (readLen < sliceByte) break;
+                    }
+                    #endregion
+
+                }
+                finally
+                {
+                    //(x.1)删除fmt文件
+                    try
+                    {
+                        runCmd("del \"" + fmtFilePath + "\"");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                    }
+
+                    //(x.2)删除临时文件
+                    try
+                    {
+                        runCmd("del \"" + serverTempFilePath + "\"");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                    }
+
+                    //(x.3)删除临时表
+                    try
+                    {
+                        conn.Execute(@"
+if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuffer') and xtype='U')
+	drop table sqler_temp_filebuffer;"
+                        , commandTimeout: DapperConfig.CommandTimeout);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                    }
+                }
+
+            });
+
+            return fileSize;
+        }
+        #endregion
 
 
         #region MsSql_RunUseMaster

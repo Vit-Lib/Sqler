@@ -174,7 +174,8 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         /// <param name="filePath"></param>
         /// <param name="fileName"></param>
         /// <param name="force">若数据库已经存在，是否仍然还原</param>
-        public static void Restore(string filePath = null, string fileName = null, bool force = true)
+        /// <param name="sliceMb">文件切片大小。默认：100,单位 MB。若指定小于备份文件大小的正数，则在传递文件到远程时进行分片传递。建议在备份文件过大时使用。</param>
+        public static void Restore(string filePath = null, string fileName = null, bool force = true, int sliceMb = 100)
         {
             Logger.Info("[Sqler]MsSqlDbMng 远程还原数据库...");
             var startTime = DateTime.Now;
@@ -197,7 +198,7 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
                     }
                 }
 
-                dbMng.Restore(filePath);
+                dbMng.Restore(filePath, sliceMb);
             }
 
             var span = (DateTime.Now - startTime);

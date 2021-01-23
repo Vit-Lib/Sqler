@@ -692,7 +692,7 @@ RESTORE DATABASE [Lit_Base1] FROM  DISK =@BakPath  WITH  FILE = 1,  RECOVERY ,  
 
              */
         }
-        #endregion     
+        #endregion
 
 
 
@@ -702,41 +702,54 @@ RESTORE DATABASE [Lit_Base1] FROM  DISK =@BakPath  WITH  FILE = 1,  RECOVERY ,  
         /// 远程还原数据库   
         /// </summary>
         /// <param name="bakFilePath">数据库备份文件的路径</param>
+        /// <param name="sliceMb">文件切片大小。默认：100,单位 MB。若指定小于备份文件大小的正数，则在传递文件到远程时进行分片传递。建议在备份文件过大时使用。</param>
         /// <returns>备份文件的路径</returns>
-        public string RestoreBak(string bakFilePath)
+        public void RestoreBak(string bakFilePath, int sliceMb = 100)
         {
             //(x.1)若数据库不存在，则创建数据库
             CreateDataBase();
 
-            #region (x.2)拼接在mdf同文件夹下的备份文件的路径
+            //(x.2)拼接在mdf同文件夹下的备份文件的路径
             var remote_mdfDirectory = Path.GetDirectoryName(GetMdfPath());
-            var remote_bakFilePath = Path.Combine(remote_mdfDirectory, "sqler_temp_" + dbName + ".bak");
-            #endregion
+            var remote_bakFilePath = Path.Combine(remote_mdfDirectory, "sqler_temp_" + dbName + ".bak");         
 
-
-            #region (x.3)把本地备份文件写入到远程
-            conn.MsSql_WriteFileToDisk(remote_bakFilePath,File.ReadAllBytes(bakFilePath));            
-            #endregion
-
-            #region (x.4)还原远程数据库            
+            #region    
             try
             {
+                #region (x.3)把本地备份文件传递到远程
+                var sliceByte = sliceMb * 1024 * 1024;
+                if (sliceByte <= 0 || new FileInfo(bakFilePath).Length <= sliceByte)
+                {
+                    //不分片，直接传递全部文件内容
+                    conn.MsSql_WriteFileToDisk(remote_bakFilePath, File.ReadAllBytes(bakFilePath));
+                }
+                else
+                {
+                    //分片传递文件
+                    using (var file = new FileStream(bakFilePath, FileMode.Open, FileAccess.Read))
+                    using (var bin = new BinaryReader(file))
+                    {
+                        conn.MsSql_WriteFileToDisk(remote_bakFilePath, bin, sliceByte: sliceByte);
+                    }
+                }
+                #endregion
+
+
+                //(x.4)还原远程数据库   
                 RestoreLocalBak(remote_bakFilePath);
+
             }
             finally
             {
                 //远程删除文件
                 conn.MsSql_DeleteFileFromDisk(remote_bakFilePath);
             }
-            #endregion
-
-
-            return bakFilePath;
+            #endregion 
 
         }
         #endregion
 
-        
+
 
 
 
@@ -750,15 +763,16 @@ RESTORE DATABASE [Lit_Base1] FROM  DISK =@BakPath  WITH  FILE = 1,  RECOVERY ,  
         /// 远程还原数据库   
         /// </summary>
         /// <param name="filePath">数据库备份文件的路径。可为bak文件或zip文件</param>
+        /// <param name="sliceMb">文件切片大小。默认：100,单位 MB。若指定小于备份文件大小的正数，则在传递文件到远程时进行分片传递。建议在备份文件过大时使用。</param>
         /// <returns>备份文件的路径</returns>
-        public virtual void Restore(string filePath)
+        public virtual void Restore(string filePath, int sliceMb = 100)
         {
             var fileExtension = Path.GetExtension(filePath).ToLower();
 
             switch (fileExtension) 
             {
                 case ".zip": RestoreSqler(filePath);return;
-                case ".bak": RestoreBak(filePath); return;
+                case ".bak": RestoreBak(filePath, sliceMb: sliceMb); return;
             }
 
             throw new NotImplementedException($"不识别的备份文件类型。NotImplementedException from {nameof(Restore)} in {nameof(MsSqlDbMng)}.cs");
