@@ -7,6 +7,7 @@ using System.Data;
 using System.IO;
 using System.Text.RegularExpressions;
 using Vit.Core.Module.Log;
+using Vit.Db.DbMng.SqlerFile;
 using Vit.Extensions;
 using Vit.Orm.Dapper;
 using Vit.Orm.Dapper.Data.Sqlite;
@@ -101,7 +102,7 @@ namespace Vit.Db.DbMng
                 Log(" --(x.1)创建建库语句文件（CreateDataBase.sql）");
                 var sqlPath = Path.Combine(tempPath, "CreateDataBase.sql");
                 var sqlText = BuildCreateDataBaseSql();
-                File.WriteAllText(sqlPath, sqlText, System.Text.Encoding.GetEncoding("utf-8"));
+                File.WriteAllText(sqlPath, sqlText, System.Text.Encoding.UTF8);
 
                 Log("     成功");
                 span = (DateTime.Now - lastTime);
@@ -156,8 +157,7 @@ namespace Vit.Db.DbMng
                 lastTime = DateTime.Now;
 
                 #endregion
-
-
+                               
 
 
                 #region (x.3)压缩备份文件
@@ -191,7 +191,7 @@ namespace Vit.Db.DbMng
                 
 
                 Log("");
-                Log("   backup success,sum table count: "+ sumTableCount + ",sum row count: " + sumRowCount);
+                Log("   backup success, table count: "+ sumTableCount + ",  row count: " + sumRowCount);
                 span = (DateTime.Now - startTime);
                 Log($"   总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
                 Log("");
@@ -221,9 +221,7 @@ namespace Vit.Db.DbMng
         /// <returns>备份文件的路径</returns>
         public virtual string RestoreSqler(string filePath)
         {
-
             var tempPath = filePath + "_Temp";
-
 
             try
             {
@@ -281,103 +279,45 @@ namespace Vit.Db.DbMng
                 #endregion
 
 
-
-                #region (x.4)执行建库语句文件（CreateDataBase.sql）
+                #region (x.4)获取备份文件信息
                 Log("");
-                Log(" --(x.4)执行建库语句文件（CreateDataBase.sql）");
+                Log(" --(x.4)获取备份文件信息");
+                SqlerBackuper backuper = new SqlerBackuper();
+                backuper.dirPath = tempPath;
+                backuper.conn = conn;
+                backuper.Log = Log;
 
-                var sqlPath = Path.Combine(tempPath, "CreateDataBase.sql");
-                var sqlText = File.ReadAllText(sqlPath, System.Text.Encoding.GetEncoding("utf-8"));
+                backuper.sqlSplit = RestoreSqler_SqlSplit;
 
-                Action runSql = () =>
+                backuper.ReadBackupInfo();
+                #endregion
+
+
+                #region (x.5)执行命令
+                Log("");
+                Log(" --(x.5)执行命令");
+                int t = 0;
+                foreach (var cmd in backuper.backupInfo.cmd) 
                 {
-                    using (var tran = conn.BeginTransaction())
-                    {
-                        try
-                        {
-                            Regex reg = RestoreSqler_SqlSplit;
-                            if (reg == null)
-                            {
-                                conn.Execute(sqlText, transaction: tran);
-                            }
-                            else
-                            {
-                                var sqls = reg.Split(sqlText);
-                                foreach (String sql in sqls)
-                                {
-                                    if (!String.IsNullOrEmpty(sql.Trim()))                                   
-                                    {
-                                        conn.Execute(sql, transaction: tran);                                
-                                    }
-                                }
-                            }
-                            tran.Commit();
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Error(ex);
-                            tran.Rollback();
-                            throw;
-                        }
-                    }
-                };
+                    t++;
 
+                    Log("");
+                    Log(" ----(x.x." + t + ")执行命令");
+                    Log("    " + cmd.Serialize());
+                    backuper.ExecCmd(cmd);
 
-                //确保conn打开
-                conn.MakeSureOpen(runSql);
-
-                Log("     成功");
-                span = (DateTime.Now - lastTime);
-                Log($"     当前耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-                span = (DateTime.Now - startTime);
-                Log($"     总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-                lastTime = DateTime.Now;
-                #endregion
-
-
-                #region (x.5)导入所有表数据（Data.sqlite3）
-                Log("");
-                Log(" --(x.5)导入所有表数据（Data.sqlite3）");
-
-                int sumRowCount = 0;
-                int sumTableCount;
-
-                string sqlitePath = Path.Combine(tempPath, "Data.sqlite3");
-                using (var connSqlite = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(sqlitePath, Version: 3)) 
-                {                 
-                    var tableNames = connSqlite.Sqlite_GetAllTableName();
-                    sumTableCount = tableNames.Count;
-                    int tbIndex = 0;
-            
-                    foreach (var tableName in tableNames)
-                    {
-                        tbIndex++;
-
-                        Log("");
-                        Log($" ----[{tbIndex}/{sumTableCount}]import table " + tableName);
-
-                        int rowCount;
-                        using (var dr = connSqlite.ExecuteReader($"select * from {connSqlite.Quote(tableName)}"))
-                        {                             
-                            rowCount = conn.BulkImport(dr, tableName);
-                            sumRowCount += rowCount;                         
-                        }
-
-                        Log($"     table imported. cur: " + rowCount + "  sum: " + sumRowCount);
-                    }       
+              
+                    span = (DateTime.Now - lastTime);
+                    Log($"     当前耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                    span = (DateTime.Now - startTime);
+                    Log($"     总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
+                    lastTime = DateTime.Now;
                 }
-
-                Log("");
-                Log("     成功,sum table count: " + sumTableCount + ",sum row count: " + sumRowCount);
-                span = (DateTime.Now - lastTime);
-                Log($"     当前耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-                span = (DateTime.Now - startTime);
-                Log($"     总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-                lastTime = DateTime.Now;
                 #endregion
+            
 
                 Log(""); 
-                Log("   restore success,sum table count: " + sumTableCount + ",sum row count: " + sumRowCount);
+                Log("   restore success, table count: " + backuper.importedTableCount + ",row count: " + backuper.importedRowCount);
                 span = (DateTime.Now - startTime);
                 Log($"   总共耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
                 Log("");
