@@ -19,6 +19,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Vit.Core.Module.Log;
 using Vit.Core.Util.Common;
 using Vit.Db.DbMng.Extendsions;
 using Vit.Extensions;
@@ -275,7 +276,7 @@ namespace Vit.Db.DbMng.MsSql
 
 
         #region GetDataBaseVersion      
-        public string GetDataBaseVersion() 
+        public override string GetDataBaseVersion() 
         {
             try
             {
@@ -514,6 +515,56 @@ deallocate   cDblogin
         #endregion
 
 
+        #region SqlerBackuper
+        /// <summary>
+        /// 批量导入表数据（可以通过先停用索引，在导入数据后再启用来提高效率）
+        /// </summary>
+        /// <param name="dr"></param>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        protected override int BulkImport(IDataReader dr, string tableName)
+        {
+
+            #region (x.1)获取启用的索引
+            string sql = @"
+SELECT 'ALTER INDEX ' + QUOTENAME(I.name) + ' ON ' +  QUOTENAME(SCHEMA_NAME(T.schema_id))+'.'+ QUOTENAME(T.name)   -- + ' DISABLE' 
+FROM sys.indexes I
+INNER JOIN sys.tables T ON I.object_id = T.object_id
+WHERE I.type_desc = 'NONCLUSTERED'
+AND I.name IS NOT NULL
+AND I.is_disabled = 0
+and T.name=@tableName
+";
+            var sqlList = conn.Query<string>(sql,new { tableName}).ToList();
+            #endregion
+
+            if(sqlList.Count==0)
+                return conn.BulkImport(dr, tableName);
+
+            try
+            {
+                var sql_diableIndex = string.Join(" DISABLE;  ",sqlList) + " DISABLE;  ";
+                conn.Execute(sql_diableIndex);
+
+                return conn.BulkImport(dr, tableName);
+            }
+            finally
+            {
+                try
+                {
+                    var sql_rebuildIndex = string.Join(" REBUILD;  ", sqlList) + " REBUILD;  ";
+                    conn.Execute(sql_rebuildIndex);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }               
+            }
+
+           
+        }
+
+        #endregion
 
 
 

@@ -19,7 +19,7 @@ namespace Vit.Db.DbMng.SqlerFile
         public string dirPath;
         public IDbConnection conn;
         public Action<string> Log;
-
+        public Func<IDataReader, string, int> BulkImport;
 
         public Regex sqlSplit = null;
 
@@ -39,10 +39,7 @@ namespace Vit.Db.DbMng.SqlerFile
             {
                 backupInfo = new BackupInfo
                 {
-                    cmd = new[] {
-                       new[]{ "execSqlFile", "CreateDataBase.sql"},
-                        new[]{ "importSqlite", "Data.sqlite3" }
-                    }
+                    cmd = BackupInfo.defaultCmd
                 };
             }
 
@@ -54,7 +51,7 @@ namespace Vit.Db.DbMng.SqlerFile
             Log("     数据库类型：" + backupInfo.type);
             Log("     数据库版本：" + backupInfo.version);
             Log("     备份时间  ：" + backupInfo.backupTime);
-            Log("     sqlSplit  ：" + sqlSplit.ToString());            
+            Log("     sqlSplit  ：" + sqlSplit?.ToString());            
         }
 
 
@@ -74,35 +71,27 @@ namespace Vit.Db.DbMng.SqlerFile
                         //确保conn打开
                         conn.MakeSureOpen(() =>
                         {
-                            using (var tran = conn.BeginTransaction())
-                            {
-                                try
+                            conn.RunInTransaction((tran)=> {
+
+                                if (sqlSplit == null)
                                 {
-                                  
-                                    if (sqlSplit == null)
+                                    conn.Execute(sqlText, transaction: tran);
+                                }
+                                else
+                                {
+                                    var sqls = sqlSplit.Split(sqlText);
+                                    foreach (String sql in sqls)
                                     {
-                                        conn.Execute(sqlText, transaction: tran);
-                                    }
-                                    else
-                                    {
-                                        var sqls = sqlSplit.Split(sqlText);
-                                        foreach (String sql in sqls)
+                                        if (!String.IsNullOrEmpty(sql.Trim()))
                                         {
-                                            if (!String.IsNullOrEmpty(sql.Trim()))
-                                            {
-                                                conn.Execute(sql, transaction: tran);
-                                            }
+                                            conn.Execute(sql, transaction: tran);
                                         }
                                     }
-                                    tran.Commit();
                                 }
-                                catch (Exception ex)
-                                {
-                                    Logger.Error(ex);
-                                    tran.Rollback();
-                                    throw;
-                                }
-                            }
+
+                            },printErrorToLog:true);
+
+                           
                         });
 
                         Log("");
@@ -135,11 +124,14 @@ namespace Vit.Db.DbMng.SqlerFile
                                 Log("");
                                 Log($" ----[{tbIndex}/{sumTableCount}]import table " + tableName);
 
-                                int rowCount;
-                                using (var dr = connSqlite.ExecuteReader($"select * from {connSqlite.Quote(tableName)}"))
+                                int rowCount=0;
+                                if (0<connSqlite.ExecuteScalar<int>("select count(*) from " + connSqlite.Quote(tableName)))
                                 {
-                                    rowCount = conn.BulkImport(dr, tableName);
-                                    sumRowCount += rowCount;
+                                    using (var dr = connSqlite.ExecuteReader("select * from " + connSqlite.Quote(tableName)))
+                                    {
+                                        rowCount = BulkImport(dr, tableName);
+                                        sumRowCount += rowCount;
+                                    }
                                 }
                                 Log($"     table imported. row count: " + rowCount + ",  sum: " + sumRowCount);
 

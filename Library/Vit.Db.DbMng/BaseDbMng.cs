@@ -33,7 +33,8 @@ namespace Vit.Db.DbMng
         /// </summary>
         /// <returns></returns>
         public abstract EDataBaseState GetDataBaseState();
-  
+
+        public abstract string GetDataBaseVersion(); 
 
         /// <summary>
         /// 创建数据库
@@ -73,6 +74,22 @@ namespace Vit.Db.DbMng
             Logger.Info(msg);
         }
 
+          
+
+        /// <summary>
+        /// 批量导入表数据（可以通过先停用索引，在导入数据后再启用来提高效率）
+        /// </summary>
+        /// <param name="dr"></param>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        protected virtual int BulkImport(IDataReader dr, string tableName) 
+        {
+            return conn.BulkImport(dr, tableName);
+        }
+
+
+
+
         #region BackupSqler
         /// <summary>
         /// 备份数据库
@@ -100,8 +117,8 @@ namespace Vit.Db.DbMng
                 #region (x.1)创建建库语句文件（CreateDataBase.sql）
                 Log("");
                 Log(" --(x.1)创建建库语句文件（CreateDataBase.sql）");
-                var sqlPath = Path.Combine(tempPath, "CreateDataBase.sql");
                 var sqlText = BuildCreateDataBaseSql();
+                var sqlPath = Path.Combine(tempPath, "CreateDataBase.sql");          
                 File.WriteAllText(sqlPath, sqlText, System.Text.Encoding.UTF8);
 
                 Log("     成功");
@@ -136,12 +153,30 @@ namespace Vit.Db.DbMng
                         Log("");
                         Log($" ----[{tbIndex}/{sumTableCount}]backup table " + tableName);
 
-                        int rowCount;
-                        using (IDataReader dr = conn.ExecuteReader($"select * from {Quote(tableName)}"))
-                        {
-                            connSqlite.Sqlite_CreateTable(dr, tableName);
+                        int rowCount=0;
 
-                            rowCount = connSqlite.Import(dr, tableName, useTransaction: true);
+                        bool ignoreTable = false;
+
+               
+                        #region 若表数据条数为0则跳过                   
+                        try
+                        {
+                            ignoreTable = 0 == conn.ExecuteScalar<int>("select count(*) from " + conn.Quote(tableName));
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Info(ex);
+                        }
+                        #endregion
+
+                        if (!ignoreTable)
+                        {
+                            using (IDataReader dr = conn.ExecuteReader("select * from " + Quote(tableName)))
+                            {
+                                connSqlite.Sqlite_CreateTable(dr, tableName);
+
+                                rowCount = connSqlite.Import(dr, tableName, useTransaction: true);
+                            }
                         }
                         sumRowCount += rowCount;
                         Log($"      table backuped. cur: " + rowCount + "  sum: " + sumRowCount);
@@ -157,12 +192,24 @@ namespace Vit.Db.DbMng
                 lastTime = DateTime.Now;
 
                 #endregion
-                               
 
-
-                #region (x.3)压缩备份文件
+                #region (x.3)创建(info.json)
                 Log("");
-                Log(" --(x.3)压缩备份文件");
+                Log(" --(x.3)创建(info.json)");
+                var backupInfo = new BackupInfo();
+                backupInfo.type = conn.GetDbType()?.ToString();
+                backupInfo.version = GetDataBaseVersion();
+                backupInfo.backupTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+                backupInfo.cmd = BackupInfo.defaultCmd;         
+                File.WriteAllText(
+                    Path.Combine(tempPath, "info.json"),
+                    backupInfo.Serialize(),
+                    System.Text.Encoding.UTF8);
+                #endregion
+
+                #region (x.4)压缩备份文件
+                Log("");
+                Log(" --(x.4)压缩备份文件");
 
                 //待压缩文件夹
                 string input = tempPath;
@@ -286,6 +333,7 @@ namespace Vit.Db.DbMng
                 backuper.dirPath = tempPath;
                 backuper.conn = conn;
                 backuper.Log = Log;
+                backuper.BulkImport = this.BulkImport;
 
                 backuper.sqlSplit = RestoreSqler_SqlSplit;
 

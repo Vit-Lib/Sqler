@@ -93,17 +93,16 @@ namespace App.Module.Sqler.Logical.SqlVersion
             #region (x.3)执行语句函数
             void ExecSql()
             {        
-                using (var conn = SqlVersionHelp.CreateOpenedDbConnection())
-                using (var tran = conn.BeginTransaction())
+                using (var conn = SqlVersionHelp.CreateOpenedDbConnection())          
                 {
-                    try
-                    {
+                    conn.RunInTransaction((tran) => {
+
                         int index = 1;
                         //  /*GO*/GO 中间可出现多个空白字符，包括空格、制表符、换页符等          
                         //Regex reg = new Regex("/\\*GO\\*/\\s*GO");
                         Regex reg = new Regex("\\sGO\\s");
                         var sqls = reg.Split(versionResult.code);
-                        foreach (String sql in sqls)                      
+                        foreach (String sql in sqls)
                         {
                             if (String.IsNullOrEmpty(sql.Trim()))
                             {
@@ -119,14 +118,8 @@ namespace App.Module.Sqler.Logical.SqlVersion
                             }
                         }
 
-                        tran.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.Error(ex);
-                        tran.Rollback();
-                        throw;
-                    }
+                    },printErrorToLog:true);
+                     
                 }
             }
             #endregion

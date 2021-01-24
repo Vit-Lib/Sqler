@@ -33,5 +33,11 @@ namespace Vit.Db.DbMng.SqlerFile
         /// </summary>
         public string sqlSplit;
 
+
+        public static string[][] defaultCmd => new[] {
+                       new[]{ "execSqlFile", "CreateDataBase.sql"},
+                        new[]{ "importSqlite", "Data.sqlite3" }
+                    };
+
     }
 }
