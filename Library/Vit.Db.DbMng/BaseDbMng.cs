@@ -22,11 +22,11 @@ namespace Vit.Db.DbMng
 
         public BaseDbMng(DbConnection conn) 
         {
-            this.conn = conn;
+            this.conn = conn; 
         }
 
-
-
+        public int commandTimeout = 0; 
+        //public int commandTimeout => Orm.Dapper.DapperConfig.CommandTimeout??0;
 
         /// <summary>
         /// 获取数据库状态
@@ -84,7 +84,7 @@ namespace Vit.Db.DbMng
         /// <returns></returns>
         protected virtual int BulkImport(IDataReader dr, string tableName) 
         {
-            return conn.BulkImport(dr, tableName);
+            return conn.BulkImport(dr, tableName, commandTimeout: 0);
         }
 
 
@@ -114,9 +114,25 @@ namespace Vit.Db.DbMng
                 Directory.CreateDirectory(tempPath);
 
 
-                #region (x.1)创建建库语句文件（CreateDataBase.sql）
+                #region (x.1)创建(info.json)
                 Log("");
-                Log(" --(x.1)创建建库语句文件（CreateDataBase.sql）");
+                Log(" --(x.1)创建(info.json)");
+                var backupInfo = new BackupInfo();
+                backupInfo.type = conn.GetDbType()?.ToString();
+                backupInfo.version = GetDataBaseVersion();
+                backupInfo.backupTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+                backupInfo.cmd = BackupInfo.defaultCmd;
+                File.WriteAllText(
+                    Path.Combine(tempPath, "info.json"),
+                    backupInfo.Serialize(),
+                    System.Text.Encoding.UTF8);
+                #endregion
+
+
+
+                #region (x.2)创建建库语句文件（CreateDataBase.sql）
+                Log("");
+                Log(" --(x.2)创建建库语句文件（CreateDataBase.sql）");
                 var sqlText = BuildCreateDataBaseSql();
                 var sqlPath = Path.Combine(tempPath, "CreateDataBase.sql");          
                 File.WriteAllText(sqlPath, sqlText, System.Text.Encoding.UTF8);
@@ -130,9 +146,10 @@ namespace Vit.Db.DbMng
                 #endregion
 
 
-                #region (x.2)备份所有表数据（Data.sqlite3）
+
+                #region (x.3)备份所有表数据（Data.sqlite3）
                 Log("");
-                Log(" --(x.2)备份所有表数据（Data.sqlite3）");
+                Log(" --(x.3)备份所有表数据（Data.sqlite3）");
 
                 int sumRowCount = 0;
                 int sumTableCount;
@@ -161,7 +178,7 @@ namespace Vit.Db.DbMng
                         #region 若表数据条数为0则跳过                   
                         try
                         {
-                            ignoreTable = 0 == conn.ExecuteScalar<int>("select count(*) from " + conn.Quote(tableName));
+                            ignoreTable = 0 == conn.ExecuteScalar<int>("select count(*) from " + conn.Quote(tableName), commandTimeout: commandTimeout);
                         }
                         catch (Exception ex)
                         {
@@ -171,11 +188,11 @@ namespace Vit.Db.DbMng
 
                         if (!ignoreTable)
                         {
-                            using (IDataReader dr = conn.ExecuteReader("select * from " + Quote(tableName)))
+                            using (IDataReader dr = conn.ExecuteReader("select * from " + Quote(tableName), commandTimeout: commandTimeout))
                             {
                                 connSqlite.Sqlite_CreateTable(dr, tableName);
 
-                                rowCount = connSqlite.Import(dr, tableName, useTransaction: true);
+                                rowCount = connSqlite.Import(dr, tableName, useTransaction: true, commandTimeout: commandTimeout);
                             }
                         }
                         sumRowCount += rowCount;
@@ -193,19 +210,7 @@ namespace Vit.Db.DbMng
 
                 #endregion
 
-                #region (x.3)创建(info.json)
-                Log("");
-                Log(" --(x.3)创建(info.json)");
-                var backupInfo = new BackupInfo();
-                backupInfo.type = conn.GetDbType()?.ToString();
-                backupInfo.version = GetDataBaseVersion();
-                backupInfo.backupTime = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-                backupInfo.cmd = BackupInfo.defaultCmd;         
-                File.WriteAllText(
-                    Path.Combine(tempPath, "info.json"),
-                    backupInfo.Serialize(),
-                    System.Text.Encoding.UTF8);
-                #endregion
+          
 
                 #region (x.4)压缩备份文件
                 Log("");
@@ -352,7 +357,7 @@ namespace Vit.Db.DbMng
                     Log("");
                     Log(" ----(x.x." + t + ")执行命令");
                     Log("    " + cmd.Serialize());
-                    backuper.ExecCmd(cmd);
+                    backuper.ExecCmd(cmd, commandTimeout);
 
               
                     span = (DateTime.Now - lastTime);

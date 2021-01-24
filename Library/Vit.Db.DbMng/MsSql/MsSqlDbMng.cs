@@ -35,8 +35,7 @@ namespace Vit.Db.DbMng.MsSql
     ///             备份、还原
     /// </summary>
     public partial class MsSqlDbMng : BaseDbMng<SqlConnection>
-    {
-
+    {    
 
         #region 构造函数
         /// <summary>
@@ -148,8 +147,10 @@ namespace Vit.Db.DbMng.MsSql
         {
             return Exec((conn) =>
                  {
-                     return conn.ExecuteScalar("select filename from   master.dbo.sysdatabases  where name=@dbName",
-                         new { dbName = dbName ?? this.dbName }, commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout) as string;
+                     return conn.ExecuteScalar(
+                         "select filename from   master.dbo.sysdatabases  where name=@dbName",
+                         new { dbName = dbName ?? this.dbName }
+                         , commandTimeout: commandTimeout) as string;
                  });
         }
         #endregion
@@ -167,7 +168,7 @@ namespace Vit.Db.DbMng.MsSql
             string directory =
                 Exec((conn) =>
                 {
-                    return conn.ExecuteScalar("select filename from dbo.sysfiles where fileid = 1", commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout) as string;
+                    return conn.ExecuteScalar("select filename from dbo.sysfiles where fileid = 1", commandTimeout: commandTimeout) as string;
                 });
 
             return string.IsNullOrEmpty(directory) ? null : Path.GetDirectoryName(directory);
@@ -210,7 +211,9 @@ namespace Vit.Db.DbMng.MsSql
             {
                 var isOnline = Exec((conn) =>
                 {
-                    return 0 != conn.ExecuteScalar<int>("select count(1) from sysdatabases where name =@dbName", new { dbName = dbName }, commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+                    return 0 != conn.ExecuteScalar<int>("select count(1) from sysdatabases where name =@dbName"
+                        , new { dbName = dbName }
+                        , commandTimeout: commandTimeout);
                 });
 
                 if (isOnline)
@@ -253,7 +256,10 @@ namespace Vit.Db.DbMng.MsSql
         {
             return Exec(conn =>
             {
-                return conn.ExecuteDataTable("dbcc checkprimaryfile (@mdfFilePath, 3);", new { mdfFilePath= mdfFilePath });           
+                return conn.ExecuteDataTable(
+                    "dbcc checkprimaryfile (@mdfFilePath, 3);"
+                    , new { mdfFilePath= mdfFilePath }
+                    , commandTimeout: commandTimeout);           
             });
         }
         #endregion      
@@ -282,7 +288,7 @@ namespace Vit.Db.DbMng.MsSql
             {
                 return Exec((conn) =>
                 {
-                    return  conn.ExecuteScalar<string>("select @@version");
+                    return  conn.ExecuteScalar<string>("select @@version", commandTimeout: commandTimeout);
                 });
             }
             catch  
@@ -299,7 +305,7 @@ namespace Vit.Db.DbMng.MsSql
         {     
             StringBuilder builder = new StringBuilder(); 
             #region 构建 建库语句           
-            using (var dr = conn.ExecuteReader(DataBaseStructBuilder)) 
+            using (var dr = conn.ExecuteReader(DataBaseStructBuilder, commandTimeout: commandTimeout)) 
             {
                 while(true) 
                 {
@@ -348,7 +354,7 @@ namespace Vit.Db.DbMng.MsSql
                 builder.Append(" ON PRIMARY ( NAME = N'").Append(strDBName).Append("_Data',FILENAME = N'").Append(strDBPath).Append("_Data.MDF' ,FILEGROWTH = 10%) LOG ON ( NAME =N'").Append(strDBName).Append("_Log',FILENAME = N'").Append(strDBPath).Append("_Log.LDF' ,FILEGROWTH = 10%) ");
             }
             builder.Append("; if Exists(select 1 from sysdatabases where  name ='").Append(strDBName).Append("' and (status & 0x200) != 0) ALTER DATABASE [").Append(dbName).Append("] SET ONLINE; ");
-            Exec((conn) => { return conn.Execute(builder.ToString(), commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout); });
+            Exec((conn) => { return conn.Execute(builder.ToString(), commandTimeout: commandTimeout); });
 
             /*
 
@@ -377,7 +383,7 @@ if Exists(select 1 from sysdatabases where  name =N'Lit_Base' and (status & 0x20
         /// </summary>
         public override void DropDataBase()
         {
-            Exec((conn) => { return conn.Execute("drop DataBase [" + dbName + "]", commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout); });
+            Exec((conn) => { return conn.Execute("drop DataBase [" + dbName + "]", commandTimeout: commandTimeout); });
         }
 
         #endregion
@@ -432,7 +438,7 @@ if Exists(select 1 from sysdatabases where  name =N'Lit_Base' and (status & 0x20
         {
             Exec((conn) =>
             {               
-                return conn.Execute("EXEC sp_attach_db @DBName, @MdfPath,@LogPath;",new { DBName, MdfPath, LogPath }, commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+                return conn.Execute("EXEC sp_attach_db @DBName, @MdfPath,@LogPath;",new { DBName, MdfPath, LogPath }, commandTimeout: commandTimeout);
             });
         }
 
@@ -446,7 +452,7 @@ if Exists(select 1 from sysdatabases where  name =N'Lit_Base' and (status & 0x20
         {
             Exec((conn) =>
             {     
-                return conn.Execute("EXEC sp_detach_db @dbName", new { dbName = dbName ?? this.dbName }, commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+                return conn.Execute("EXEC sp_detach_db @dbName", new { dbName = dbName ?? this.dbName }, commandTimeout: commandTimeout);
             });
         }
 
@@ -466,7 +472,9 @@ if Exists(select 1 from sysdatabases where  name =N'Lit_Base' and (status & 0x20
         {
             return Exec((conn) =>
             {            
-                return (int)conn.ExecuteScalar("select count(*) from master..sysprocesses where dbid=db_id(@dbName);", new { dbName = dbName??this.dbName }, commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+                return (int)conn.ExecuteScalar("select count(*) from master..sysprocesses where dbid=db_id(@dbName);"
+                    , new { dbName = dbName??this.dbName }
+                    , commandTimeout: commandTimeout);
             });
         }
 
@@ -483,7 +491,8 @@ if Exists(select 1 from sysdatabases where  name =N'Lit_Base' and (status & 0x20
             Exec((conn) =>
             {              
                 return conn.Execute("declare @programName nvarchar(200), @spid nvarchar(20) declare cDblogin cursor for select cast(spid as varchar(20)) AS spid from master..sysprocesses where dbid=db_id(@dbName) open cDblogin fetch next from cDblogin into @spid while @@fetch_status=0 begin  IF @spid <> @@SPID exec( 'kill '+@spid) fetch next from cDblogin into @spid end close cDblogin deallocate cDblogin ",
-                    new { dbName = dbName?? this.dbName }, commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+                    new { dbName = dbName?? this.dbName }
+                    , commandTimeout: commandTimeout);
             });
 
             /*
@@ -535,25 +544,25 @@ AND I.name IS NOT NULL
 AND I.is_disabled = 0
 and T.name=@tableName
 ";
-            var sqlList = conn.Query<string>(sql,new { tableName}).ToList();
+            var sqlList = conn.Query<string>(sql,new { tableName},commandTimeout: commandTimeout).ToList();
             #endregion
 
             if(sqlList.Count==0)
-                return conn.BulkImport(dr, tableName);
+                return conn.BulkImport(dr, tableName, commandTimeout: commandTimeout);
 
             try
             {
                 var sql_diableIndex = string.Join(" DISABLE;  ",sqlList) + " DISABLE;  ";
-                conn.Execute(sql_diableIndex);
+                conn.Execute(sql_diableIndex, commandTimeout: commandTimeout);
 
-                return conn.BulkImport(dr, tableName);
+                return conn.BulkImport(dr, tableName, commandTimeout: commandTimeout);
             }
             finally
             {
                 try
                 {
                     var sql_rebuildIndex = string.Join(" REBUILD;  ", sqlList) + " REBUILD;  ";
-                    conn.Execute(sql_rebuildIndex);
+                    conn.Execute(sql_rebuildIndex, commandTimeout: commandTimeout);
                 }
                 catch (Exception ex)
                 {
@@ -581,7 +590,9 @@ and T.name=@tableName
 
             return Exec((conn) =>
             {
-                conn.Execute("backup database @database to disk = @filePath ", new { database = this.dbName, filePath = bakFilePath }, commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+                conn.Execute("backup database @database to disk = @filePath "
+                    , new { database = this.dbName, filePath = bakFilePath }
+                    , commandTimeout: commandTimeout);
                 return bakFilePath;
             });
         }
@@ -689,7 +700,10 @@ and T.name=@tableName
 
                 string strDataName = null, strLogName = null;
                 //也可用 GetBakInfo 函数
-                foreach (DataRow dr in conn.ExecuteDataTable("restore filelistonly from disk=@backupFilePath;", new { backupFilePath = bakFilePath }).Rows)
+                foreach (DataRow dr in conn.ExecuteDataTable("restore filelistonly from disk=@backupFilePath;"
+                    , new { backupFilePath = bakFilePath }
+                    ,commandTimeout:commandTimeout
+                    ).Rows)
                 {
                     if ("D" == dr["Type"].ToString().Trim())
                     {
@@ -713,7 +727,8 @@ and T.name=@tableName
 
 
                 conn.Execute(new StringBuilder("declare @DataPath nvarchar(260),@LogPath nvarchar(260); use [").Append(this.dbName).Append("]; set @DataPath= (SELECT top 1 RTRIM(o.filename) FROM dbo.sysfiles o WHERE o.groupid = (SELECT u.groupid FROM dbo.sysfilegroups u WHERE u.groupname = N'PRIMARY') and (o.status & 0x40) = 0 );  set @LogPath= (SELECT top 1 RTRIM(filename) FROM sysfiles WHERE (status & 0x40) <> 0); use [master]; ALTER DATABASE [").Append(this.dbName).Append("] SET OFFLINE WITH ROLLBACK IMMEDIATE; RESTORE DATABASE [").Append(this.dbName).Append("] FROM  DISK =@BakPath  WITH  FILE = 1,  RECOVERY ,  REPLACE ,  MOVE @LogName TO @LogPath,  MOVE @DataName TO @DataPath;").ToString()
-                    , new { DataName = strDataName, LogName = strLogName, BakPath = bakFilePath }, commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+                    , new { DataName = strDataName, LogName = strLogName, BakPath = bakFilePath }
+                    , commandTimeout: commandTimeout);
 
                 return bakFilePath;
             });
@@ -855,7 +870,9 @@ RESTORE DATABASE [Lit_Base1] FROM  DISK =@BakPath  WITH  FILE = 1,  RECOVERY ,  
         {
             return Exec((conn) =>
             {
-                return conn.ExecuteDataTable("restore filelistonly from disk=@filePath;", new { filePath = filePath });
+                return conn.ExecuteDataTable("restore filelistonly from disk=@filePath;"
+                    , new { filePath = filePath }
+                    , commandTimeout: commandTimeout);
             });
 
         }

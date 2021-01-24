@@ -179,7 +179,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                             while (true)
                             {
 
-                                int rowCount = conn.BulkImport(dr, tableName, maxRowCount: DbPortLogical.batchRowCount);
+                                int rowCount = conn.BulkImport(dr, tableName, commandTimeout: DbPortLogical.commandTimeout, maxRowCount: DbPortLogical.batchRowCount);
 
 
 

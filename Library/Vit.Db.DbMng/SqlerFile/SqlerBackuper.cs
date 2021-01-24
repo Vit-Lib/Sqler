@@ -55,7 +55,7 @@ namespace Vit.Db.DbMng.SqlerFile
         }
 
 
-        public void ExecCmd(string[]cmd) 
+        public void ExecCmd(string[]cmd,int commandTimeout) 
         {
             switch (cmd[0]) 
             {
@@ -75,7 +75,7 @@ namespace Vit.Db.DbMng.SqlerFile
 
                                 if (sqlSplit == null)
                                 {
-                                    conn.Execute(sqlText, transaction: tran);
+                                    conn.Execute(sqlText, transaction: tran,commandTimeout: commandTimeout);
                                 }
                                 else
                                 {
@@ -84,7 +84,7 @@ namespace Vit.Db.DbMng.SqlerFile
                                     {
                                         if (!String.IsNullOrEmpty(sql.Trim()))
                                         {
-                                            conn.Execute(sql, transaction: tran);
+                                            conn.Execute(sql, transaction: tran, commandTimeout: commandTimeout);
                                         }
                                     }
                                 }
@@ -125,9 +125,9 @@ namespace Vit.Db.DbMng.SqlerFile
                                 Log($" ----[{tbIndex}/{sumTableCount}]import table " + tableName);
 
                                 int rowCount=0;
-                                if (0<connSqlite.ExecuteScalar<int>("select count(*) from " + connSqlite.Quote(tableName)))
+                                if (0<connSqlite.ExecuteScalar<int>("select count(*) from " + connSqlite.Quote(tableName), commandTimeout: commandTimeout))
                                 {
-                                    using (var dr = connSqlite.ExecuteReader("select * from " + connSqlite.Quote(tableName)))
+                                    using (var dr = connSqlite.ExecuteReader("select * from " + connSqlite.Quote(tableName), commandTimeout: commandTimeout))
                                     {
                                         rowCount = BulkImport(dr, tableName);
                                         sumRowCount += rowCount;

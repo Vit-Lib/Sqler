@@ -5,7 +5,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Vit.Core.Module.Log;
 using Vit.Core.Util.Common;
 using Vit.Extensions;
 using SqlConnection = MySql.Data.MySqlClient.MySqlConnection;

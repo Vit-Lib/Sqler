@@ -55,8 +55,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
         #endregion
 
-                   
-     
+                       
 
 
 
@@ -728,6 +727,11 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             }
         }
         #endregion
+
+
+
+
+
 
 
         #region (x.3) DataTransfer
