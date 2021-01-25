@@ -5,7 +5,7 @@
     <ApplicationIcon />
     <OutputType>Exe</OutputType>
     <StartupObject /> 
-    <Version>2.25.317</Version>
+    <Version>2.25.325</Version>
     <Description>https://github.com/sersms/Sqler</Description>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <PreserveCompilationContext>true</PreserveCompilationContext>
@@ -22,8 +22,8 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.8.0" />
  
-    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.461" />
-    <PackageReference Include="Vit.WebHost" Version="2.1.1.461" />
+    <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.467" />
+    <PackageReference Include="Vit.WebHost" Version="2.1.1.467" />
   </ItemGroup>
   
   <ItemGroup>
