@@ -5,6 +5,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Vit.Core.Module.Log;
 using Vit.Core.Util.Common;
 using Vit.Extensions;
 using SqlConnection = MySql.Data.MySqlClient.MySqlConnection;
@@ -472,7 +473,38 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
 
         #endregion
 
-         
+
+
+        #region SqlerBackuper
+        /// <summary>
+        /// 批量导入表数据（可以通过先停用索引，在导入数据后再启用来提高效率）
+        /// </summary>
+        /// <param name="dr"></param>
+        /// <param name="tableName"></param>
+        /// <param name="tableRowCount"></param>
+        /// <returns></returns>
+        protected override int BulkImport(IDataReader dr, string tableName, int tableRowCount)
+        {  
+            try
+            {         
+                conn.Execute("ALTER TABLE "+conn.Quote(tableName) +" DISABLE KEYS;", commandTimeout: commandTimeout);
+
+                return base.BulkImport(dr, tableName, tableRowCount);
+            }
+            finally
+            {
+                try
+                {
+                    conn.Execute("ALTER TABLE " + conn.Quote(tableName) + " ENABLE KEYS;", commandTimeout: commandTimeout);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
+            }
+        }
+
+        #endregion
 
 
         #region BackupSqler

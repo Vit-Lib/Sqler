@@ -176,25 +176,17 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                         SendMsg(EMsgType.Nomal, "           [x.x.5]write data");
                         try
                         {
-                            while (true)
-                            {
 
-                                int rowCount = conn.BulkImport(dr, tableName, commandTimeout: DbPortLogical.commandTimeout, maxRowCount: DbPortLogical.batchRowCount);
-
-
-
-                                importedRowCount += rowCount;
-                                importedSumRowCount += rowCount;
-
-                                WriteProcess(importedRowCount);
-
-                                if (rowCount < DbPortLogical.batchRowCount)
+                            conn.BulkImport(dr, tableName
+                                , batchRowCount: DbPortLogical.batchRowCount
+                                , onProcess: (rowCount, sumRowCount) =>
                                 {
-                                    break;
+                                    importedRowCount += rowCount;
+                                    importedSumRowCount += rowCount;
+
+                                    WriteProcess(importedRowCount);
                                 }
-
-                            }
-
+                                , commandTimeout: DbPortLogical.commandTimeout);
                         }
                         catch (Exception ex)
                         {

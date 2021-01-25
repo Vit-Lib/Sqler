@@ -19,7 +19,7 @@ namespace Vit.Db.DbMng.SqlerFile
         public string dirPath;
         public IDbConnection conn;
         public Action<string> Log;
-        public Func<IDataReader, string, int> BulkImport;
+        public Func<IDataReader, string, int,int> BulkImport;
 
         public Regex sqlSplit = null;
 
@@ -124,12 +124,13 @@ namespace Vit.Db.DbMng.SqlerFile
                                 Log("");
                                 Log($" ----[{tbIndex}/{sumTableCount}]import table " + tableName);
 
+                                int tableRowCount = connSqlite.ExecuteScalar<int>("select count(*) from " + connSqlite.Quote(tableName), commandTimeout: commandTimeout);
                                 int rowCount=0;
-                                if (0<connSqlite.ExecuteScalar<int>("select count(*) from " + connSqlite.Quote(tableName), commandTimeout: commandTimeout))
+                                if (0< tableRowCount)
                                 {
                                     using (var dr = connSqlite.ExecuteReader("select * from " + connSqlite.Quote(tableName), commandTimeout: commandTimeout))
                                     {
-                                        rowCount = BulkImport(dr, tableName);
+                                        rowCount = BulkImport(dr, tableName,tableRowCount);
                                         sumRowCount += rowCount;
                                     }
                                 }

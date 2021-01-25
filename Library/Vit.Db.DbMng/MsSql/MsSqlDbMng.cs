@@ -530,8 +530,9 @@ deallocate   cDblogin
         /// </summary>
         /// <param name="dr"></param>
         /// <param name="tableName"></param>
+        /// <param name="tableRowCount"></param>
         /// <returns></returns>
-        protected override int BulkImport(IDataReader dr, string tableName)
+        protected override int BulkImport(IDataReader dr, string tableName,int tableRowCount)
         {
 
             #region (x.1)获取启用的索引
@@ -548,14 +549,14 @@ and T.name=@tableName
             #endregion
 
             if(sqlList.Count==0)
-                return conn.BulkImport(dr, tableName, commandTimeout: commandTimeout);
+                return base.BulkImport(dr, tableName, tableRowCount);
 
             try
             {
                 var sql_diableIndex = string.Join(" DISABLE;  ",sqlList) + " DISABLE;  ";
                 conn.Execute(sql_diableIndex, commandTimeout: commandTimeout);
 
-                return conn.BulkImport(dr, tableName, commandTimeout: commandTimeout);
+                return base.BulkImport(dr, tableName, tableRowCount);
             }
             finally
             {

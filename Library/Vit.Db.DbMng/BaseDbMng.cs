@@ -74,17 +74,26 @@ namespace Vit.Db.DbMng
             Logger.Info(msg);
         }
 
-          
+
 
         /// <summary>
         /// 批量导入表数据（可以通过先停用索引，在导入数据后再启用来提高效率）
         /// </summary>
         /// <param name="dr"></param>
         /// <param name="tableName"></param>
+        /// <param name="tableRowCount"></param>
         /// <returns></returns>
-        protected virtual int BulkImport(IDataReader dr, string tableName) 
+        protected virtual int BulkImport(IDataReader dr, string tableName,int tableRowCount) 
         {
-            return conn.BulkImport(dr, tableName, commandTimeout: 0);
+            int index = 0;
+            return conn.BulkImport(dr, tableName
+                , onProcess: (cur, sum) =>
+                {
+                    index++;
+                    var process = (((float)sum) / tableRowCount * 100).ToString("f2");
+                    Log($"           {index}.[{process}%] {sum }/{tableRowCount}");
+                }
+                , useTransaction: true, commandTimeout: 0);
         }
 
 
@@ -167,32 +176,35 @@ namespace Vit.Db.DbMng
                     {
                         tbIndex++;
 
+                        int tableRowCount = conn.ExecuteScalar<int>("select count(*) from " + conn.Quote(tableName), commandTimeout: commandTimeout);
+
+
                         Log("");
                         Log($" ----[{tbIndex}/{sumTableCount}]backup table " + tableName);
+                        Log($"         rowCount: " + tableRowCount);
 
-                        int rowCount=0;
+                        int rowCount =0;
 
                         bool ignoreTable = false;
+           
 
-               
-                        #region 若表数据条数为0则跳过                   
-                        try
-                        {
-                            ignoreTable = 0 == conn.ExecuteScalar<int>("select count(*) from " + conn.Quote(tableName), commandTimeout: commandTimeout);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.Info(ex);
-                        }
-                        #endregion
+                        //若表数据条数为0则跳过                   
+                        ignoreTable = 0 == tableRowCount;
 
                         if (!ignoreTable)
                         {
                             using (IDataReader dr = conn.ExecuteReader("select * from " + Quote(tableName), commandTimeout: commandTimeout))
                             {
                                 connSqlite.Sqlite_CreateTable(dr, tableName);
-
-                                rowCount = connSqlite.Import(dr, tableName, useTransaction: true, commandTimeout: commandTimeout);
+                                int index = 0;
+                                rowCount = connSqlite.Import(dr, tableName
+                                    , onProcess: (cur,sum) =>
+                                    {
+                                        index++;
+                                        var process = (((float)sum) / tableRowCount * 100).ToString("f2");
+                                        Log($"           {index}.[{process}%] {sum }/{tableRowCount}");
+                                    }
+                                    , useTransaction: true, commandTimeout: commandTimeout);
                             }
                         }
                         sumRowCount += rowCount;

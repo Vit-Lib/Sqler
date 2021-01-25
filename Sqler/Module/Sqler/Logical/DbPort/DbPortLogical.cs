@@ -24,7 +24,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
         public static int? commandTimeout => Vit.Orm.Dapper.DapperConfig.CommandTimeout;
 
-        public static readonly int batchRowCount = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<int?>("Sqler.DbPort_batchRowCount") ?? 100000;
+        public static readonly int batchRowCount = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<int?>("Sqler.DbPort_batchRowCount") ?? 500000;
   
 
         #region GetSqlRunConfig
@@ -247,24 +247,18 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
                     //(x.x.2)write data  
                     SendMsg(EMsgType.Nomal, "           [x.x.2]write data ");
-                    int importedRowCount = 0;
-                    while (true)
-                    {
-                        int rowCount = connSqlite.Import(dr, tableName, maxRowCount: batchRowCount, batchRowCount: 0);
+ 
+                    
+                    return connSqlite.Import(dr, tableName
+                         , batchRowCount: batchRowCount, onProcess: (rowCount, sumRowCount) =>
+                         {              
+                             importedSumRowCount += rowCount;
 
+                             WriteProcess(sumRowCount);
+                         }
+                        , useTransaction: true, commandTimeout: commandTimeout); 
 
-                        importedRowCount += rowCount;
-                        importedSumRowCount += rowCount;
-
-                        WriteProcess(importedRowCount);
-
-                        if (rowCount < batchRowCount)
-                        {
-                            break;
-                        }
-                    }
-
-                    return importedRowCount;
+            
 
                 };
 
@@ -711,7 +705,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 SendMsg(EMsgType.Title, "");
                 SendMsg(EMsgType.Title, "");
                 SendMsg(EMsgType.Title, "   Import success");
-                SendMsg(EMsgType.Title, "   sum row count:" + output.importedSumRowCount);
+                SendMsg(EMsgType.Title, "    table count: " + tableNames?.Count + ",  row count:" + output.importedSumRowCount);
                 SendMsg(EMsgType.Nomal, $"   耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
                 #endregion
 

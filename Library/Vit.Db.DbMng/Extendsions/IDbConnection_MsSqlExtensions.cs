@@ -69,8 +69,7 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
                          cmd.Connection = conn;
                          cmd.CommandText = sql;
 
-                         if (DapperConfig.CommandTimeout.HasValue)
-                             cmd.CommandTimeout = DapperConfig.CommandTimeout.Value;
+                         cmd.CommandTimeout = DapperConfig.CommandTimeout ?? 0;
 
                          using (var dr = cmd.ExecuteReader(CommandBehavior.SequentialAccess))
                          {
