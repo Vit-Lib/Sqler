@@ -476,6 +476,8 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
 
 
         #region SqlerBackuper
+        //无需做 额外操作，mysql批量导入会处理索引问题，手动停用索引反而让效率变低
+
         /// <summary>
         /// 批量导入表数据（可以通过先停用索引，在导入数据后再启用来提高效率）
         /// </summary>
@@ -483,26 +485,26 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
         /// <param name="tableName"></param>
         /// <param name="tableRowCount"></param>
         /// <returns></returns>
-        protected override int BulkImport(IDataReader dr, string tableName, int tableRowCount)
-        {  
-            try
-            {         
-                conn.Execute("ALTER TABLE "+conn.Quote(tableName) +" DISABLE KEYS;", commandTimeout: commandTimeout);
+        //protected override int BulkImport(IDataReader dr, string tableName, int tableRowCount)
+        //{       
+        //    try
+        //    {
+        //        conn.Execute("ALTER TABLE "+conn.Quote(tableName) +" DISABLE KEYS;", commandTimeout: commandTimeout);
 
-                return base.BulkImport(dr, tableName, tableRowCount);
-            }
-            finally
-            {
-                try
-                {
-                    conn.Execute("ALTER TABLE " + conn.Quote(tableName) + " ENABLE KEYS;", commandTimeout: commandTimeout);
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
-            }
-        }
+        //        return base.BulkImport(dr, tableName, tableRowCount);
+        //    }
+        //    finally
+        //    {
+        //        try
+        //        {
+        //            conn.Execute("ALTER TABLE " + conn.Quote(tableName) + " ENABLE KEYS;", commandTimeout: commandTimeout);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Logger.Error(ex);
+        //        }
+        //    }
+        //}
 
         #endregion
 
