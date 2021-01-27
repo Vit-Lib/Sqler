@@ -255,7 +255,7 @@ select 30 as name,31 as name1 union all select 40,41;      \n\
             function createLinkButton(text, sql) {
                 return $('<a></a>').linkbutton({
                     text: text,
-                    iconCls: 'icon-print',
+                    iconCls: 'icon-edit',
                     onClick: function () {
                         $('#txtSql').val(sql);
                     }
@@ -264,8 +264,20 @@ select 30 as name,31 as name1 union all select 40,41;      \n\
 
             var content;
 
-            content = $('<div><pre><code>可通过SqlRunConfig指定配置\nfileName和separator只在导出txt数据时有效\n\n\ndemo:\n' + toXmlStr(sqlDemo) + '</code></pre></div>');
+            content = $('<div><pre><code>可通过SqlRunConfig指定配置\nfileName和separator只在导出txt数据时有效\n\n\ndemo:\n' + toXmlStr(sqlDemo) + '</code></pre></div>');       
+
+            //<a iconcls="icon-edit" class="easyui-linkbutton" href="#" onclick="javascript:loadSql('/sqler/sqlrun/GetMsSqlStructBuilder.sql');">加载mssql结构导出器</a>
+            $('<a></a>').linkbutton({
+                text: '加载mssql结构导出器',
+                iconCls: 'icon-edit',
+                onClick: function () {
+                    loadSql('/sqler/sqlrun/GetMsSqlStructBuilder.sql');
+                }
+            }).prependTo(content);
+ 
+
             createLinkButton('加载Demo语句', sqlDemo).prependTo(content);
+
             tooltip($('#btn_export'), content);
             $('#txtSql').val(sqlDemo);
         });
@@ -301,25 +313,21 @@ select 30 as name,31 as name1 union all select 40,41;      \n\
                             </tr>
                             <tr>
                                 <td colspan="2" style="padding-top:5px;">
-                                    <a iconcls="icon-ok" class="easyui-linkbutton" href="#" onclick="javascript:execSql('Execute');">执行</a> <a iconcls="icon-ok" class="easyui-linkbutton" href="#" onclick="javascript:executeOnline();">新页面执行</a>
+                                    <a iconcls="icon-redo" class="easyui-linkbutton" href="#" onclick="javascript:execSql('Execute');">执行</a> 
+                                    <a iconcls="icon-ok" class="easyui-linkbutton" href="#" onclick="javascript:executeOnline();">新页面执行</a>
                                 </td>
                             </tr>
                             <tr>
                                 <td colspan="2" style="padding-top:5px;">
                                     <a iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:execSql('ExecuteDataSet');">执行并显示结果集</a>
                                 </td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" style="padding-top:5px;">
-                                    <a iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:loadSql('/sqler/sqlrun/GetMsSqlStructBuilder.sql');">加载mssql结构导出器</a>
-                                </td>
-                            </tr>                            
+                            </tr>                                                      
                             <tr>
                                 <td colspan="2" style="padding-top:5px;">
                                     <table>
                                         <tr>
                                             <td>
-                                                <a id="btn_export" iconcls="icon-sum" class="easyui-linkbutton" href="#" onclick="javascript:exportData();">导出数据</a>
+                                                <a id="btn_export" iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:exportData();">导出数据</a>
                                             </td>
                                             <td>
                                                 <input type='radio' name='exportFileType' value="sqlite" />sqlite
