@@ -1,9 +1,9 @@
-﻿/*
+/*
  * vit.EventListener 事件监听器
  * Date   : 2020-08-19
  * Version: 1.1.3.7910
  * author : Lith
- * email  : sersms@163.com
+ * email  : serset@yeah.net
  */
 ; (function (vit) {
 

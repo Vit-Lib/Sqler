@@ -1,9 +1,9 @@
-﻿/*
+/*
  * autoTemp 扩展  
  * Date   : 2020-08-31
  * Version: 2.0
  * author : Lith
- * email  : sersms@163.com
+ * email  : serset@yeah.net
 
  */ 
 ; (function (scope) {

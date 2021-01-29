@@ -1,8 +1,8 @@
-﻿/*
+/*
  * Date   : 2020-08-30
  * Version: 1.0
  * author : Lith
- * email  : sersms@163.com
+ * email  : serset@yeah.net
  */
 ;autoTemp.eventListener = new vit.EventListener();
 

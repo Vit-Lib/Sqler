@@ -1,33 +1,25 @@
-﻿#构建镜像
+#构建镜像
 
-# docker login -u sersms -p xxxxxxxxx
+# docker login -u serset -p xxxxxxxxx
 
 #把本文件所在目录下的文件夹拷贝到 /root/image 
 
-cd /root
-cd image 
+cd /root/image
+ 
 
 #构建镜像并推送到 镜像仓库
 cd sqler
-docker build -t sersms/sqler:2.25.317  . 
-cd ..
-
-docker push sersms/sqler:2.25.317
+docker build . -t serset/sqler:2.25.353 -t serset/sqler
 
 
-
-
-#添加tag latest
-docker pull sersms/sqler:2.25.317
-docker tag sersms/sqler:2.25.317 sersms/sqler
-docker push sersms/sqler
-
+docker push serset/sqler:2.25.353
+docker push serset/sqler
  
 
 
 
 
-#强制删除镜像名称中包含“sqler”的镜像
+#强制删除镜像名称中包含sqler的镜像
 # docker rmi --force $(docker images | grep sqler | awk '{print $3}')
 
 

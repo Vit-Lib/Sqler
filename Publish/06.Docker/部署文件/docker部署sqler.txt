@@ -1,4 +1,4 @@
-﻿docker部署sqler
+docker部署sqler
 
  
 
@@ -23,12 +23,12 @@ docker run --name=sqler --restart=always -p 4570:4570 -d \
 -v $PWD/appsettings.json:/root/app/sqler/appsettings.json \
 -v $PWD/Data:/root/app/sqler/Data  \
 -v $PWD/Logs:/root/app/sqler/Logs  \
-sersms/sqler
+serset/sqler
 cd .. 
 
 
 #精简
-docker run --name=sqler --restart=always -p 4570:4570 -d sersms/sqler
+docker run --name=sqler --restart=always -p 4570:4570 -d serset/sqler
 
 
 
@@ -71,7 +71,7 @@ docker run --rm -it  -p 4570:4570  \
 -v $PWD/appsettings.json:/root/app/sqler/appsettings.json \
 -v $PWD/Logs:/root/app/sqler/Logs  \
 -v $PWD/SqlerData:/root/app/SqlerData  \
-sersms/sqler  \
+serset/sqler  \
 dotnet Sqler.dll --DataPath "../SqlerData/Local_Basis"
 cd .. 
 
@@ -79,7 +79,7 @@ cd ..
 
 #查看帮助
 docker run --rm -it \
-sersms/sqler  \
+serset/sqler  \
 dotnet Sqler.dll help
 
 
@@ -87,7 +87,7 @@ dotnet Sqler.dll help
 docker run --rm -it \
 -v /etc/localtime:/etc/localtime \
 -v $PWD/SqlerData:/root/app/SqlerData  \
-sersms/sqler  \
+serset/sqler  \
 dotnet Sqler.dll MySql.RemoteRestore \
 --DataPath "../SqlerData/Local_Basis" \
 --filePath "/root/app/SqlerData/Local_Basis/MySqlBackup/Huyan2011-Bim-Basis_2021-01-13_162418.sqler.mysql.zip" \
@@ -97,9 +97,9 @@ dotnet Sqler.dll MySql.RemoteRestore \
 
 
 #运行容器，在断开后自动关闭并清理
-docker run --rm -it -p 4570:4570 sersms/sqler dotnet Sqler.dll help
+docker run --rm -it -p 4570:4570 serset/sqler dotnet Sqler.dll help
 
-docker run --rm -it -p 4570:4570 sersms/sqler sh
+docker run --rm -it -p 4570:4570 serset/sqler sh
 dotnet Sqler.dll help
 
  
