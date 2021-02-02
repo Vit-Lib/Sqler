@@ -112,14 +112,12 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
  
             if (type == "mysql")
-            {
-                //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
-                ConnectionString = "AllowLoadLocalInfile=true;" + ConnectionString;
+            {        
+                ConnectionString = SqlerHelp.MySql_FormatConnectionString(ConnectionString);
             }
             else if (type == "mssql")
             {
-                //确保mssql连接字符串包含 "persist security info=true;"（用以批量导入数据）
-                ConnectionString = "persist security info=true;" + ConnectionString;
+                ConnectionString = SqlerHelp.SqlServer_FormatConnectionString(ConnectionString);
             }
             #endregion
 
@@ -585,14 +583,12 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
 
             if (type == "mysql")
-            {
-                //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
-                ConnectionString = "AllowLoadLocalInfile=true;" + ConnectionString;
+            {            
+                ConnectionString = SqlerHelp.MySql_FormatConnectionString(ConnectionString);
             }
             else if (type == "mssql")
-            {
-                //确保mssql连接字符串包含 "persist security info=true;"（用以批量导入数据）
-                ConnectionString = "persist security info=true;" + ConnectionString;
+            {              
+                ConnectionString = SqlerHelp.SqlServer_FormatConnectionString(ConnectionString);
             }
             #endregion
 
@@ -759,25 +755,21 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
            
             if (from_type == "mysql")
-            {
-                //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
-                from_ConnectionString = "AllowLoadLocalInfile=true;" + from_ConnectionString;
+            {               
+                from_ConnectionString = SqlerHelp.MySql_FormatConnectionString(from_ConnectionString);
             }
             else if (from_type == "mssql")
-            {
-                //确保mssql连接字符串包含 "persist security info=true;"（用以批量导入数据）
-                from_ConnectionString = "persist security info=true;" + from_ConnectionString;
+            {                
+                from_ConnectionString = SqlerHelp.SqlServer_FormatConnectionString(from_ConnectionString);
             }
 
             if (to_type == "mysql")
-            {
-                //确保mysql连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
-                to_ConnectionString = "AllowLoadLocalInfile=true;" + to_ConnectionString;
+            { 
+                to_ConnectionString = SqlerHelp.MySql_FormatConnectionString(to_ConnectionString);
             }
             else if (to_type == "mssql")
-            {
-                //确保mssql连接字符串包含 "persist security info=true;"（用以批量导入数据）
-                to_ConnectionString = "persist security info=true;" + to_ConnectionString;
+            {                
+                to_ConnectionString = SqlerHelp.SqlServer_FormatConnectionString(to_ConnectionString);
             }
 
             try

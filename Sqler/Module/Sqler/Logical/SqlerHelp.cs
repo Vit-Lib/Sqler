@@ -40,11 +40,16 @@ namespace App.Module.Sqler.Logical
 
         #region (Member.3)SqlServerBackup     
 
-        public static System.Data.SqlClient.SqlConnection SqlServerBackup_CreateDbConnection() 
+        public static string SqlServer_FormatConnectionString(string oriConnStr)
         {
             //确保MsSql连接字符串包含 "persist security info=true;"（用以批量导入数据）
-            var ConnectionString = "persist security info=true;" + sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString");
+            return "persist security info=true;" + oriConnStr;
+        }
 
+        public static System.Data.SqlClient.SqlConnection SqlServerBackup_CreateDbConnection() 
+        {           
+            var ConnectionString =sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString");
+            ConnectionString = SqlServer_FormatConnectionString(ConnectionString);
             return Vit.Orm.Dapper.ConnectionFactory.MsSql_GetConnection(ConnectionString);
         }
 
@@ -76,10 +81,21 @@ namespace App.Module.Sqler.Logical
 
         #region (Member.4)MySqlBackup     
 
-        public static MySqlConnection MySqlBackup_CreateDbConnection()
+        public static string MySql_FormatConnectionString(string oriConnStr) 
         {
             //确保连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
-            var ConnectionString = "AllowLoadLocalInfile=true;" + sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.ConnectionString");
+
+            //确保连接字符串包含 "Old Guids=true;"（防止mysql自动把char(36)转换为GUID类型） 
+            //https://www.cnblogs.com/tigerjacky/p/1901853.html
+
+            return "AllowLoadLocalInfile=true;Old Guids=true;" + oriConnStr;
+        }
+
+
+        public static MySqlConnection MySqlBackup_CreateDbConnection()
+        {
+            var ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.ConnectionString");
+            ConnectionString = MySql_FormatConnectionString(ConnectionString);
             return Vit.Orm.Dapper.ConnectionFactory.MySql_GetConnection(ConnectionString);
         }
 

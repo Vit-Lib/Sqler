@@ -1,4 +1,4 @@
-#构建镜像
+﻿#构建镜像
 
 # docker login -u serset -p xxxxxxxxx
 
@@ -9,10 +9,10 @@ cd /root/image
 
 #构建镜像并推送到 镜像仓库
 cd sqler
-docker build . -t serset/sqler:2.25.353 -t serset/sqler
+docker build . -t serset/sqler:2.25.365 -t serset/sqler
 
 
-docker push serset/sqler:2.25.353
+docker push serset/sqler:2.25.365
 docker push serset/sqler
  
 

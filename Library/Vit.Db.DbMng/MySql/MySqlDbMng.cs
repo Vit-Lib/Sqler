@@ -245,7 +245,15 @@ namespace Vit.Db.DbMng
                 builder.AppendLine("-- DELIMITER " + delimiter);
             }
             #endregion
-    
+
+
+            #region (x.x)初始化环境
+            builder.AppendLine();
+            
+            builder.AppendLine("-- 关闭外键检查,避免建表时因外键约束而导致建表失败（建表为随机顺序）");
+            builder.AppendLine("SET FOREIGN_KEY_CHECKS = 0;");
+            builder.AppendLine();
+            #endregion
 
 
             #region (x.2)建表
@@ -272,7 +280,7 @@ namespace Vit.Db.DbMng
                     #endregion
 
 
-                    //建表语句已经制定索引，无需再次创建
+                    //建表语句已经指定索引，无需再次创建
                     continue;
 
                     #region(x.x.x.2)创建索引语句
@@ -464,9 +472,14 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
             #endregion
 
 
-
             //builder.AppendLine("-- DELIMITER ;");
 
+
+            #region (x.x)初始化环境
+            builder.AppendLine();
+            builder.AppendLine("SET FOREIGN_KEY_CHECKS = 1;");
+            builder.AppendLine();
+            #endregion
 
             return builder.ToString();
         }
