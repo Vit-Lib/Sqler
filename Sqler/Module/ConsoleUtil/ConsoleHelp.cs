@@ -105,8 +105,7 @@ namespace Vit.ConsoleUtil
 
                 if (method == null)
                 {
-                    ConsoleHelp.Log($"出错：命令 { args[0] } 不存在！");
-                    return;
+                    throw new Exception($"命令 { args[0] } 不存在！（help命令可查看命令说明）");                 
                 }
                 ConsoleHelp.Log("------------------------------");        
                 ConsoleHelp.Log($"开始执行命令 { args[0] } ...");
@@ -119,11 +118,14 @@ namespace Vit.ConsoleUtil
                 ex = ex.GetBaseException();
                 ConsoleHelp.Log("出错：" + ex.Message);
                 ConsoleHelp.Log("出错：" + ex.StackTrace);
-                return;
+
+                exitCode = 1;             
             }
             #endregion
 
             ConsoleHelp.Log("结束！！");
+
+            Exit();
             return;
         }
 
@@ -133,10 +135,20 @@ namespace Vit.ConsoleUtil
         #endregion
 
 
+        #region Exit
+        public static int exitCode = 0;
+        public static void Exit() 
+        {
+            //退出当前进程以及当前进程开启的所有进程
+            System.Environment.Exit(exitCode);
+        }
+        #endregion
+
+
         #region command help
         [Command("help")]
-        [Remarks("帮助文档：")]
-        [Remarks("-c[--command] 要查询的命令。若不指定则返回所有命令的文档。如 help ")]
+        [Remarks("命令说明：")]
+        [Remarks("-c[--command] 要查询的命令。若不指定则返回所有命令的说明。如 help ")]
         [Remarks("示例： help -c help")]
         public static void Help(string[] args)
         {
@@ -172,8 +184,8 @@ namespace Vit.ConsoleUtil
             }
             #endregion
 
-            #region (x.3)输出命令帮助文档
-            ConsoleHelp.Log("命令帮助文档：");
+            #region (x.3)输出命令说明：
+            ConsoleHelp.Log("命令说明：");
             foreach (var cmd in cmdMap)
             {
                 ConsoleHelp.Log("---------------");

@@ -2,17 +2,17 @@
 
 # docker login -u serset -p xxxxxxxxx
 
-#把本文件所在目录下的文件夹拷贝到 /root/image 
+#把本文件所在目录下的文件夹拷贝到image 
 
 cd /root/image
- 
-
-#构建镜像并推送到 镜像仓库
 cd sqler
-docker build . -t serset/sqler:2.25.365 -t serset/sqler
 
 
-docker push serset/sqler:2.25.365
+#构建镜像
+docker build . -t serset/sqler:2.25.368 -t serset/sqler
+
+#推送到镜像仓库
+docker push serset/sqler:2.25.368
 docker push serset/sqler
  
 
