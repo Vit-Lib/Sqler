@@ -291,8 +291,9 @@ namespace Vit.Db.DbMng.MsSql
                     return  conn.ExecuteScalar<string>("select @@version", commandTimeout: commandTimeout);
                 });
             }
-            catch  
-            {               
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
             }
             return null;            
         }
@@ -642,8 +643,15 @@ and T.name=@tableName
             }
             finally
             {
-                //远程删除文件
-                conn.MsSql_DeleteFileFromDisk(remote_bakFilePath);
+                try
+                {
+                    //远程删除文件
+                    conn.MsSql_DeleteFileFromDisk(remote_bakFilePath);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
             }
             #endregion
 
@@ -808,8 +816,15 @@ RESTORE DATABASE [Lit_Base1] FROM  DISK =@BakPath  WITH  FILE = 1,  RECOVERY ,  
             }
             finally
             {
-                //远程删除文件
-                conn.MsSql_DeleteFileFromDisk(remote_bakFilePath);
+                try
+                {
+                    //远程删除文件
+                    conn.MsSql_DeleteFileFromDisk(remote_bakFilePath);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
             }
             #endregion 
 

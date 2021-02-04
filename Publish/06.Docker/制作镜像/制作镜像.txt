@@ -9,10 +9,10 @@ cd sqler
 
 
 #构建镜像
-docker build . -t serset/sqler:2.25.373 -t serset/sqler
+docker build . -t serset/sqler:2.25.380 -t serset/sqler
 
 #推送到镜像仓库
-docker push serset/sqler:2.25.373
+docker push serset/sqler:2.25.380
 docker push serset/sqler
  
 

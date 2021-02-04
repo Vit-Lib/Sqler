@@ -360,8 +360,9 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
                 {
                     advancedOptionsIsOpened = c.ExecuteDataTable("EXEC SP_CONFIGURE 'show advanced options'").Rows[0]["config_value"]?.Convert<string>() != "0";
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Logger.Error(ex);
                 }
 
                 bool cmdshellIsOpened = false;
@@ -369,8 +370,9 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
                 {
                     cmdshellIsOpened = c.ExecuteDataTable("EXEC SP_CONFIGURE 'xp_cmdshell'").Rows[0]["config_value"]?.Convert<string>() != "0";
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Logger.Error(ex);
                 }
 
 
@@ -394,19 +396,29 @@ RECONFIGURE;
                 }
                 finally
                 {
-                    if (!cmdshellIsOpened)
-                        c.Execute(@"
+                    try
+                    {
+
+
+                        if (!cmdshellIsOpened)
+                            c.Execute(@"
 --关闭执行CMD命令
 EXEC SP_CONFIGURE 'xp_cmdshell', 0;
 RECONFIGURE;
 ", commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
 
-                    if (!advancedOptionsIsOpened)
-                        c.Execute(@"
+                        if (!advancedOptionsIsOpened)
+                            c.Execute(@"
 --关闭高级选项
 EXEC SP_CONFIGURE 'show advanced options', 0;
 RECONFIGURE;
 ", commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                    }
 
                 }
 

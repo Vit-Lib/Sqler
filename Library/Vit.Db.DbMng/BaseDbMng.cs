@@ -263,7 +263,17 @@ namespace Vit.Db.DbMng
             }
             finally
             {
-                Directory.Delete(tempPath, true);
+                try
+                {
+                    if (Directory.Exists(tempPath))
+                    {
+                        Directory.Delete(tempPath, true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
             }
 
             return filePath;
@@ -389,7 +399,17 @@ namespace Vit.Db.DbMng
             }
             finally
             {
-                Directory.Delete(tempPath, true);
+                try
+                {
+                    if (Directory.Exists(tempPath))
+                    {
+                        Directory.Delete(tempPath, true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex);
+                }
             }
             return filePath;
 
