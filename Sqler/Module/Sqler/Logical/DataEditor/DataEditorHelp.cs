@@ -8,9 +8,9 @@ using System.Linq;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.ConfigurationManager;
 using Vit.Extensions;
-using Vit.Orm.Dapper.Schema;
 using Vit.Orm.EntityFramework;
 using Vit.Orm.EntityFramework.Dynamic;
+using Vit.Db.Module.Schema;
 
 namespace App.Module.Sqler.Logical.DataEditor
 {

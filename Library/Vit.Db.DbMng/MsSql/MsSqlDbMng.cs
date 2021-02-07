@@ -258,7 +258,7 @@ namespace Vit.Db.DbMng.MsSql
             {
                 return conn.ExecuteDataTable(
                     "dbcc checkprimaryfile (@mdfFilePath, 3);"
-                    , new { mdfFilePath= mdfFilePath }
+                    , new Dictionary<string,object>{["mdfFilePath"]= mdfFilePath }
                     , commandTimeout: commandTimeout);           
             });
         }
@@ -710,7 +710,7 @@ and T.name=@tableName
                 string strDataName = null, strLogName = null;
                 //也可用 GetBakInfo 函数
                 foreach (DataRow dr in conn.ExecuteDataTable("restore filelistonly from disk=@backupFilePath;"
-                    , new { backupFilePath = bakFilePath }
+                    , new Dictionary<string,object>{ ["backupFilePath"] = bakFilePath }
                     ,commandTimeout:commandTimeout
                     ).Rows)
                 {
@@ -887,7 +887,7 @@ RESTORE DATABASE [Lit_Base1] FROM  DISK =@BakPath  WITH  FILE = 1,  RECOVERY ,  
             return Exec((conn) =>
             {
                 return conn.ExecuteDataTable("restore filelistonly from disk=@filePath;"
-                    , new { filePath = filePath }
+                    , new Dictionary<string,object>{ ["filePath"] = filePath }
                     , commandTimeout: commandTimeout);
             });
 

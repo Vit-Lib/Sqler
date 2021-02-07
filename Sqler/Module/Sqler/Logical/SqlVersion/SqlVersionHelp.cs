@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Linq;
-using App.Module.AutoTemp.Logical.Repository;
 using Microsoft.EntityFrameworkCore;
 using Vit.Orm.EntityFramework;
 using App.Module.AutoTemp.Controllers;
@@ -9,6 +8,7 @@ using System;
 using App.Module.Sqler.AutoTemp.Logical;
 using App.Module.AutoTemp.Logical;
 using System.Collections.Generic;
+ 
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {
@@ -28,7 +28,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
                 efDbFactory = new DbContextFactory<VersionResultDbContext>().Init(SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlVersion.Config"));
 
 
-                var ConnectionCreator = Vit.Orm.Dapper.ConnectionFactory.GetConnectionCreator(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlVersion.Config"));
+                var ConnectionCreator = Vit.Db.Util.Data.ConnectionFactory.GetConnectionCreator(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlVersion.Config"));
 
                 CreateOpenedDbConnection =
                 () =>

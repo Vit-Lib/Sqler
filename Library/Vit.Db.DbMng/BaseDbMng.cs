@@ -8,9 +8,9 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Vit.Core.Module.Log;
 using Vit.Db.DbMng.SqlerFile;
+using Vit.Db.Util.Data;
+using Vit.Db.Util.Sqlite;
 using Vit.Extensions;
-using Vit.Orm.Dapper;
-using Vit.Orm.Dapper.Data.Sqlite;
 
 namespace Vit.Db.DbMng
 {
@@ -25,8 +25,8 @@ namespace Vit.Db.DbMng
             this.conn = conn; 
         }
 
-        public int commandTimeout = 0; 
-        //public int commandTimeout => Orm.Dapper.DapperConfig.CommandTimeout??0;
+        public static int commandTimeout = 0;
+        //public static int? commandTimeout => Vit.Db.Util.Data.ConnectionFactory.CommandTimeout;
 
         /// <summary>
         /// 获取数据库状态

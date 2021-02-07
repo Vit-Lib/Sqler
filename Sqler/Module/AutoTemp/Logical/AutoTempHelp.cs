@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using Vit.Core.Util.XmlComment;
 using Vit.Core.Module.Log;
-using Vit.Orm.Dapper.Schema;
+using Vit.Db.Module.Schema;
 
 namespace App.Module.AutoTemp.Logical
 {

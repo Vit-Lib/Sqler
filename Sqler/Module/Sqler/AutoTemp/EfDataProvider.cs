@@ -12,8 +12,8 @@ using Vit.Core.Util.ComponentModel.SsError;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using Vit.Orm.Dapper.Schema;
 using App.Module.AutoTemp.Logical;
+using Vit.Db.Module.Schema;
 
 namespace App.Module.Sqler.AutoTemp.Logical
 {

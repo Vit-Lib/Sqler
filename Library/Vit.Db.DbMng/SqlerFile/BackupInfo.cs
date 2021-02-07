@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Vit.Db.DbMng.SqlerFile
+﻿namespace Vit.Db.DbMng.SqlerFile
 {
     class BackupInfo
     {

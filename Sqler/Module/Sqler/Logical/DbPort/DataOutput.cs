@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Vit.Core.Module.Log;
-using Vit.Orm.Dapper;
 using Vit.Extensions;
 using System.Data;
+using Vit.Db.Util.Data;
 
 namespace Sqler.Module.Sqler.Logical.DbPort
 {
@@ -83,7 +83,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             //    return;
             //}
 
-            using (var conn = ConnectionFactory.GetConnection(new Vit.Orm.Dapper.ConnectionInfo { type = type, ConnectionString = ConnectionString }))
+            using (var conn = ConnectionFactory.GetConnection(new ConnectionInfo { type = type, ConnectionString = ConnectionString }))
             {
                 BatchImport(conn);
             }

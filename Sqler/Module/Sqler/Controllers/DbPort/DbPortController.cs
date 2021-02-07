@@ -1,17 +1,10 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Vit.Extensions;
-using Vit.Core.Module.Log;
 using System;
 using Microsoft.AspNetCore.Http;
 using Vit.Core.Util.ComponentModel.Model;
 using Vit.Core.Util.Common;
 using System.IO;
-using Vit.Orm.Dapper;
-using Dapper;
-using Vit.Db.Excel;
-using System.Data;
-using System.Linq;
 using Sqler.Module.Sqler.Logical.Message;
 using Sqler.Module.Sqler.Logical.DbPort;
 

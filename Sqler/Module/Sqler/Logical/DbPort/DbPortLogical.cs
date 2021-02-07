@@ -11,10 +11,10 @@ using Vit.Core.Module.Log;
 using Vit.Core.Util;
 using Vit.Core.Util.Common;
 using Vit.Core.Util.ComponentModel.Model;
-using Vit.Db.Csv;
-using Vit.Db.Excel;
+using Vit.Db.Util.Csv;
+using Vit.Db.Util.Data;
+using Vit.Db.Util.Excel;
 using Vit.Extensions;
-using Vit.Orm.Dapper;
 
 namespace Sqler.Module.Sqler.Logical.DbPort
 {
@@ -22,10 +22,10 @@ namespace Sqler.Module.Sqler.Logical.DbPort
     {
         public static string NewLine = "\r\n";
 
-        public static int? commandTimeout => Vit.Orm.Dapper.DapperConfig.CommandTimeout;
+        public static int? commandTimeout => Vit.Db.Util.Data.ConnectionFactory.CommandTimeout;
 
-        public static readonly int batchRowCount = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<int?>("Sqler.DbPort_batchRowCount") ?? 500000;
-  
+        public static int batchRowCount => Vit.Db.BulkImport.BulkImport.batchRowCount;
+
 
         #region GetSqlRunConfig
         public static Dictionary<string, string> GetSqlRunConfig(string sql)
@@ -429,7 +429,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             try
             {
                 using (new Disposable(onDispose))
-                using (var conn = ConnectionFactory.GetConnection(new Vit.Orm.Dapper.ConnectionInfo { type = type, ConnectionString = ConnectionString }))
+                using (var conn = ConnectionFactory.GetConnection(new ConnectionInfo { type = type, ConnectionString = ConnectionString }))
                 {
                     var startTime = DateTime.Now;
 
@@ -781,7 +781,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
                 #region (x.2)init from_data
                 SendMsg(EMsgType.Title, "   init from_data");
-                using (var conn = ConnectionFactory.GetConnection(new Vit.Orm.Dapper.ConnectionInfo
+                using (var conn = ConnectionFactory.GetConnection(new ConnectionInfo
                 { type = from_type, ConnectionString = from_ConnectionString }))
                 {
                     if (string.IsNullOrWhiteSpace(from_sql))
@@ -808,7 +808,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 GetDataTableReader =
                     (tableName, curTbIndex) =>
                     {
-                        var conn = ConnectionFactory.GetConnection(new Vit.Orm.Dapper.ConnectionInfo
+                        var conn = ConnectionFactory.GetConnection(new ConnectionInfo
                         { type = from_type, ConnectionString = from_ConnectionString });
                         var dataReader = conn.ExecuteReader(from_sql, commandTimeout: DbPortLogical.commandTimeout);
                         int tableIndex = 0;
@@ -863,10 +863,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 SendMsg(EMsgType.Title, "   DataTransfer success");
                 SendMsg(EMsgType.Title, "   sum row count:" + output.importedSumRowCount);
                 SendMsg(EMsgType.Nomal, $"   耗时:{span.Hours}小时{span.Minutes}分{span.Seconds}秒{span.Milliseconds}毫秒");
-                #endregion
-
-
- 
+                #endregion 
 
             }
             catch (Exception ex)

@@ -4,8 +4,8 @@ using System.Data;
 using System.IO;
 using System.Text.RegularExpressions;
 using Vit.Core.Module.Log;
+using Vit.Db.Util.Data;
 using Vit.Extensions;
-using Vit.Orm.Dapper;
 
 namespace Vit.Db.DbMng.SqlerFile
 {
@@ -89,7 +89,7 @@ namespace Vit.Db.DbMng.SqlerFile
                                     }
                                 }
 
-                            },printErrorToLog:true);
+                            },onException:Logger.Error);
 
                            
                         });

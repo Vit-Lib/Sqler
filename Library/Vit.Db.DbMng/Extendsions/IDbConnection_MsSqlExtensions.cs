@@ -4,9 +4,9 @@ using System;
 using System.Data.SqlClient;
 using Vit.Extensions;
 using Vit.Core.Module.Log;
-using Vit.Orm.Dapper;
 using SqlConnection = System.Data.SqlClient.SqlConnection;
 using System.IO;
+using System.Collections.Generic;
 
 namespace Vit.Db.DbMng.Extendsions
 {
@@ -39,6 +39,9 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
              
              */
 
+        public static int? commandTimeout = 0;
+        //public static int? commandTimeout => Vit.Db.Util.Data.ConnectionFactory.CommandTimeout;
+
         #region MsSql_ReadFileFromDisk   
 
         /// <summary>
@@ -69,7 +72,7 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
                          cmd.Connection = conn;
                          cmd.CommandText = sql;
 
-                         cmd.CommandTimeout = DapperConfig.CommandTimeout ?? 0;
+                         cmd.CommandTimeout = commandTimeout ?? 0;
 
                          using (var dr = cmd.ExecuteReader(CommandBehavior.SequentialAccess))
                          {
@@ -115,7 +118,7 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
             {
                 return conn.ExecuteScalar<byte[]>(
                 " select BulkColumn  from OPENROWSET(BULK N'" + filePath + "', SINGLE_BLOB) as content"
-                , commandTimeout: DapperConfig.CommandTimeout);
+                , commandTimeout: commandTimeout);
             });
         }
         //*/
@@ -166,7 +169,7 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
 if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuffer') and xtype='U')
 	drop table sqler_temp_filebuffer;
 select @fileContent as fileContent into sqler_temp_filebuffer;
-", new { fileContent }, commandTimeout: DapperConfig.CommandTimeout);              
+", new { fileContent }, commandTimeout: commandTimeout);              
 
 
                     //(x.3)从临时表读取二进制内容到目标文件
@@ -193,7 +196,7 @@ select @fileContent as fileContent into sqler_temp_filebuffer;
                         conn.Execute(@"
 if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuffer') and xtype='U')
 	drop table sqler_temp_filebuffer;"
-                        , commandTimeout: DapperConfig.CommandTimeout);
+                        , commandTimeout: commandTimeout);
                     }
                     catch (Exception ex)
                     {
@@ -241,7 +244,7 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
 if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuffer') and xtype='U')
 	drop table sqler_temp_filebuffer;
 create table sqler_temp_filebuffer (fileContent varbinary(MAX) null);
-", commandTimeout: DapperConfig.CommandTimeout);
+", commandTimeout: commandTimeout);
                     #endregion
 
 
@@ -261,7 +264,7 @@ create table sqler_temp_filebuffer (fileContent varbinary(MAX) null);
                         conn.Execute(@"
 truncate table sqler_temp_filebuffer;
 insert into sqler_temp_filebuffer select @fileContent as fileContent;
-", new { fileContent = fileContent }, commandTimeout: DapperConfig.CommandTimeout);
+", new { fileContent = fileContent }, commandTimeout: commandTimeout);
 
                         // (x.x.2)从临时表读取二进制内容保存到临时文件
                         cmdResult = runCmd("BCP \"SELECT fileContent FROM sqler_temp_filebuffer\" queryout \"" + serverTempFilePath + "\" -T -i \"" + fmtFilePath + "\"");
@@ -306,7 +309,7 @@ insert into sqler_temp_filebuffer select @fileContent as fileContent;
                         conn.Execute(@"
 if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuffer') and xtype='U')
 	drop table sqler_temp_filebuffer;"
-                        , commandTimeout: DapperConfig.CommandTimeout);
+                        , commandTimeout: commandTimeout);
                     }
                     catch (Exception ex)
                     {
@@ -383,14 +386,14 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
 --打开高级选项
 EXEC SP_CONFIGURE 'show advanced options', 1;
 RECONFIGURE;
-", commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+", commandTimeout: commandTimeout);
                     if (!cmdshellIsOpened)
                         c.Execute(@"
 --启用执行CMD命令
 EXEC SP_CONFIGURE 'xp_cmdshell', 1;
 RECONFIGURE;
-", commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
-                    Func<string, DataTable> runCmd = (cmd) => c.ExecuteDataTable("exec master..xp_cmdshell @cmd ", new { cmd });
+", commandTimeout: commandTimeout);
+                    Func<string, DataTable> runCmd = (cmd) => c.ExecuteDataTable("exec master..xp_cmdshell @cmd ", new Dictionary<string,object>{ ["cmd"]=cmd });
                     handleToRun(runCmd);
                     return true;
                 }
@@ -405,14 +408,14 @@ RECONFIGURE;
 --关闭执行CMD命令
 EXEC SP_CONFIGURE 'xp_cmdshell', 0;
 RECONFIGURE;
-", commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+", commandTimeout: commandTimeout);
 
                         if (!advancedOptionsIsOpened)
                             c.Execute(@"
 --关闭高级选项
 EXEC SP_CONFIGURE 'show advanced options', 0;
 RECONFIGURE;
-", commandTimeout: Orm.Dapper.DapperConfig.CommandTimeout);
+", commandTimeout: commandTimeout);
 
                     }
                     catch (Exception ex)

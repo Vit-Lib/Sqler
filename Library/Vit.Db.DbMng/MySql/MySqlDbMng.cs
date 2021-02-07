@@ -5,7 +5,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Vit.Core.Module.Log;
 using Vit.Core.Util.Common;
 using Vit.Extensions;
 using SqlConnection = MySql.Data.MySqlClient.MySqlConnection;
@@ -427,7 +426,7 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
                 builder.AppendLine();
                 builder.AppendLine("-- (x.6)创建存储过程");
 
-                var dtName = conn.ExecuteDataTable("show procedure status WHERE Db = @dbName AND `Type` = 'PROCEDURE'", new { dbName = dbName });
+                var dtName = conn.ExecuteDataTable("show procedure status WHERE Db = @dbName AND `Type` = 'PROCEDURE'", new Dictionary<string,object> { ["dbName"] = dbName });
 
 
                 var index = 0;
@@ -454,7 +453,7 @@ ORDER BY TABLE_NAME ASC, INDEX_NAME ASC;";
                 builder.AppendLine();
                 builder.AppendLine("-- (x.7)创建视图");
                 //var dtName = conn.ExecuteDataTable("SELECT TABLE_NAME as Name from information_schema.VIEWS;");
-                var dtName = conn.ExecuteDataTable("SELECT TABLE_NAME as Name from information_schema.VIEWS where Table_Schema=@dbName", new { dbName = dbName });
+                var dtName = conn.ExecuteDataTable("SELECT TABLE_NAME as Name from information_schema.VIEWS where Table_Schema=@dbName", new Dictionary<string, object> { ["dbName"] = dbName });
                 var index = 0;
                 foreach (DataRow row in dtName.Rows)
                 {

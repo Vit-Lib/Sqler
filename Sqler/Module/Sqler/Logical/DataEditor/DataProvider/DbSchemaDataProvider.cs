@@ -7,9 +7,9 @@ using Vit.Extensions;
 using Vit.Linq.Query;
 using System.Data;
 using Vit.Core.Util.ComponentModel.SsError;
-using Vit.Orm.Dapper.Schema;
 using Vit.Core.Module.Log;
 using App.Module.AutoTemp.Logical;
+using Vit.Db.Module.Schema;
 
 namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 {

@@ -7,12 +7,12 @@ using App.Module.Sqler.Logical;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Extensions;
-using Vit.Orm.Dapper;
 using Sqler.Module.Sqler.Logical.Message;
 using Sqler.Module.Sqler.Logical.DbPort;
 using System.Collections.Generic;
 using Vit.Core.Module.Log;
 using System.Text.RegularExpressions;
+using Vit.Db.Util.Data;
 
 namespace App.Module.Sqler.Controllers.SqlRun
 {
@@ -34,14 +34,14 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
             Response.ContentType = "text/html;charset=utf-8";
 
-            var connInfo = SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config");
+            var connInfo = SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlRun.Config");
 
             ExecSql(SendMsg, sql);
         }
 
         static void ExecSql( Action<EMsgType, String> sendMsg,string sqlCode)
         {
-            using (var conn = ConnectionFactory.GetOpenConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config")))
+            using (var conn = ConnectionFactory.GetOpenConnection(SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlRun.Config")))
             {               
                 using (var tran = conn.BeginTransaction())
                 {
@@ -95,7 +95,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
         {
             if (string.IsNullOrEmpty(sql)) sql = Request.Query["sql"];
 
-            using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config")))
+            using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlRun.Config")))
             {
                 return conn.Execute(sql);
             }
@@ -112,7 +112,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
             try
             {
                 DataSet ds;
-                using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config")))
+                using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlRun.Config")))
                 {
                     ds = conn.ExecuteDataSet(sql);
                 }
@@ -225,7 +225,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
             Response.ContentType = "text/html;charset=utf-8";
 
-            var connInfo = SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.Dapper.ConnectionInfo>("SqlRun.Config");
+            var connInfo = SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlRun.Config");
 
             DbPortLogical.Export(SendMsg, connInfo.type, connInfo.ConnectionString, exportFileType, sql:sql);
         }

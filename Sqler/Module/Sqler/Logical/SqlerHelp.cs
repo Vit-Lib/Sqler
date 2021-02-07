@@ -8,6 +8,7 @@ using Vit.Core.Util.Common;
 using Vit.Core.Util.ConfigurationManager;
 using Vit.Db.DbMng;
 using Vit.Db.DbMng.MsSql;
+using Vit.Db.Util.Data;
 using Vit.Extensions;
 
 
@@ -50,7 +51,7 @@ namespace App.Module.Sqler.Logical
         {           
             var ConnectionString =sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString");
             ConnectionString = SqlServer_FormatConnectionString(ConnectionString);
-            return Vit.Orm.Dapper.ConnectionFactory.MsSql_GetConnection(ConnectionString);
+            return ConnectionFactory.MsSql_GetConnection(ConnectionString);
         }
 
 
@@ -96,7 +97,7 @@ namespace App.Module.Sqler.Logical
         {
             var ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.MySqlBackup.ConnectionString");
             ConnectionString = MySql_FormatConnectionString(ConnectionString);
-            return Vit.Orm.Dapper.ConnectionFactory.MySql_GetConnection(ConnectionString);
+            return ConnectionFactory.MySql_GetConnection(ConnectionString);
         }
 
         public static MySqlDbMng MySqlBackup_CreateDbMng(MySqlConnection conn)

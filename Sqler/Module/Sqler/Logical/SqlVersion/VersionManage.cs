@@ -12,10 +12,8 @@ using Sqler.Module.Sqler.Logical.Message;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {   
-
     public class VersionManage
     {
-
 
         static void EnsureTableCreate() 
         {
@@ -118,7 +116,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
                             }
                         }
 
-                    },printErrorToLog:true);
+                    },onException:Logger.Error);
                      
                 }
             }
