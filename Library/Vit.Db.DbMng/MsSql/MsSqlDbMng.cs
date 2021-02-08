@@ -49,8 +49,9 @@ namespace Vit.Db.DbMng.MsSql
             }
 
             this.BackupPath = BackupPath;
-            this.MdfFileDirectory = mdfPath;           
-            dbName = new SqlConnectionStringBuilder(conn.ConnectionString).InitialCatalog;
+            this.MdfFileDirectory = mdfPath;
+
+            dbName = conn.MsSql_GetDbName();
         }
         #endregion
 

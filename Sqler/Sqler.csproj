@@ -20,8 +20,7 @@
  
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.8.0" />
- 
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.8.0" />
     <PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.1.1.497" />
     <PackageReference Include="Vit.WebHost" Version="2.1.1.497" />
   </ItemGroup>

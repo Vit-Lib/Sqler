@@ -11,6 +11,7 @@ using Vit.Extensions;
 using Vit.Orm.EntityFramework;
 using Vit.Orm.EntityFramework.Dynamic;
 using Vit.Db.Module.Schema;
+using App.Module.AutoTemp.Logical;
 
 namespace App.Module.Sqler.Logical.DataEditor
 {
@@ -18,9 +19,21 @@ namespace App.Module.Sqler.Logical.DataEditor
     {
 
         #region static Init
+        static IEnumerable<IDataProvider> dataProviders =null;
+
         public static bool Init()
         {
-            //(x.1) init conn
+
+            //(x.1)取消注册
+            if (dataProviders!=null)
+            {
+                global::App.Module.AutoTemp.Controllers.AutoTempController.UnRegistDataProvider(dataProviders.ToArray());
+                dataProviders = null;
+            }
+
+
+
+            //(x.2) init conn
             {
                 var connInfo = dataEditorConfig.GetByPath<ConnectionInfo>("Db");
 
@@ -40,7 +53,9 @@ namespace App.Module.Sqler.Logical.DataEditor
                 //DbData
                 try
                 {
-                    AutoTempController.RegistDataProvider(CreateEfDataProviderFromDb());
+                    var provideArray = CreateEfDataProviderFromDb();
+                    dataProviders = provideArray;
+                    AutoTempController.RegistDataProvider(provideArray);
                 }
                 catch (System.Exception ex)
                 {

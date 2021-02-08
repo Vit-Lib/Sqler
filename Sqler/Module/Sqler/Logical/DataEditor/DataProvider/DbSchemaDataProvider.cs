@@ -17,7 +17,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
     {
 
         #region DataSource
-        static List<Model> dataSource = getDataSource();
+        List<Model> dataSource = getDataSource();
         static List<Model> getDataSource()
         {
             List<TableSchema> schema;

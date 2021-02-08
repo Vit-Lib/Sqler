@@ -31,7 +31,7 @@ namespace Vit.Db.DbMng
 
             this.BackupPath = BackupPath;
 
-            dbName = new MySql.Data.MySqlClient.MySqlConnectionStringBuilder(conn.ConnectionString).Database;
+            dbName = conn.MySql_GetDbName();
         }
         #endregion
 
