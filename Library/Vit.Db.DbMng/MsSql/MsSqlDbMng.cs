@@ -43,8 +43,6 @@ namespace Vit.Db.DbMng.MsSql
         /// </summary>
         public MsSqlDbMng(SqlConnection conn, string BackupPath = null, string mdfPath = null):base(conn)
         {
-        
-
             if (string.IsNullOrWhiteSpace(BackupPath))
             {
                 BackupPath = CommonHelp.GetAbsPath("Data", "SqlServerBackup");

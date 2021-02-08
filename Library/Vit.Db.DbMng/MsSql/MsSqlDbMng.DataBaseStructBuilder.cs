@@ -12,7 +12,7 @@ namespace Vit.Db.DbMng.MsSql
 --生成建库语句
 --1.生成 表字段、字段备注、默认值约束 、unique约束、primary key约束、索引的创建语句
 --2.生成触发器、函数、存储过程、视图的创建语句
--- by lith on 2021-01-21 v2.3
+-- by lith on 2021-02-08 v2.4
 ------------------- 
 
 
@@ -47,7 +47,7 @@ select ('
 
 --(x.1)创建表用来存储数据库表的结构
 
-create table #Proc_S_TableStruct_ColInfo([col_id] int,[col_name] varchar(200),[col_typename] varchar(200),[col_len] int,[col_identity] int,[col_seed] int,[col_increment] int,[collation] varchar(200),[col_null] int,[col_DefaultValue] varchar(2000),[ConstraintName_DefaultValue]  varchar(200),[ExtendedProperty] varchar(4000),[ConstraintName_PrimaryKey] varchar(200),[ConstraintName_Unique] varchar(200))
+create table #Proc_S_TableStruct_ColInfo([col_id] int,[col_name] varchar(200),[col_typename] varchar(200),[col_len] int,[col_prec] varchar(200),[col_scale] varchar(200),[col_identity] int,[col_seed] int,[col_increment] int,[collation] varchar(200),[col_null] int,[col_DefaultValue] varchar(2000),[ConstraintName_DefaultValue]  varchar(200),[ExtendedProperty] varchar(4000),[ConstraintName_PrimaryKey] varchar(200),[ConstraintName_Unique] varchar(200))
  
 create table #Proc_S_TableStruct_MShelpcolumns([col_name] varchar(200),[col_id] int,[col_typename] varchar(200),[col_len] int,[col_prec] varchar(200),[col_scale] varchar(200),[col_basetypename] varchar(200),[col_defname] varchar(200),[col_rulname] varchar(200),[col_null] int,[col_identity] int,[col_flags] int,[col_seed] int,[col_increment] int,[col_dridefname] varchar(200),[text] text ,[col_iscomputed] varchar(200),[col_text] varchar(200),[col_NotForRepl] int,[col_fulltext] int,[col_AnsiPad] int,[col_DOwner] int,[col_DName] varchar(200),[col_ROwner] int,[col_RName] varchar(200),[collation] varchar(200),[ColType] varchar(200),[column1] int ,[column2] int)
 
@@ -121,7 +121,7 @@ begin
 	--(x.x.2.1) 获取字段基础信息 
 	insert into #Proc_S_TableStruct_MShelpcolumns  exec sp_MShelpcolumns @tbName;  
  
-	select [col_id],[col_name],col_typename,col_len,col_identity,col_seed,col_increment,collation   
+	select [col_id],[col_name],col_typename,col_len,col_prec,col_scale,col_identity,col_seed,col_increment,collation   
 	       ,col_null,[text] col_DefaultValue,col_dridefname [ConstraintName_DefaultValue]  
 	into #Proc_S_TableStruct_Col
 	from #Proc_S_TableStruct_MShelpcolumns;
@@ -186,10 +186,18 @@ create table [dbo].['+@tbName+'] ( ';
 
 	insert into #Proc_S_TableStruct_SqlCreateTb(sql) 
 	select 
+
+	-- [col_name] [类型]
 	' ['+[col_name]+'] ['+[col_typename]+']'
 
-	-- [类型] (长度)
-	+(case when(0!=charindex('char',col_typename)) then (case when [col_len]<=0 then '(MAX)' else ' ('+convert(varchar(100),[col_len])+')' end)  else '' end)  
+	-- (长度)
+	+(
+	  -- char
+	  case when(0!=charindex('char',col_typename)) then (case when [col_len]<=0 then '(MAX)' else ' ('+convert(varchar(100),[col_len])+')' end)
+	  -- decimal
+	  when [col_typename]='decimal'  then ' ('+col_prec+','+col_scale+')'
+	  else '' end
+	 )  
 
 	-- IDENTITY(2010,100)
 	+(case when(1=col_identity) then ' IDENTITY('+convert(varchar(100),[col_seed]) +','+ convert(varchar(100),[col_increment]) +')' else '' end)  

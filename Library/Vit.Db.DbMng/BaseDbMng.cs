@@ -93,7 +93,7 @@ namespace Vit.Db.DbMng
                     var process = (((float)sum) / tableRowCount * 100).ToString("f2");
                     Log($"           {index}.[{process}%] {sum }/{tableRowCount}");
                 }
-                , useTransaction: true, commandTimeout: 0);
+                , useTransaction: true, commandTimeout: commandTimeout);
         }
 
 

@@ -7,6 +7,7 @@ using Vit.Core.Module.Log;
 using SqlConnection = System.Data.SqlClient.SqlConnection;
 using System.IO;
 using System.Collections.Generic;
+using Vit.Core.Util.MethodExt;
 
 namespace Vit.Db.DbMng.Extendsions
 {
@@ -62,7 +63,7 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
 
             return conn.MsSql_RunUseMaster((c) =>
              {
-                 return c.MakeSureOpen((_) =>
+                 return c.MakeSureOpen(() =>
                  {
                      var sql = " select BulkColumn  from OPENROWSET(BULK N'" + serverFilePath + "', SINGLE_BLOB) as content";
 
@@ -162,20 +163,20 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
                     //(x.1)创建fmt文件
                     cmdResult = runCmd("bcp \"select null union all select '0' union all select '0' union all select null union all select 'n' union all select null \" queryout \"" + fmtFilePath + "\" /T /c");
                     //Logger.Info("[MsDbMng] 写入文件到磁盘. 创建fmt文件，outlog: " + cmdResult.Serialize());
-              
+
 
                     //(x.2)把文件内容写入到临时表
                     conn.Execute(@"
 if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuffer') and xtype='U')
 	drop table sqler_temp_filebuffer;
 select @fileContent as fileContent into sqler_temp_filebuffer;
-", new { fileContent }, commandTimeout: commandTimeout);              
+", new { fileContent }, commandTimeout: commandTimeout);
 
 
                     //(x.3)从临时表读取二进制内容到目标文件
                     cmdResult = runCmd("BCP \"SELECT fileContent FROM sqler_temp_filebuffer\" queryout \"" + serverFilePath + "\" -T -i \"" + fmtFilePath + "\"");
                     //Logger.Info("[MsDbMng] 写入文件到磁盘.创建文件，outlog: " + cmdResult.Serialize());
-             
+
 
                 }
                 finally
@@ -230,13 +231,13 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
                 string fmtFilePath = serverFilePath + ".MsDbMng.temp.fmt";
 
                 try
-                {                  
+                {
                     DataTable cmdResult;
 
                     // (x.1)创建fmt文件
                     cmdResult = runCmd("bcp \"select null union all select '0' union all select '0' union all select null union all select 'n' union all select null \" queryout \"" + fmtFilePath + "\" /T /c");
                     //Logger.Info("[MsDbMng] 写入文件到磁盘. 创建fmt文件，outlog: " + cmdResult.Serialize());
-         
+
 
 
                     #region (x.2)创建临时表
@@ -249,13 +250,13 @@ create table sqler_temp_filebuffer (fileContent varbinary(MAX) null);
 
 
                     #region (x.3)分片写入文件                
-                  
-                    var fileContent = new byte[sliceByte];         
-                    while (true) 
+
+                    var fileContent = new byte[sliceByte];
+                    while (true)
                     {
                         int readLen = fileReader.Read(fileContent, 0, sliceByte);
                         if (readLen == 0) break;
-                        if (readLen < sliceByte) 
+                        if (readLen < sliceByte)
                         {
                             fileContent = fileContent.AsSpan().Slice(0, readLen).ToArray();
                         }
@@ -340,6 +341,22 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
                 conn.ConnectionString = oriConnectionString;
             }
         }
+
+        public static void MsSql_RunUseMaster(this IDbConnection conn, Action<IDbConnection> run)
+        {
+            string oriConnectionString = conn.ConnectionString;
+            try
+            {
+                SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(oriConnectionString);
+                builder.InitialCatalog = "";
+                conn.ConnectionString = builder.ToString();
+                run(conn);
+            }
+            finally
+            {
+                conn.ConnectionString = oriConnectionString;
+            }
+        }
         #endregion
 
 
@@ -353,65 +370,122 @@ if Exists(select top 1 * from sysObjects where Id=OBJECT_ID(N'sqler_temp_filebuf
             return dt;
         }
 
+        /// <summary>
+        /// 执行cmd命令。
+        /// 参考：
+        ///   https://www.cnblogs.com/feiquan/p/8673093.html
+        ///   https://www.freebuf.com/articles/web/55577.html
+        /// </summary>
+        /// <param name="conn"></param>
+        /// <param name="handleToRun"></param>
         public static void MsSql_Cmdshell(this IDbConnection conn, Action<Func<string, DataTable>> handleToRun)
         {
-            conn.MsSql_RunUseMaster((c) =>
+            #region (x.1)method Body           
+            Action methodBody = () =>
             {
+                Func<string, DataTable> runCmd = (cmd) => conn.ExecuteDataTable("exec master..xp_cmdshell @cmd ", new Dictionary<string, object> { ["cmd"] = cmd });
+                handleToRun(runCmd);
+            };
+            #endregion
 
+
+            #region (x.2)确保启用cmdshell
+            Method.Wrap(ref methodBody, (baseFunc) =>
+                {
+                    #region (x.x.1)获取是否启用                   
+                    bool cmdshellIsEnabled = false;
+                    try
+                    {
+                        cmdshellIsEnabled = conn.ExecuteDataTable("EXEC SP_CONFIGURE 'xp_cmdshell'").Rows[0]["config_value"]?.Convert<string>() != "0";
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex);
+                    }
+                    #endregion
+
+                    #region (x.x.2)若启用则直接执行后续任务                
+                    if (cmdshellIsEnabled)
+                    {
+                        baseFunc();
+                        return;
+                    }
+                    #endregion
+
+                    #region (x.x.3)没有启用，故手动启用，并在返回前手动关闭                  
+                    try
+                    {
+                        conn.Execute(@"
+--启用CMD执行命令
+EXEC SP_CONFIGURE 'xp_cmdshell', 1;
+RECONFIGURE;
+", commandTimeout: commandTimeout);
+
+                        baseFunc();
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            conn.Execute(@"
+--关闭CMD执行命令
+EXEC SP_CONFIGURE 'xp_cmdshell', 0;
+RECONFIGURE;
+", commandTimeout: commandTimeout);
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error(ex);
+                        }
+                    }
+                    #endregion
+                }
+                );
+            #endregion
+
+
+
+            #region (x.3)确保启用高级选项
+            Method.Wrap(ref methodBody,
+            (baseFunc) =>
+            {
+                #region (x.x.1)获取是否启用                   
                 bool advancedOptionsIsOpened = false;
                 try
                 {
-                    advancedOptionsIsOpened = c.ExecuteDataTable("EXEC SP_CONFIGURE 'show advanced options'").Rows[0]["config_value"]?.Convert<string>() != "0";
+                    advancedOptionsIsOpened = conn.ExecuteDataTable("EXEC SP_CONFIGURE 'show advanced options'").Rows[0]["config_value"]?.Convert<string>() != "0";
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(ex);
                 }
+                #endregion
 
-                bool cmdshellIsOpened = false;
+                #region (x.x.2)若启用则直接执行后续任务                
+                if (advancedOptionsIsOpened)
+                {
+                    baseFunc();
+                    return;
+                }
+                #endregion
+
+                #region (x.x.3)没有启用，故手动启用，并在返回前手动关闭                  
                 try
                 {
-                    cmdshellIsOpened = c.ExecuteDataTable("EXEC SP_CONFIGURE 'xp_cmdshell'").Rows[0]["config_value"]?.Convert<string>() != "0";
-                }
-                catch (Exception ex)
-                {
-                    Logger.Error(ex);
-                }
-
-
-                try
-                {
-                    if (!advancedOptionsIsOpened)
-                        c.Execute(@"
+                    conn.Execute(@"
 --打开高级选项
 EXEC SP_CONFIGURE 'show advanced options', 1;
 RECONFIGURE;
 ", commandTimeout: commandTimeout);
-                    if (!cmdshellIsOpened)
-                        c.Execute(@"
---启用执行CMD命令
-EXEC SP_CONFIGURE 'xp_cmdshell', 1;
-RECONFIGURE;
-", commandTimeout: commandTimeout);
-                    Func<string, DataTable> runCmd = (cmd) => c.ExecuteDataTable("exec master..xp_cmdshell @cmd ", new Dictionary<string,object>{ ["cmd"]=cmd });
-                    handleToRun(runCmd);
-                    return true;
+
+                    baseFunc();
                 }
                 finally
                 {
                     try
                     {
-
-
-                        if (!cmdshellIsOpened)
-                            c.Execute(@"
---关闭执行CMD命令
-EXEC SP_CONFIGURE 'xp_cmdshell', 0;
-RECONFIGURE;
-", commandTimeout: commandTimeout);
-
-                        if (!advancedOptionsIsOpened)
-                            c.Execute(@"
+                        conn.Execute(@"
 --关闭高级选项
 EXEC SP_CONFIGURE 'show advanced options', 0;
 RECONFIGURE;
@@ -422,11 +496,19 @@ RECONFIGURE;
                     {
                         Logger.Error(ex);
                     }
-
                 }
+                #endregion
+            }
+            );
+            #endregion
 
+
+            #region (x.4)执行methodBody(并且RunUseMaster)
+            conn.MsSql_RunUseMaster((c) =>
+            {
+                methodBody();
             });
-
+            #endregion
         }
         #endregion
 

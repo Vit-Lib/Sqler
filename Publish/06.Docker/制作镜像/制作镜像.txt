@@ -38,7 +38,7 @@ cd /home/ec2-user/image
 
 #构建镜像并推送到 Docker Hub 
 cd sqler
-docker buildx build . -t serset/sqler:2.25.380 -t serset/sqler --platform=linux/amd64,linux/arm64,linux/arm/v7 --push
+docker buildx build . -t serset/sqler:2.25.402 -t serset/sqler --platform=linux/amd64,linux/arm64,linux/arm/v7 --push
  
 
 
