@@ -1,7 +1,7 @@
 echo '复制文件'
 
 ::制作镜像
-xcopy "..\..\04.服务站点\Sqler"  "..\..\06.Docker\制作镜像\sqler\root\app\sqler"  /e /i /r /y
+xcopy "..\..\04.服务站点\Sqler"  "..\..\06.Docker\制作镜像\sqler\sqler"  /e /i /r /y
 
 
 :: 部署文件

@@ -18,7 +18,8 @@ docker部署sqler
 cd /root/docker
 
 cd sqler
-docker run --name=sqler --restart=always -p 4570:4570 -d \
+docker run --name=sqler --restart=always -d \
+-p 4570:4570 \
 -v /etc/localtime:/etc/localtime \
 -v $PWD/appsettings.json:/root/app/sqler/appsettings.json \
 -v $PWD/Data:/root/app/sqler/Data  \
@@ -28,7 +29,7 @@ cd ..
 
 
 #精简
-docker run --name=sqler --restart=always -p 4570:4570 -d serset/sqler
+docker run --name=sqler --restart=always -d -p 4570:4570 serset/sqler
 
 
 

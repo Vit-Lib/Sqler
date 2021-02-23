@@ -4,6 +4,6 @@
 
     "sqlite": "CREATE TABLE  if not exists  sqler_version(	[id] INTEGER PRIMARY KEY   autoincrement,	[module] [nvarchar](100) NULL,	[version] [int] NULL,	[success] [int] NOT NULL,	[result] [text] NULL,	[code] [text] NULL,	[exec_time] [datetime] NULL,	[remarks] [text] NULL) ;",
 
-    "mysql": "CREATE TABLE  sqler_version( `id` int  NOT NULL AUTO_INCREMENT, `module` nvarchar(100) NULL, `version` int NULL, `success` int NOT NULL, `result` nvarchar(4000) NULL, `code` text NULL, `exec_time` datetime NULL, `remarks` nvarchar(4000) NULL, PRIMARY KEY (`id`));"
+    "mysql": ""
   }
 }
