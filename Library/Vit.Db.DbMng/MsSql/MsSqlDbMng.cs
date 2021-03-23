@@ -11,10 +11,13 @@
 #endregion
 
 using Dapper;
+using Microsoft.SqlServer.Types;
+
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -549,14 +552,14 @@ and T.name=@tableName
             #endregion
 
             if(sqlList.Count==0)
-                return base.BulkImport(dr, tableName, tableRowCount);
+                return BulkImport__(dr, tableName, tableRowCount);
 
             try
             {
                 var sql_diableIndex = string.Join(" DISABLE;  ",sqlList) + " DISABLE;  ";
                 conn.Execute(sql_diableIndex, commandTimeout: commandTimeout);
 
-                return base.BulkImport(dr, tableName, tableRowCount);
+                return BulkImport__(dr, tableName, tableRowCount);
             }
             finally
             {
@@ -570,8 +573,170 @@ and T.name=@tableName
                     Logger.Error(ex);
                 }               
             }
-
            
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="dr"></param>
+        /// <param name="tableName"></param>
+        /// <param name="tableRowCount"></param>
+        /// <param name="srid">WGS84 — SRID 4326</param>
+        /// <returns></returns>
+        int BulkImport__(IDataReader dr, string tableName, int tableRowCount,int srid= 4326)
+        {
+            int index = 0;
+
+            Action<DataTable> beforeImport = null;
+
+            #region 处理 geometry类型
+            // https://www.itdaan.com/tw/5d63863f347c9a22d2736beebc92d758
+
+            var schema = conn.MsSql_GetSchema(new[] { tableName });
+
+            //SqlGeometry
+            if (schema != null && schema.Count > 0)
+            {
+                var columnNames = schema[0].columns
+                    .Where(col => col.column_clr_type == typeof(SqlGeometry))
+                    .Select(c => c.column_name).ToList();
+
+                if (columnNames.Count > 0) 
+                {
+                    beforeImport = dataTable => {
+
+                        dataTable.BeginLoadData();
+
+                        //(x.1)构建 map  string Col -> Geometry Col
+                        var colMap = columnNames
+                        .Select(colName => {
+                            var col = dataTable.Columns[colName];
+                            if(col?.DataType==typeof(string))
+                            return col;
+                            return null;
+                         }).Where(m=>m!=null)
+                        .ToDictionary<DataColumn, DataColumn>(
+                            colName =>
+                            {
+                                var col = new DataColumn();                    
+                                col.DataType = typeof(SqlGeometry);
+                                dataTable.Columns.Add(col);
+                                return col;
+                            }
+                            );
+
+                        foreach (var map in colMap)
+                        {
+                            foreach (DataRow row in dataTable.Rows)
+                            {
+                                try
+                                {
+                                    var value = row[map.Value] as string;
+                                    //var g = SqlGeometry.Parse(value);
+                                    var g = SqlGeometry.STGeomFromText(new SqlChars(value), srid);
+                                    row[map.Key] =g;
+                                }
+                                catch (Exception ex)
+                                {
+                                }
+                            }
+                        }
+
+                        foreach (var map in colMap)
+                        {
+                            dataTable.Columns.Remove(map.Value);
+                            map.Key.ColumnName = map.Value.ColumnName;
+                        }      
+
+                        dataTable.EndLoadData();
+
+                    };
+                }
+
+            }
+
+
+
+            if (schema != null && schema.Count > 0)
+            {
+                var columnNames = schema[0].columns
+                    .Where(col => col.column_clr_type == typeof(SqlGeography))
+                    .Select(c => c.column_name).ToList();
+
+                if (columnNames.Count > 0)
+                {
+                    beforeImport += dataTable => {
+
+                        dataTable.BeginLoadData();
+
+                        //(x.1)构建 map  string Col -> Geometry Col
+                        var colMap = columnNames
+                        .Select(colName => {
+                            var col = dataTable.Columns[colName];
+                            if (col?.DataType == typeof(string))
+                                return col;
+                            return null;
+                        }).Where(m => m != null)
+                        .ToDictionary<DataColumn, DataColumn>(
+                            colName =>
+                            {
+                                var col = new DataColumn();
+                                col.DataType = typeof(SqlGeography);
+                                dataTable.Columns.Add(col);
+                                return col;
+                            }
+                            );
+
+                        foreach (var map in colMap)
+                        {
+                            foreach (DataRow row in dataTable.Rows)
+                            {
+                                try
+                                {
+                                    var value = row[map.Value] as string;
+                                    //var g = SqlGeography.Parse(value);
+                                    var g = SqlGeography.STGeomFromText(new SqlChars(value), srid);
+                                    row[map.Key] = g;
+                                }
+                                catch (Exception ex)
+                                {
+                                }
+                            }
+                        }
+
+                        foreach (var map in colMap)
+                        {
+                            dataTable.Columns.Remove(map.Value);
+                            map.Key.ColumnName = map.Value.ColumnName;
+                        }
+
+                        dataTable.EndLoadData();
+
+                    };
+                }
+
+            }
+            #endregion
+
+
+
+
+
+            return Vit.Db.BulkImport.BulkImport.MsSql_Import(conn.ConnectionString,
+                dr, tableName,
+                onProcess: (cur, sum) =>
+                {
+                    index++;
+                    var process = (((float)sum) / tableRowCount * 100).ToString("f2");
+                    Log($"           {index}.[{process}%] {sum }/{tableRowCount}");
+                }
+                , useTransaction: true, commandTimeout: commandTimeout
+                , beforeImport: beforeImport
+                );
+
+  
         }
 
         #endregion

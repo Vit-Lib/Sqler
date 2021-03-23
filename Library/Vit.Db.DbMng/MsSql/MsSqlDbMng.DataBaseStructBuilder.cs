@@ -12,7 +12,7 @@ namespace Vit.Db.DbMng.MsSql
 --生成建库语句
 --1.生成 表字段、字段备注、默认值约束 、unique约束、primary key约束、索引的创建语句
 --2.生成触发器、函数、存储过程、视图的创建语句
--- by lith on 2021-02-08 v2.4
+-- by lith on 2021-03-22 v2.5
 ------------------- 
 
 
@@ -49,8 +49,6 @@ select ('
 
 create table #Proc_S_TableStruct_ColInfo([col_id] int,[col_name] varchar(200),[col_typename] varchar(200),[col_len] int,[col_prec] varchar(200),[col_scale] varchar(200),[col_identity] int,[col_seed] int,[col_increment] int,[collation] varchar(200),[col_null] int,[col_DefaultValue] varchar(2000),[ConstraintName_DefaultValue]  varchar(200),[ExtendedProperty] varchar(4000),[ConstraintName_PrimaryKey] varchar(200),[ConstraintName_Unique] varchar(200))
  
-create table #Proc_S_TableStruct_MShelpcolumns([col_name] varchar(200),[col_id] int,[col_typename] varchar(200),[col_len] int,[col_prec] varchar(200),[col_scale] varchar(200),[col_basetypename] varchar(200),[col_defname] varchar(200),[col_rulname] varchar(200),[col_null] int,[col_identity] int,[col_flags] int,[col_seed] int,[col_increment] int,[col_dridefname] varchar(200),[text] text ,[col_iscomputed] varchar(200),[col_text] varchar(200),[col_NotForRepl] int,[col_fulltext] int,[col_AnsiPad] int,[col_DOwner] int,[col_DName] varchar(200),[col_ROwner] int,[col_RName] varchar(200),[collation] varchar(200),[ColType] varchar(200),[column1] int ,[column2] int)
-
 create table #Proc_S_TableStruct_SqlCreateTb([id] int identity(1,1),sql varchar(700));
 
 select  [Name] into #Proc_S_TableStruct_tbName from sysobjects where [type] = 'U'  and [Name]!='dtproperties';
@@ -119,14 +117,27 @@ begin
 
 
 	--(x.x.2.1) 获取字段基础信息 
-	insert into #Proc_S_TableStruct_MShelpcolumns  exec sp_MShelpcolumns @tbName;  
+	SELECT 
+	  C.column_id  [col_id],
+	  C.[name] [col_name],
+	  T.[name] col_typename, 
+	  COLUMNPROPERTY(C.[object_id],C.[name],'PRECISION')   col_len, 
+	  C.[precision] col_prec,
+	  COLUMNPROPERTY(C.[object_id],C.[name],'Scale')  col_scale, 
+	  C.is_identity col_identity, 
+	  IDENT_SEED (@tbName)  col_seed,
+	  IDENT_INCR (@tbName)  col_increment,
+	  C.collation_name collation,
+	  C.is_nullable col_null,
+	  D.[definition] as col_DefaultValue,
+	  D.[name] [ConstraintName_DefaultValue]  
+		into #Proc_S_TableStruct_Col
+	FROM sys.columns C
+	INNER JOIN sys.types T ON C.user_type_id=T.user_type_id
+	LEFT JOIN sys.default_constraints D ON C.[object_id]=D.parent_object_id AND C.column_id=D.parent_column_id AND C.default_object_id=D.[object_id]  
+	WHERE C.[object_id]=(select top 1 [object_id] from  sys.objects    where [name]=@tbName and [type]='U' AND [is_ms_shipped]=0)
+	ORDER BY  C.column_id
  
-	select [col_id],[col_name],col_typename,col_len,col_prec,col_scale,col_identity,col_seed,col_increment,collation   
-	       ,col_null,[text] col_DefaultValue,col_dridefname [ConstraintName_DefaultValue]  
-	into #Proc_S_TableStruct_Col
-	from #Proc_S_TableStruct_MShelpcolumns;
-
-	truncate table #Proc_S_TableStruct_MShelpcolumns;
 
 
 	--（x.x.2.2）  获取字段的备注
@@ -195,7 +206,7 @@ create table [dbo].['+@tbName+'] ( ';
 	  -- char
 	  case when(0!=charindex('char',col_typename)) then (case when [col_len]<=0 then '(MAX)' else ' ('+convert(varchar(100),[col_len])+')' end)
 	  -- decimal
-	  when [col_typename]='decimal'  then ' ('+col_prec+','+col_scale+')'
+	  when [col_typename]='decimal' OR [col_typename]='numeric'  then ' ('+col_prec+','+col_scale+')'
 	  else '' end
 	 )  
 
@@ -298,7 +309,6 @@ GO
 
 drop table #Proc_S_TableStruct_Index;
 drop table #Proc_S_TableStruct_tbName;
-drop table #Proc_S_TableStruct_MShelpcolumns;
 drop table #Proc_S_TableStruct_ColInfo;
 drop table #Proc_S_TableStruct_SqlCreateTb;
 
@@ -448,10 +458,6 @@ drop table #tmp_R;
 
 
 drop table #tb;
-
- 
-
-
 
 
 
