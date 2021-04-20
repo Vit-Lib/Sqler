@@ -33,12 +33,12 @@ docker buildx ls
 #(x.2)构建多架构镜像（ arm、arm64 和 amd64 ）并推送到 Docker Hub
 
 #把文件夹拷贝到image下
-cd /home/ec2-user/image 
+cd /root/image 
 
 
 #构建镜像并推送到 Docker Hub 
 cd sqler
-docker buildx build . -t serset/sqler:2.25.419 -t serset/sqler --platform=linux/amd64,linux/arm64,linux/arm/v7 --push
+docker buildx build . -t serset/sqler:2.25.502 -t serset/sqler --platform=linux/amd64,linux/arm64,linux/arm/v7 --push
  
 
 
