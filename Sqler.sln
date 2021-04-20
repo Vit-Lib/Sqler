@@ -5,10 +5,6 @@ VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sqler", "Sqler\Sqler.csproj", "{15FA4B65-9F9E-41A9-A41F-BA5E4160D05A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Library", "Library", "{4EE8188B-B9C2-4229-8181-5AAD9A5382C3}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vit.Db.DbMng", "Library\Vit.Db.DbMng\Vit.Db.DbMng.csproj", "{CC6ED50C-5FED-41EF-9C31-E1727BDD131F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,16 +15,9 @@ Global
 		{15FA4B65-9F9E-41A9-A41F-BA5E4160D05A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15FA4B65-9F9E-41A9-A41F-BA5E4160D05A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15FA4B65-9F9E-41A9-A41F-BA5E4160D05A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CC6ED50C-5FED-41EF-9C31-E1727BDD131F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CC6ED50C-5FED-41EF-9C31-E1727BDD131F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CC6ED50C-5FED-41EF-9C31-E1727BDD131F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CC6ED50C-5FED-41EF-9C31-E1727BDD131F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{CC6ED50C-5FED-41EF-9C31-E1727BDD131F} = {4EE8188B-B9C2-4229-8181-5AAD9A5382C3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C7DA16E3-9949-49FA-B0B4-F830636DE60F}
