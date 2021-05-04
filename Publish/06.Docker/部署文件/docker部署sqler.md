@@ -1,4 +1,4 @@
-docker部署sqler
+﻿docker部署sqler
 
  
 
@@ -84,17 +84,57 @@ serset/sqler  \
 dotnet Sqler.dll help
 
 
-#远程还原数据库
+
+# mysql
+
+## 连接字符串说明
+
+### (x.1)避免问题Unable to convert MySQL date/time value to System.DateTime
+读取MySql时，如果存在字段类型为date/datetime时的可能会出现以下问题，“Unable to convert MySQL date/time value to System.DateTime”
+解决方式为 在链接MySQL的字符串中添加：Convert Zero Datetime=True;Allow Zero Datetime=True;
+如： "Convert Zero Datetime=True;Allow Zero Datetime=True;Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;"
+
+
+### (x.2)避免datetime类型默认值出现“Invalid default value for..."错误
+--查看sql_mode
+show variables like '%sql_mode%';
+
+--修改sql_mode,去掉NO_ZERO_IN_DATE,NO_ZERO_DATE:
+set global sql_mode='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+
+
+
+#备份数据库
+cd /root/data
 docker run --rm -it \
--v /etc/localtime:/etc/localtime \
--v $PWD/SqlerData:/root/app/SqlerData  \
+--link wordpress_mysql:mysql \
+-v $PWD:/root/data  \
+serset/sqler  \
+dotnet Sqler.dll MySql.BackupSqler \
+--filePath "/root/data/wordpress.zip" \
+--ConnectionString "Convert Zero Datetime=True;Allow Zero Datetime=True;Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;"
+
+
+
+--ConnectionString "Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;"
+
+
+
+
+
+
+#还原数据库
+docker run --rm -it \
+--link wordpress_mysql:mysql \
+-v $PWD:/root/data  \
 serset/sqler  \
 dotnet Sqler.dll MySql.RemoteRestore \
---DataPath "../SqlerData/Local_Basis" \
---filePath "/root/app/SqlerData/Local_Basis/MySqlBackup/Huyan2011-Bim-Basis_2021-01-13_162418.sqler.mysql.zip" \
---ConnectionString "Data Source=mysql.huyan;Port=3306;Database=Huyan2011-Bim-Basis;User Id=root;Password=123456;CharSet=utf8;"
+--filePath "/root/data/wordpress.zip" \
+--ConnectionString "Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;"
 
  
+
 
 
 #运行容器，在断开后自动关闭并清理
