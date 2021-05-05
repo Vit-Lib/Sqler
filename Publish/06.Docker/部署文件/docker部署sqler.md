@@ -125,7 +125,7 @@ docker run --rm -it \
 -v /root/data:/root/data  \
 serset/sqler  \
 dotnet Sqler.dll MySql.Restore \
---filePath "/root/data/wordpress.zip" \
+--filePath "/root/data/wordpress.sqler.zip" \
 --ConnectionString "Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;Convert Zero Datetime=True;Allow Zero Datetime=True;"
 
  
