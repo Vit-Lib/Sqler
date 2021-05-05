@@ -203,7 +203,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
                 bool useMemoryCache = exportFileType == "sqlite";
 
-                System.Data.SQLite.SQLiteConnection connSqlite = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(useMemoryCache ? null : outFilePath);
+                var connSqlite = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(useMemoryCache ? null : outFilePath);
 
 
 

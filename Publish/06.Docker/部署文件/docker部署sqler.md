@@ -79,9 +79,7 @@ cd ..
 
 
 #查看帮助
-docker run --rm -it \
-serset/sqler  \
-dotnet Sqler.dll help
+docker run --rm -it serset/sqler dotnet Sqler.dll help
 
 
 
@@ -92,32 +90,29 @@ dotnet Sqler.dll help
 ### (x.1)避免问题Unable to convert MySQL date/time value to System.DateTime
 读取MySql时，如果存在字段类型为date/datetime时的可能会出现以下问题，“Unable to convert MySQL date/time value to System.DateTime”
 解决方式为 在链接MySQL的字符串中添加：Convert Zero Datetime=True;Allow Zero Datetime=True;
-如： "Convert Zero Datetime=True;Allow Zero Datetime=True;Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;"
+如： "Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;Convert Zero Datetime=True;Allow Zero Datetime=True;"
 
 
 ### (x.2)避免datetime类型默认值出现“Invalid default value for..."错误
---查看sql_mode
+-- 查看sql_mode
 show variables like '%sql_mode%';
 
---修改sql_mode,去掉NO_ZERO_IN_DATE,NO_ZERO_DATE:
+-- 修改sql_mode,去掉NO_ZERO_IN_DATE,NO_ZERO_DATE:
 set global sql_mode='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 
 
 
 #备份数据库
-cd /root/data
 docker run --rm -it \
---link wordpress_mysql:mysql \
--v $PWD:/root/data  \
+--link mysql80:mysql \
+-v /root/data:/root/data  \
 serset/sqler  \
 dotnet Sqler.dll MySql.BackupSqler \
---filePath "/root/data/wordpress.zip" \
---ConnectionString "Convert Zero Datetime=True;Allow Zero Datetime=True;Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;"
+--filePath "/root/data/wordpress.sqler.zip" \
+--ConnectionString "Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;Convert Zero Datetime=True;Allow Zero Datetime=True;"
 
-
-
---ConnectionString "Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;"
+ 
 
 
 
@@ -126,12 +121,12 @@ dotnet Sqler.dll MySql.BackupSqler \
 
 #还原数据库
 docker run --rm -it \
---link wordpress_mysql:mysql \
--v $PWD:/root/data  \
+--link mysql80:mysql \
+-v /root/data:/root/data  \
 serset/sqler  \
-dotnet Sqler.dll MySql.RemoteRestore \
+dotnet Sqler.dll MySql.Restore \
 --filePath "/root/data/wordpress.zip" \
---ConnectionString "Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;"
+--ConnectionString "Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;Convert Zero Datetime=True;Allow Zero Datetime=True;"
 
  
 
@@ -140,7 +135,7 @@ dotnet Sqler.dll MySql.RemoteRestore \
 #运行容器，在断开后自动关闭并清理
 docker run --rm -it -p 4570:4570 serset/sqler dotnet Sqler.dll help
 
-docker run --rm -it -p 4570:4570 serset/sqler sh
+docker run --rm -it -p 4570:4570 serset/sqler bash
 dotnet Sqler.dll help
 
  
