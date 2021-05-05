@@ -98,6 +98,7 @@ docker run --rm -it serset/sqler dotnet Sqler.dll help
 show variables like '%sql_mode%';
 
 -- 修改sql_mode,去掉NO_ZERO_IN_DATE,NO_ZERO_DATE:
+set sql_mode='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 set global sql_mode='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 
@@ -105,13 +106,12 @@ set global sql_mode='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_B
 
 #备份数据库
 docker run --rm -it \
---link mysql80:mysql \
+--link wordpress-mysql:mysql \
 -v /root/data:/root/data  \
 serset/sqler  \
 dotnet Sqler.dll MySql.BackupSqler \
 --filePath "/root/data/wordpress.sqler.zip" \
 --ConnectionString "Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;Convert Zero Datetime=True;Allow Zero Datetime=True;"
-
  
 
 
@@ -119,13 +119,13 @@ dotnet Sqler.dll MySql.BackupSqler \
 
 
 
-#还原数据库
+#强制还原数据库
 docker run --rm -it \
---link mysql80:mysql \
+--link wordpress-mysql:mysql \
 -v /root/data:/root/data  \
 serset/sqler  \
 dotnet Sqler.dll MySql.Restore \
---filePath "/root/data/wordpress.sqler.zip" \
+-f --filePath "/root/data/wordpress.sqler.zip" \
 --ConnectionString "Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;Convert Zero Datetime=True;Allow Zero Datetime=True;"
 
  

@@ -518,7 +518,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                             //(x.x.3)初始化环境参数                           
                             curTbIndex++;
 
-                        } while (dr.NextResult());
+                        } while (!dr.IsClosed && dr.NextResult());
                     }
                     var span = (DateTime.Now - startTime);
                     SendMsg(EMsgType.Nomal, "");
