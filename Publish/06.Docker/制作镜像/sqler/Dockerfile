@@ -1,4 +1,4 @@
 FROM serset/dotnet:2.1
-COPY sqler /root/app/sqler
-WORKDIR /root/app/sqler
+COPY app /root/app
+WORKDIR /root/app
 CMD dotnet Sqler.dll
