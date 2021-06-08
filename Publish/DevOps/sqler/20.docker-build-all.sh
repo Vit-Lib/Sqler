@@ -84,8 +84,6 @@ docker buildx build . -t serset/$name:$tag -t serset/$name --platform=linux/amd6
  
 
 
-
-
  
 
 
