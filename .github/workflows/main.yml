@@ -33,9 +33,9 @@ jobs:
       - name: Run a multi-line script
         run: |
            echo start build sqler
-           export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME  }}
-           export DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
-           export GIT_SSH_SECRET=${{ secrets.GIT_SSH_SECRET }}
+           export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME  }}"
+           export DOCKER_PASSWORD="${{ secrets.DOCKER_PASSWORD }}"
+           export GIT_SSH_SECRET="${{ secrets.GIT_SSH_SECRET }}"
            cd ./Publish/DevOps/sqler
            bash 20.docker-build.sh
            bash 30.release-build.sh
