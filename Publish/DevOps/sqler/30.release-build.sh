@@ -3,7 +3,7 @@ set -e
 # cd /root/docker/jenkins/workspace/sqler/svn/Publish/DevOps/sqler; bash 30.release-build.sh
 
 
-# export github_ssh_secret=xxxxxx
+# export GIT_SSH_SECRET=xxxxxx
 
 #(x.1)当前路径 
 curWorkDir=$PWD
@@ -44,7 +44,7 @@ echo "(x.3)提交release文件到github"
 
 #复制ssh key
 cd $codePath/Publish
-echo "${github_ssh_secret}" > $codePath/Publish/git/serset
+echo "${GIT_SSH_SECRET}" > $codePath/Publish/git/serset
 chmod 600 $codePath/Publish/git/serset
 
 #推送到github
