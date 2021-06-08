@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>netcoreapp2.1</TargetFramework>
-		<Version>3.0.3.713</Version>
+		<Version>3.0.3.714</Version>
 		<Description>https://github.com/serset/Sqler</Description>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<PreserveCompilationContext>true</PreserveCompilationContext>

@@ -4,7 +4,8 @@ set -e
 
 
  
-
+# export DOCKER_USERNAME=serset
+# export DOCKER_PASSWORD=xxx
 export name=sqler
 export projectPath='Sqler'
 
@@ -77,10 +78,10 @@ docker buildx ls
 #---------------------------------------------------------------------
 #(x.4.2)构建多架构镜像（ arm、arm64 和 amd64 ）并推送到 Docker Hub
 
-docker login -u serset -p 8d6c5db9-e035-4fa3-9c24-e6aab5ed3b5f
+docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
 cd $codePath/Publish/06.Docker/制作镜像/$name
-docker buildx build . -t serset/$name:$tag -t serset/$name --platform=linux/amd64,linux/arm64,linux/arm/v7 --push
+docker buildx build . -t $DOCKER_USERNAME/$name:$tag -t $DOCKER_USERNAME/$name --platform=linux/amd64,linux/arm64,linux/arm/v7 --push
  
 
 
