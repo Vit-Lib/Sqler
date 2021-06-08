@@ -35,6 +35,8 @@ jobs:
            echo start build sqler
            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME  }}
            export DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+           export github_ssh_secret=${{ secrets.github_ssh_secret }}
            cd ./Publish/DevOps/sqler
            bash 20.docker-build.sh
+           bash 30.release-build.sh
            echo builded sqler!
