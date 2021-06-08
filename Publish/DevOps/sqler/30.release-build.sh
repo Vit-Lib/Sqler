@@ -32,7 +32,7 @@ cp -rf  $codePath/Publish/06.Docker $codePath/Publish/Sqler/06.Docker
 cp -rf  $codePath/Publish/06.Docker/制作镜像/sqler/app $codePath/Publish/Sqler/04.服务站点/Sqler
 
  
-docker run --rm -it \
+docker run --rm -i \
 -v $codePath/Publish:/root/file \
 serset/filezip dotnet FileZip.dll zip -i /root/file/Sqler -o /root/file/git/Sqler${version}.zip
 
