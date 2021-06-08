@@ -58,9 +58,9 @@ git config --global user.name 'lith'
 mkdir -p /root/code
 cd /root/code
 git clone git@github.com:serset/release.git /root/code
-mkdir -p /root/code/sqler
-cp /root/git/Sqler${version}.zip /root/code/sqler
-git add sqler/Sqler${version}.zip
+mkdir -p /root/code/file/sqler
+cp /root/git/Sqler${version}.zip /root/code/file/sqler
+git add file/sqler/Sqler${version}.zip
 git commit  -m  'auto commit ${version}'
 git push -u origin master \" "
 
