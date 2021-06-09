@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <title>数据直导 DbPort SqlRun</title>
+    <link rel="stylesheet" type="text/css" href="/autoTemp/Scripts/jquery-easyui/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="/autoTemp/Scripts/jquery-easyui/themes/icon.css" />
+
+    <script type="text/javascript" src="/autoTemp/Scripts/jquery-easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/autoTemp/Scripts/jquery-easyui/jquery.easyui.min.js"></script>
+
+
+    <script type="text/javascript" src="/autoTemp/Scripts/util/theme.js"></script>
+
+ 
+
+</head>
+<body>
+
+    <fieldset style="margin-bottom: 5px;">
+        <legend>数据直导</legend>
+        <form method='post' enctype='multipart/form-data' action='/sqler/DbPort/DataTransfer' target='_blank'>
+            <table>
+                <tr><td colspan="2" style="text-align:left;padding-top:20px;"><b>数据源配置</b> 指定要从中复制数据的源:</td></tr>
+                <tr>
+                    <td>type</td>
+                    <td>
+                        <input type='radio' name='from_type' value="mssql" checked="checked" />mssql
+                        <input type='radio' name='from_type' value="mysql" />mysql
+                        <input type='radio' name='from_type' value="sqlite" />sqlite
+                    </td>
+                </tr>
+                <tr><td>ConnectionString</td><td><textarea name='from_ConnectionString' cols="100" rows="2"></textarea></td></tr>
+                <tr><td>sql(若不指定则复制所有表数据)</td><td><textarea name='from_sql' cols="100" rows="8">
+/* <SqlRunConfig>                
+<tableNames>["aaa","bbb"]</tableNames>                  
+</SqlRunConfig> */
+</textarea></td></tr>
+                <tr><td colspan="2" style="text-align:left;padding-top:40px;"><b>目标配置</b> 指定要将数据复制到何处:</td></tr>
+                <tr>
+                    <td>type</td>
+                    <td>
+                        <input type='radio' name='to_type' value="mssql" checked="checked" />mssql
+                        <input type='radio' name='to_type' value="mysql" />mysql
+                        <input type='radio' name='to_type' value="sqlite" />sqlite                  
+                    </td>
+                </tr>
+                <tr><td>ConnectionString</td><td><textarea name='to_ConnectionString' cols="100" rows="2"></textarea></td></tr>
+
+                <tr><td>createTable</td><td><input type='checkbox' name='createTable' /></td></tr>
+                <tr><td>delete</td><td><input type='checkbox' name='delete' /></td></tr>
+                <tr><td>truncate</td><td><input type='checkbox' name='truncate' /></td></tr>
+
+            </table>
+            <input type='submit' value='执行数据直导' />
+        </form>
+        <pre>
+            <code>
+                type:               数据库类型，可为 mssql、mysql、sqlite
+                ConnectionString:   数据库连接字符串
+                createTable:        若指定(on)，则在导入数据前自动创建表结构
+                delete:             若指定(on)，则在导入数据前使用delete语句清空待操作的表
+                truncate:           若指定(on)，则在导入数据前使用truncate语句清空待操作的表
+            </code>
+    </pre>
+    </fieldset>
+</body>
+</html>

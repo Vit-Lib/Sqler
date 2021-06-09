@@ -1,0 +1,613 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+
+    <script type="text/javascript" src="../jquery-easyui/jquery.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="../jquery-easyui/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="../jquery-easyui/themes/icon.css" />
+    <script type="text/javascript" src="../jquery-easyui/jquery.easyui.min.js"></script>
+
+    <script type="text/javascript" src="../artDialog/artDialog.js?skin=default"></script>
+    <script type="text/javascript" src="../artDialog/plugins/iframeTools.js"></script>
+
+    <script type="text/javascript" src="../My97DatePicker/WdatePicker.js"></script>
+
+    <script src="../vit/vit.EventListener.js"></script>
+
+    <script src="../util/theme.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="autoTemp.css" />
+    <script src="autoTemp.js"></script>
+    <script src="autoTemp.eventListener.js"></script>
+    <script src="autoTemp.Controller.js"></script>
+    <script src="autoTemp.dataProvider.LocalStorageProvider.js"></script>
+    <script src="autoTemp.dataProvider.ApiProvider.js"></script>
+    <script src="autoTemp.Field.js"></script>
+
+
+    <script type="text/javascript" src="../infoGet/widget/infoGet.js"></script>
+    <script type="text/javascript" src="../infoGet/widget/infoGet.widget.Text.js"></script>
+    <script type="text/javascript" src="../infoGet/widget/infoGet.widget.TextArea.js"></script>
+
+    <style type="text/css">
+        html {
+            height: 100%;
+            overflow: auto;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 14px;
+            background-color: #effafe;
+        }
+    </style>
+
+
+    <script type="text/javascript">
+
+        var controllerConfig;
+        var controller;
+        var template;
+        var dataProvider = autoTemp.createDataPrivider();
+
+     
+
+        //获取配置
+        dataProvider.getControllerConfig(null, function (apiRet) {
+            if (!theme.alertApiReturn(apiRet)) {
+                return;
+            }
+
+            controllerConfig = apiRet.data;
+
+            //(x.1) load dependency
+            if (controllerConfig.dependency) {
+                if (controllerConfig.dependency.css) {
+                    for (var src of controllerConfig.dependency.css) {
+                        document.loadCss(src);
+                    }
+                }
+
+                if (controllerConfig.dependency.js) {                
+                    for (var src of controllerConfig.dependency.js) {
+                        dependencyCount++;
+                        $.getScript(src, function (response, status) {
+                            dependencyCount--;
+                            doAfterLoadedDependency();
+                        });                                        
+                    }
+                }
+            }
+
+            //(x.2)
+            doAfterLoadedDependency();
+
+        });
+
+        var dependencyCount = 0;
+
+        function doAfterLoadedDependency() {
+            if (dependencyCount != 0) return;
+
+            $(function () {
+
+                controller = new autoTemp.Controller(controllerConfig);
+
+                var gridConfig = controller.list_init();
+
+
+
+                if (controllerConfig.treeField) {
+                    template = new TemplateTree();
+                } else {
+                    template = new TemplateData();
+                }
+
+
+                //(x.1)初始化筛选条件
+                var html = '';
+                var filterAtFields = autoTemp.Controller.createAtFields(controllerConfig.filterFields);
+                for (var atField of filterAtFields) {
+                    html += atField.build_infoGet_Html();
+                }
+                $('#igFilter').html(html);
+                $.parser.parse();
+                infoGet.parse();
+
+                //(x.2)grid
+                var templateConfig = {
+                    controllerConfig: controllerConfig,
+                    gridConfig: gridConfig,
+                    jqGrid: $('#dl'),
+                    dataProvider: dataProvider,
+                    filterAtFields: filterAtFields
+                };
+
+                autoTemp.eventListener.fireEvent('list.template.beforeInit', [template, templateConfig]);
+
+                template.init(templateConfig);
+
+            });
+
+        }
+    </script>
+
+
+
+    <script type="text/javascript">
+
+
+
+
+        function outSpan(value) {
+            if (value == null || 'undefined' == typeof (value)) value = '';
+            else
+                value = ('' + value).toXmlStr();
+            return '<span title="' + value + '">' + value + '</span>';
+        }
+
+
+
+
+    </script>
+
+
+
+    <script type="text/javascript">
+        //TemplateData
+        function TemplateData() {
+            var self = this;
+
+            //控件jquery对象
+            self.jqGrid;
+
+
+            /**
+             *
+             * @param isReload bool型，为true则reload，否则直接load
+             */
+            self.getLst = function (isReload) {
+                if (true == isReload) {
+                    self.jqGrid.datagrid("reload");
+                } else {
+                    self.jqGrid.datagrid("load");
+                }
+            };
+
+
+            self.refreshAfterChange = function (id) {
+                self.getLst(true);
+            }
+
+            var dataProvider;
+            var filterAtFields;
+
+            self.init = function (param) {
+                //param = {
+                //    gridConfig: {},
+                //    jqGrid: $(''),
+                //    dataProvider: null,
+                //    filterAtFields: {}
+                //}
+
+                self.jqGrid = param.jqGrid;
+                dataProvider = param.dataProvider;
+                filterAtFields = param.filterAtFields;
+
+                //gridConfig.width = 1200;
+                //gridConfig.height = Math.max($(document).height() - 400, 430);
+
+
+                var gridConfig = getInitGridConfig();
+
+                //合并toolbar
+                if (gridConfig.toolbar && param.gridConfig.toolbar) {
+                    param.gridConfig.toolbar = gridConfig.toolbar.concat(param.gridConfig.toolbar);
+                }
+
+
+                $.extend(gridConfig, param.gridConfig);
+
+                self.jqGrid.datagrid(gridConfig);
+
+                var p = self.jqGrid.datagrid('getPager');
+                if (p) {
+                    $(p).pagination({
+                        beforePageText: '第',
+                        afterPageText: '页    共 {pages} 页',
+                        displayMsg: "当前显示 {from} - {to} 条数据   共 {total} 条数据"
+                    });
+                }
+            };
+
+
+
+
+            //初始化gridConfig
+            function getInitGridConfig() {
+                var gridConfig = {
+                    title: '数据列表',
+                    iconCls: 'icon-tip',
+                    nowrap: true,
+                    autoRowHeight: false,
+                    striped: true,
+                    loadMsg: "正在载入数据，请稍等……",
+                    fitColumns: false,
+                    pagination: true,
+                    singleSelect: true,
+                    multiSort: true,
+                    toolbar: [{
+                        text: '刷新',
+                        iconCls: 'icon-reload',
+                        handler: function () {
+                            self.getLst();
+                        }
+                    }],
+                    loader: function (param, success, error) {
+                        //success(data)：当检索数据成功时调用该回调函数
+                        var queryParam = {
+                            "page": {
+                                "pageSize": param.rows,
+                                "pageIndex": param.page
+                            },
+                            "filter": [], "sort": []
+                        };
+
+                        //(x.1)filter
+                        autoTemp.Field.getFilter(queryParam.filter, filterAtFields);
+
+                        //(x.2)sort
+                        if (param.sort) {
+                            //sort  "name,age"
+                            //order "asc,asc"
+                            var sort = param.sort.split(',');
+                            var order = param.order.split(',');
+                            for (var t in sort) {
+                                queryParam.sort.push({ "field": sort[t], "asc": order[t] == 'asc' });
+                            }
+                        }
+
+                        function onSuccess(apiRet) {
+                            if (!theme.alertApiReturn(apiRet)) {
+                                error();
+                                return;
+                            }
+
+                            //{"total":500,"rows":[]}
+                            var data = { "total": apiRet.data.totalCount, "rows": apiRet.data.rows };
+                            success(data);
+                        }
+
+                        dataProvider.getList(queryParam, onSuccess);
+                    },
+
+                    rownumbers: true,
+                    rowStyler: function (index, row) {
+                        return 'height:30px;vertical-align:middle;';
+                    }
+                };
+
+
+                //(x.x)toolbar 添加
+                if (controller.getPermit('insert')) {
+                    gridConfig.toolbar.push('-');
+                    gridConfig.toolbar.push({
+                        text: '添加',
+                        iconCls: 'icon-add',
+                        handler: function () {
+                            var dialogParam = {
+                                init: function () {
+                                    var iframe = this.iframe.contentWindow;
+                                    iframe.window.event_afterSave = function () { self.getLst(true); };
+                                }
+                            };
+                            var search = location.search;
+                            search += search ? '&' : '?';
+                            search += 'mode=insert';
+                            theme.popDialog('item.html' + search, '添加', null, null, dialogParam);
+                        }
+                    });
+                }
+
+                return gridConfig;
+            }
+
+        }
+
+
+    </script>
+
+
+
+    <script type="text/javascript">
+        //TemplateTree
+        function TemplateTree() {
+            var self = this;
+
+            //控件jquery对象
+            self.jqGrid;
+
+
+            /**
+             *
+             * @param isReload bool型，为true则reload，否则直接load
+             */
+            self.getLst = function (isReload) {
+                if (true == isReload) {
+                    self.jqGrid.treegrid("reload");
+                } else {
+                    self.jqGrid.treegrid("load");
+                }
+            };
+
+
+            self.refreshAfterChange = function (id) {
+                var pNode = self.jqGrid.treegrid('getParent', id);
+                var pid = null;
+                if (null != pNode) {
+                    pid = pNode[idField];
+                }
+
+                if (null != pid) {
+                    self.jqGrid.treegrid('reload', pid);
+
+                } else {
+                    self.jqGrid.treegrid("reload");
+                }
+            }
+
+            var dataProvider;
+            var filterAtFields;
+            var idField;
+            var pidField;
+            var rootPidValue = '0';
+
+            self.init = function (param) {
+                //param = {
+                //    gridConfig: {},
+                //    jqGrid: $(''),
+                //    dataProvider: null,
+                //    filterAtFields: {}
+                //}
+
+                self.jqGrid = param.jqGrid;
+                dataProvider = param.dataProvider;
+                filterAtFields = param.filterAtFields;
+
+                idField = param.gridConfig.idField;
+                pidField = param.controllerConfig.pidField;
+                if (param.controllerConfig.rootPidValue != null)
+                    rootPidValue = param.controllerConfig.rootPidValue;
+
+                //gridConfig.width = 1200;
+                //gridConfig.height = Math.max($(document).height() - 400, 430);
+
+                var gridConfig = getInitGridConfig();
+
+                //合并toolbar
+                if (gridConfig.toolbar && param.gridConfig.toolbar) {
+                    param.gridConfig.toolbar = gridConfig.toolbar.concat(param.gridConfig.toolbar);
+                }
+
+                $.extend(gridConfig, param.gridConfig);
+
+                addAutoTemp_row_menu();
+
+                self.jqGrid.treegrid(gridConfig);
+
+                var p = self.jqGrid.datagrid('getPager');
+                if (p) {
+                    $(p).pagination({
+                        beforePageText: '第',
+                        afterPageText: '页    共 {pages} 页',
+                        displayMsg: "当前显示 {from} - {to} 条数据   共 {total} 条数据"
+                    });
+                }
+            };
+
+
+            //初始化gridConfig
+            function getInitGridConfig() {
+                var gridConfig = {
+                    title: '数据列表',
+                    iconCls: 'icon-tip',
+                    nowrap: true,
+                    autoRowHeight: false,
+                    striped: true,
+                    loadMsg: "正在载入数据，请稍等……",
+                    fitColumns: false,
+                    pagination: true,
+                    singleSelect: true,
+                    multiSort: true,
+
+                    animate: true,
+                    remoteSort: true,
+                    lines: true,
+
+                    toolbar: [{
+                        text: '刷新',
+                        iconCls: 'icon-reload',
+                        handler: function () {
+                            self.getLst();
+                        }
+                    }],
+                    onBeforeLoad: function (row, param) {
+                        if (row) {
+                            //not root
+                            param.isRoot = false;
+                            param.pid = row[idField];
+                        }
+                        else {
+                            //is root
+                            param.isRoot = true;
+                        }
+                    },
+                    loader: function (param, success, error) {
+                        //success(data)：当检索数据成功时调用该回调函数。
+
+                        var queryParam = {
+                            "filter": [], "sort": []
+                        };
+
+
+                        //(x.1) root or not root
+                        var isRoot = true;
+                        if (param.isRoot) {
+                            //is root
+                            queryParam.page = { pageSize: param.rows, pageIndex: param.page };
+                            queryParam.arg = { isRoot: true, pid: rootPidValue };
+                            queryParam.filter.push({ field: pidField, opt: "=", value: rootPidValue });
+
+
+                        } else {
+                            //not root
+                            isRoot = false;
+                            queryParam.arg = { isRoot: false, pid: param.pid };
+                            queryParam.filter.push({ field: pidField, opt: "=", value: param.pid });
+                        }
+
+
+                        //(x.2)filter
+                        if (isRoot && filterAtFields && filterAtFields.length != 0) {
+                            autoTemp.Field.getFilter(queryParam.filter, filterAtFields);
+                        }
+
+                        //(x.3)sort
+                        if (param.sort) {
+                            //sort  "name,age"
+                            //order "asc,asc"
+                            var sort = param.sort.split(',');
+                            var order = param.order.split(',');
+                            for (var t in sort) {
+                                queryParam.sort.push({ "field": sort[t], "asc": order[t] == 'asc' });
+                            }
+                        }
+
+                        function onSuccess(apiRet) {
+                            if (!theme.alertApiReturn(apiRet)) {
+                                error();
+                                return;
+                            }
+
+                            var rows = apiRet.data.rows;
+                            for (var t in rows) {
+                                var row = rows[t];
+                                if (row._childrenCount != 0)
+                                    rows[t].state = 'closed';
+                            }
+
+                            if (isRoot) {
+                                success({ "total": apiRet.data.totalCount, "rows": rows });
+                            } else {
+                                success(rows);
+                            }
+                        }
+                        dataProvider.getList(queryParam, onSuccess);
+                    },
+                    rownumbers: true,
+                    rowStyler: function (index, row) {
+                        return 'height:30px;vertical-align:middle;';
+                    }
+                };
+
+                //(x.x)toolbar 添加
+                if (controller.getPermit('insert')) {
+                    gridConfig.toolbar.push('-');
+                    gridConfig.toolbar.push({
+                        text: '添加',
+                        iconCls: 'icon-add',
+                        handler: function () {
+                            var dialogParam = {
+                                init: function () {
+                                    var iframe = this.iframe.contentWindow;
+                                    iframe.window.event_afterSave = function () {
+                                        self.getLst(true);
+                                    };
+                                }
+                            };
+                            var search = location.search;
+                            search += search ? '&' : '?';
+                            search += 'mode=insert';
+                            theme.popDialog('item.html' + search, '添加', null, null, dialogParam);
+                        }
+                    });
+                }
+
+
+                return gridConfig;
+            }
+
+
+            function addAutoTemp_row_menu() {
+
+                //添加操作列的操作
+                //添加子数据
+                if (controller.getPermit('insert')) {
+                    controller.addRowButton({
+                        text: '添加子数据',
+                        onclick: function (id) {
+                            var dialogParam = {
+                                init: function () {
+                                    var iframe = this.iframe.contentWindow;
+                                    iframe.window.event_afterSave = function () {
+                                        var treeNode = $('#dl').treegrid('find', id);
+                                        if (null == treeNode) {
+                                            self.jqGrid.treegrid('reload');
+                                        } else {
+                                            if (!treeNode._childrenCount) {
+                                                treeNode._childrenCount = 1;
+                                                treeNode.state = "closed";
+                                                self.jqGrid.treegrid('refresh', id);
+                                            }
+                                            self.jqGrid.treegrid('reload', id);
+                                        }
+                                    };
+                                }
+                            };
+                            var search = location.search;
+                            search += search ? '&' : '?';
+                            search += 'mode=insert&pid=' + id;
+                            theme.popDialog('item.html' + search, '添加子数据', null, null, dialogParam);
+                        }
+                    });
+                }
+
+                //刷新
+                controller.addRowButton({
+                    text: '刷新',
+                    onclick: function (id) {
+                        self.jqGrid.treegrid('reload', id);
+                    }
+                });
+            }
+
+
+        }
+
+
+    </script>
+
+
+</head>
+<body class="grid_main">
+
+    <div style="width:100%;height:1px; background-color:#dbe5e7;margin-top: 10px;margin-bottom: 10px;"></div>
+    <div>
+        查询条件：
+        <a href="#" onclick="javascript:template.getLst();" iconcls="icon-search" class="easyui-linkbutton">
+            查询
+        </a>
+    </div>
+    <ul id="igFilter" class='ig_ctrl_main'></ul>
+    <div style="width:100%;height:1px; background-color:#dbe5e7;margin-top: 10px;margin-bottom: 10px;"></div>
+    <div style="margin-top: 10px;text-align:center;">
+        <table id="dl"></table>
+    </div>
+</body>
+</html>

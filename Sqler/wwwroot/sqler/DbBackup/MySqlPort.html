@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <title>SqlServer导入导出</title>
+    <link rel="stylesheet" type="text/css" href="/autoTemp/Scripts/jquery-easyui/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="/autoTemp/Scripts/jquery-easyui/themes/icon.css" />
+
+    <script type="text/javascript" src="/autoTemp/Scripts/jquery-easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/autoTemp/Scripts/jquery-easyui/jquery.easyui.min.js"></script>
+
+    <script type="text/javascript" src="/autoTemp/Scripts/util/theme.js"></script>
+
+</head>
+<body>
+    <fieldset style="margin-bottom: 5px;">
+        <legend>数据导出</legend>
+        <form method='post' enctype='multipart/form-data' action='/sqler/DbPort/Export' target='_blank'>
+            <table>
+                <tr style="display:none;">
+                    <td>type</td>
+                    <td>
+                        <input type='hidden' name='type' value="mysql" />
+                    </td>
+                </tr>
+                <tr style="display:none;">
+                    <td>ConnectionString</td>
+                    <td>
+                        <input type='hidden' name='ConnectionString' value="sqler.config:SqlBackup.MySqlBackup.ConnectionString" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>导出类型</td>
+                    <td>
+                        <input type='radio' name='exportFileType' value="sqlite" checked="checked" />sqlite
+                        <input type='radio' name='exportFileType' value="sqlite-NoMemoryCache" />sqlite-NoMemoryCache
+                        <input type='radio' name='exportFileType' value="excel" />excel
+                        <input type='radio' name='exportFileType' value="csv" />csv
+                    </td>
+                </tr>
+            </table>
+            <input type='submit' value='导出' />
+        </form>
+    </fieldset>
+
+    <fieldset style="margin-bottom: 5px;">
+        <legend>数据导入</legend>
+        <form method='post' enctype='multipart/form-data' action='/sqler/DbPort/Import' target='_blank'>
+            <table>
+                <tr>
+                    <td><label title="从哪里导入数据">文件</label></td>
+                    <td><input type='file' name='files' /></td>
+                </tr>
+                <tr style="display:none;">
+                    <td><label title="数据导入到何处">type</label></td>
+                    <td>
+                        <input type='hidden' name='type' value="mysql" />
+                    </td>
+                </tr>
+                <tr style="display:none;">
+                    <td>
+                        <label title="数据导入到何处">ConnectionString</label>
+                    </td>
+                    <td>
+                        <input type='hidden' name='ConnectionString' value="sqler.config:SqlBackup.MySqlBackup.ConnectionString" />
+                    </td>
+                </tr>
+
+                <tr><td>createTable</td><td><input type='checkbox' name='createTable' /></td></tr>
+                <tr><td>delete</td><td><input type='checkbox' name='delete' /></td></tr>
+                <tr><td>truncate</td><td><input type='checkbox' name='truncate' checked="checked" /></td></tr>
+
+            </table>
+            <input type='submit' value='导入' />
+        </form>
+        <pre>
+        <code>
+                file:               从哪里导入数据。导入文件可为 sqlite、xls、xlsx等               
+                createTable:        若指定(on)，则在导入数据前自动创建表结构
+                delete:             若指定(on)，则在导入数据前使用delete语句清空待操作的表
+                truncate:           若指定(on)，则在导入数据前使用truncate语句清空待操作的表
+            </code>
+    </pre>
+    </fieldset>
+</body>
+</html>

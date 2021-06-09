@@ -1,0 +1,56 @@
+{
+  "data": [
+    {
+      "version": 1,
+      "author": "Lith",
+      "code": "/* v1.407 创建表SysData\n    2020-10-09 16:01 Lith\n*/\n\n--(x.1)创建表\nif   object_id('SysData_Data') is null\ncreate table [SysData_Data] (\n    [id] int NOT NULL IDENTITY,\n    [pId] int NULL,\n    [name] nvarchar(1000) NULL,\n    [value] nvarchar(1000) NULL,\n    [dataCode] nvarchar(100) NULL,\n    [dataGroup] nvarchar(100) NULL,\n    [sortCode] nvarchar(100) NULL,\n    [remarks] nvarchar(1000) NULL,\n    [ext1] nvarchar(1000) NULL,\n    [ext2] nvarchar(1000) NULL,\n    [ext3] nvarchar(1000) NULL,\n    [ext4] nvarchar(1000) NULL,\n    [ext5] nvarchar(1000) NULL,\n    CONSTRAINT [PK_SysData_Data] PRIMARY KEY ([id])\n);\n\n\n\n--(x.2)创建索引\nif not exists (SELECT 1 FROM sys.indexes WHERE object_id=OBJECT_ID('SysData_Data', N'U') and NAME='Index_SysData_Data_pId_dataCode_dataGroup')\n\tcreate index Index_SysData_Data_pId_dataCode on SysData_Data(pId,dataCode,dataGroup) ;\n",
+      "comment": "创建表SysData",
+      "time": "2020-10-30 17:04:56",
+      "attr_type": "",
+      "attr_Opt": "",
+      "attr_obj": "",
+      "attr_obj2": "",
+      "attr_isSys": "",
+      "attr_ext": ""
+    },
+    {
+      "version": 2,
+      "author": "Lith",
+      "code": "/* v1.407 添加字段（Tileset_File.sortCode）\n2020-08-31 15:12 Lith\n*/ \nif col_length('Tileset_File', 'sortCode') is null\n\talter table Tileset_File add  sortCode varchar(100);\n",
+      "comment": "添加字段（Tileset_File.sortCode）",
+      "time": "2020-10-30 17:05:38",
+      "attr_type": "",
+      "attr_Opt": "",
+      "attr_obj": "",
+      "attr_obj2": "",
+      "attr_isSys": "",
+      "attr_ext": ""
+    },
+    {
+      "version": 3,
+      "author": "Lith",
+      "code": "/* v1.407 删除字段（SYS_User.suppliermcode）\n2020-10-30 15:28 Lith \n*/ \n\ndeclare @tableName varchar(50),@columnName varchar(50);\nset @tableName='SYS_User'; set @columnName='suppliermcode';\n\nif col_length(@tableName, @columnName) is not null\nbegin\n\t--(x.1)删除约束（若存在）\n\tdeclare @constraintName varchar(50)\n\tselect  @constraintName =obj.name from sysobjects obj join syscolumns col on obj.id = col.cdefault\n\twhere col.id = object_id(@tableName) and col.name =@columnName;\n\n\tif(@constraintName is not null)\n\texec('alter table '+@tableName+' drop constraint ' + @constraintName);\n\n\n\t--(x.2)删除字段\n\texec('alter table '+@tableName+' drop column ' + @columnName); \n \n end\n",
+      "comment": "删除字段（SYS_User.suppliermcode）",
+      "time": "2020-10-30 15:48:07",
+      "attr_type": "",
+      "attr_Opt": "",
+      "attr_obj": "",
+      "attr_obj2": "",
+      "attr_isSys": "",
+      "attr_ext": ""
+    },
+    {
+      "version": 4,
+      "author": "Lith",
+      "code": "/* v1.407 删除表SysData_Data\n    2020-10-09 16:01 Lith\n*/\nif object_id('SysData_Data') is not null\n    drop table SysData_Data;\n \n\n \n\n\n\n\n\n\n\n ",
+      "comment": "删除表SysData_Data",
+      "time": "2020-10-30 17:04:26",
+      "attr_type": "",
+      "attr_Opt": "",
+      "attr_obj": "",
+      "attr_obj2": "",
+      "attr_isSys": "",
+      "attr_ext": ""
+    }
+  ]
+}

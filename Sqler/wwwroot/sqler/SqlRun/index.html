@@ -1,0 +1,355 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1" runat="server">
+    <title>SqlRun</title>
+    <link rel="stylesheet" type="text/css" href="/autoTemp/Scripts/jquery-easyui/themes/default/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="/autoTemp/Scripts/jquery-easyui/themes/icon.css" />
+
+    <script type="text/javascript" src="/autoTemp/Scripts/jquery-easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/autoTemp/Scripts/jquery-easyui/jquery.easyui.min.js"></script>
+
+    
+    <script type="text/javascript" src="/autoTemp/Scripts/util/theme.js"></script>
+
+
+    <style type="text/css">
+        body {
+            padding: 0;
+            width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 14px;
+        }
+
+        .dvdt {
+            padding: 20px;
+        }
+
+            .dvdt table {
+                background-color: White;
+                border-color: White;
+                border-width: 2px;
+                border-style: Ridge;
+            }
+
+        .trT {
+            color: #E7E7FF;
+            background-color: #4A3C8C;
+            font-weight: bold;
+        }
+
+            .trT td {
+                text-align: center;
+            }
+
+        .trC {
+            color: Black;
+            background-color: #DEDFDE;
+        }
+
+        .tbBtn a {
+            text-align: center;
+        }
+    </style>
+
+    <script type="text/javascript">
+
+        function toXmlStr(str) {
+            return (str || '').replace(/\&/g, "&amp;").replace(/\"/g, "&quot;").replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
+        }
+
+        //openForm({url:'http://www.a.com',reqParam:{a:3},type:'post'});
+        function openForm(param) {
+            /// <summary>在新页面中新建Form，发送请求。
+            /// </summary>
+            /// <param name="param" type="object">
+            /// <para> demo:{url:'http://www.a.com',reqParam:{a:3},type:'post'} </para>
+            /// <para> url[string]:要打开的链接地址。</para>
+            /// <para> reqParam[object]:请求参数。</para>
+            /// <para> type[string]:请求方式。可为'get'、'post'、'put'等，不指定则为get。</para>
+            /// </param>
+            /// <param name="url" type="string"></param>
+            /// <param name="postParam" type="object">。</param>
+            /// <param name="type" type="string"></param>
+            /// <returns type="window"></returns>
+
+            function toXmlStr(str) {
+                return (str || '').replace(/\&/g, "&amp;").replace(/\"/g, "&quot;").replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
+            }
+
+
+            var html = '<!DOC' + 'TYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head ><meta http-equiv="Content-Type" content="text/html;charset=UTF-8" /><tit';
+            html += 'le>请稍等</title> </head><body>';
+            html += '<h3>请稍等 ...</h3>';
+            html += '<form  accept-charset="UTF-8"  name="tempForm"  action="' + toXmlStr(param.url) + '" method="' + (param.type || "get") + '" style="display:none">';
+            for (var name in param.reqParam) {
+                html += '<input type="hidden" name="' + toXmlStr(name) + '" value="' + toXmlStr(param.reqParam[name]) + '"/>';
+            }
+            html += '</form>';
+            html += '<script type="text/javascript">document.tempForm.submit();</sc' + 'ript>';
+            html += '</body></html>';
+
+            var oWin = window.open('');
+            oWin.document.write(html);
+            return oWin;
+        }
+
+
+
+        function exportData() {
+            //exportFileType:  sqlite excel txt
+            var exportFileType = $('input[name=exportFileType]:checked').val();
+
+            var param = {
+                sql: $('#txtSql').val(),
+                exportFileType: exportFileType
+            };
+            if (!param.sql) {
+                theme.tips('请输入sql语句');
+                return;
+            }
+
+            theme.confirm('确定导出执行sql语句返回的数据？', function () {
+                openForm({ url: '/sqler/sqlrun/Export', reqParam: param, type: 'post' });
+            });
+        }
+
+        
+        function executeOnline() {
+            
+            var param = {
+                sql: $('#txtSql').val()
+            };
+            if (!param.sql) {
+                theme.tips('请输入sql语句');
+                return;
+            }
+
+            theme.confirm('确定在新页面执行sql语句？', function () {
+                openForm({ url: '/sqler/sqlrun/ExecuteOnline', reqParam: param, type: 'post' });
+            });
+        }
+
+
+
+        function getErrorFromApiReturn(apiRet) {
+            if (apiRet && apiRet.success) {
+                return null;
+            }
+
+            var failMsg = '操作失败。';
+            if (apiRet && apiRet.error && apiRet.error.errorMessage) {
+                failMsg += '<br/>原因：' + apiRet.error.errorMessage;
+            }
+            return failMsg;
+        }
+
+        function loadSql(url) {
+            $.ajax({
+                type: "GET",
+                url: url,
+                async: false,
+                dataType: "text",
+                success: function (txt) {                  
+                    $('#txtSql').val(txt);                   
+                }
+            });
+        }
+
+
+        function execSql(type) {
+
+            //type Execute
+            $("#dvResult").html('');
+
+            var param = {};
+            if ('' == (param.sql = $('#txtSql').val())) {
+                theme.tips('请输入sql语句');
+                return;
+            }
+            theme.confirm('确定执行sql语句？', function () {
+                param._ = Math.random();
+
+                theme.progressStart('正在执行sql语句...');
+
+                $.ajax({
+                    type: "POST",
+                    url: '/sqler/sqlrun/' + type,
+                    data: param,
+                    dataType: "json",
+                    success: function (apiRet) {
+                        theme.progressStop();
+
+                        if (type == 'Execute') {
+                            var message = getErrorFromApiReturn(apiRet);
+                            if (!message) {
+                                message = '语句执行成功，影响' + apiRet.data + '行。';
+                            }
+
+                            $('#dvResult').html('<div style="color: Red; font-weight: bold;"></div>');
+                            $('#dvResult div').html(message);
+                            return;
+                        } else if (type == 'ExecuteDataSet') {
+                            var message = getErrorFromApiReturn(apiRet);
+                            if (message) {
+                                $('#dvResult').html('<div style="color: Red; font-weight: bold;"></div>');
+                                $('#dvResult div').html(message);
+                                return;
+                            }
+
+                            $("#dvResult").html(apiRet.data);
+                            $('#dvResult .easyui-tabs').tabs({ width: 1000, height: 400 });
+                            return;
+                        }
+                    }
+                });
+
+            });
+        }
+
+
+
+        function tooltip(e, html) {
+            /// <summary>tooltip</summary>
+            /// <param name="e" type="object">html ctrl</param>
+            /// <param name="html" type="string">要提示的内容</param>
+
+            $(e).tooltip({
+                showEvent: 'mouseenter',
+                content: html,
+                onShow: function () {
+                    $(this).tooltip('tip').css({
+                        backgroundColor: '#efefef',
+                        borderColor: '#00f', boxShadow: '5px 5px 5px 5px'
+                    });
+                    var t = $(this);
+                    t.tooltip('tip').unbind().bind('mouseenter', function () {
+                        t.tooltip('show');
+                    }).bind('mouseleave', function () {
+                        t.tooltip('hide');
+                    });
+                },
+                position: 'bottom'
+            });
+        }
+
+        $(function () {
+
+            var sqlDemo = "/\
+* <SqlRunConfig>                                       \n\
+<fileName>表数据.txt</fileName>                        \n\
+<tableNames>[\"aaa\",\"bbb\"]</tableNames>\n\
+<tableSeparator>\n\n\
+</tableSeparator>\n\
+<rowSeparator>\n\
+</rowSeparator>\n\
+<fieldSeparator>,</fieldSeparator>                     \n\
+</SqlRunConfig> *\
+/                                                      \n\
+                                                           \n\
+select 10 as name,11 as name1 union all select 20,21;      \n\
+select 30 as name,31 as name1 union all select 40,41;      \n\
+";
+
+
+            function createLinkButton(text, sql) {
+                return $('<a></a>').linkbutton({
+                    text: text,
+                    iconCls: 'icon-edit',
+                    onClick: function () {
+                        $('#txtSql').val(sql);
+                    }
+                })
+            };
+
+            var content;
+
+            content = $('<div><pre><code>可通过SqlRunConfig指定配置\nfileName和separator只在导出txt数据时有效\n\n\ndemo:\n' + toXmlStr(sqlDemo) + '</code></pre></div>');       
+
+            //<a iconcls="icon-edit" class="easyui-linkbutton" href="#" onclick="javascript:loadSql('/sqler/sqlrun/GetMsSqlStructBuilder.sql');">加载mssql结构导出器</a>
+            $('<a></a>').linkbutton({
+                text: '加载mssql结构导出器',
+                iconCls: 'icon-edit',
+                onClick: function () {
+                    loadSql('/sqler/sqlrun/GetMsSqlStructBuilder.sql');
+                }
+            }).prependTo(content);
+ 
+
+            createLinkButton('加载Demo语句', sqlDemo).prependTo(content);
+
+            tooltip($('#btn_export'), content);
+            $('#txtSql').val(sqlDemo);
+        });
+
+    </script>
+
+</head>
+<body>
+    <form style="margin-bottom: 5px;">
+        <fieldset  style="margin-bottom: 5px;">
+            <legend>执行sql语句</legend>
+            <table>
+                <tr>
+                    <td>
+                        <ul>
+                            <li>(1).执行前请先备份数据库。</li>
+                            <li>(2).请仔细斟酌要执行的sql语句。</li>
+                            <li>(3).请在系统管理员的监护下执行此操作。</li>
+                        </ul>
+                    </td>
+                    <td rowspan="2">
+                        <textarea rows="15" cols="100" id="txtSql"> </textarea>
+                        <br />
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: left">
+                        <table class="tbBtn">
+                            <tr>
+                                <td colspan="2">
+                                    <a iconcls="icon-reload" class="easyui-linkbutton" href="#" onclick="javascript:$('#txtSql').val('');">清空语句</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding-top:5px;">
+                                    <a iconcls="icon-redo" class="easyui-linkbutton" href="#" onclick="javascript:execSql('Execute');">执行</a> 
+                                    <a iconcls="icon-ok" class="easyui-linkbutton" href="#" onclick="javascript:executeOnline();">新页面执行</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding-top:5px;">
+                                    <a iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:execSql('ExecuteDataSet');">执行并显示结果集</a>
+                                </td>
+                            </tr>                                                      
+                            <tr>
+                                <td colspan="2" style="padding-top:5px;">
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <a id="btn_export" iconcls="icon-print" class="easyui-linkbutton" href="#" onclick="javascript:exportData();">导出数据</a>
+                                            </td>
+                                            <td>
+                                                <input type='radio' name='exportFileType' value="sqlite" />sqlite
+                                                <input type='radio' name='exportFileType' value="sqlite-NoMemoryCache" />sqlite-NoMemoryCache  <br />
+                                                <input type='radio' name='exportFileType' value="excel" />excel
+                                                <input type='radio' name='exportFileType' value="csv" />csv
+                                                <input type='radio' name='exportFileType' value="txt" checked="checked" />txt
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    
+                                   
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+        <div id="dvResult">
+        </div>
+
+    </form>
+</body>
+</html>
