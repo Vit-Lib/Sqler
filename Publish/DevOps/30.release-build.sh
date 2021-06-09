@@ -1,46 +1,48 @@
 set -e
 
-# cd /root/docker/jenkins/workspace/sqler/svn/Publish/DevOps/sqler; bash 30.release-build.sh
+# cd /root/docker/jenkins/workspace/filezip/svn/Publish/DevOps; bash 30.release-build.sh
 
 
-# export GIT_SSH_SECRET=xxxxxx
 
 #(x.1)当前路径 
 curWorkDir=$PWD
 curPath=$(dirname $0)
 
-cd $curPath/../../..
+cd $curPath/../..
 codePath=$PWD
 # codePath=/root/docker/jenkins/workspace/sqler/svn
 
 
-echo "(x.2)get version"
-#version=1.1.0.53
-cd $codePath
-version=`grep '<Version>' Sqler/Sqler.csproj | grep -o '[0-9\.]\+'`
+# export GIT_SSH_SECRET=xxxxxx
+export name=sqler
 
+
+echo "(x.2)get version"
+version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -o '[0-9][0-9\.]\+'`
 # echo $version
+
+
 
 
 #----------------------------------------------
 echo "(x.2)构建最终文件夹"
-mkdir -p $codePath/Publish/Sqler
+mkdir -p $codePath/Publish/release
 mkdir -p $codePath/Publish/git
 
-cp -rf  $codePath/Publish/04.服务站点 $codePath/Publish/Sqler/04.服务站点
-cp -rf  $codePath/Publish/06.Docker $codePath/Publish/Sqler/06.Docker
-cp -rf  $codePath/Publish/06.Docker/制作镜像/sqler/app $codePath/Publish/Sqler/04.服务站点/Sqler
+cp -rf  $codePath/Publish/04.服务站点 $codePath/Publish/release/04.服务站点
+cp -rf  $codePath/Publish/06.Docker $codePath/Publish/release/06.Docker
+cp -rf  $codePath/Publish/06.Docker/制作镜像/${name}/app $codePath/Publish/release/04.服务站点/${name}
 
  
 docker run --rm -i \
 -v $codePath/Publish:/root/file \
-serset/filezip dotnet FileZip.dll zip -i /root/file/Sqler -o /root/file/git/Sqler${version}.zip
+serset/filezip dotnet FileZip.dll zip -i /root/file/release -o /root/file/git/${name}${version}.zip
 
  
 
 #----------------------------------------------
 echo "(x.3)提交release文件到github"
-# releaseFile=$codePath/Publish/git/Sqler${version}.zip
+# releaseFile=$codePath/Publish/git/${name}${version}.zip
 
 #复制ssh key
 cd $codePath/Publish
@@ -58,9 +60,9 @@ git config --global user.name 'lith'
 mkdir -p /root/code
 cd /root/code
 git clone git@github.com:serset/release.git /root/code
-mkdir -p /root/code/file/sqler
-cp /root/git/Sqler${version}.zip /root/code/file/sqler
-git add file/sqler/Sqler${version}.zip
+mkdir -p /root/code/file/${name}
+cp /root/git/${name}${version}.zip /root/code/file/${name}
+git add file/${name}/${name}${version}.zip
 git commit  -m  'auto commit ${version}'
 git push -u origin master \" "
 
