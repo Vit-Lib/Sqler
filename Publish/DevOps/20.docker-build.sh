@@ -21,7 +21,8 @@ export projectPath='Sqler'
 
 
 
-echo "(x.2)get version"
+
+echo "(x.2)get version" 
 version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -o '[0-9][0-9\.]\+'`
 # echo $version
 
