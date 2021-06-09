@@ -1,6 +1,6 @@
 set -e
 
-# cd /root/docker/jenkins/workspace/filezip/svn/Publish/DevOps; bash 30.release-build.sh
+# bash 30.release-build.sh
 
 
 

@@ -1,6 +1,6 @@
 set -e
 
-# cd /root/docker/jenkins/workspace/sqler/svn/Publish/DevOps; bash 20.docker-build.sh
+# bash 20.docker-build.sh
 
 
 
