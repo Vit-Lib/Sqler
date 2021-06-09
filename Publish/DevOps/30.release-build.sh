@@ -1,7 +1,6 @@
 set -e
 
-# cd /root/docker/jenkins/workspace/sqler/svn/Publish/DevOps; bash 30.release-build.sh
-
+# cd /root/docker/jenkins/workspace/filezip/svn/Publish/DevOps; bash 30.release-build.sh
 
 
 
@@ -23,6 +22,8 @@ version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -o '[0-9][0-9
 # echo $version
 
 
+
+
 #----------------------------------------------
 echo "(x.2)构建最终文件夹"
 mkdir -p $codePath/Publish/release
@@ -35,7 +36,7 @@ cp -rf  $codePath/Publish/06.Docker/制作镜像/${name}/app $codePath/Publish/r
  
 docker run --rm -i \
 -v $codePath/Publish:/root/file \
-serset/filezip dotnet FileZip.dll zip -i /root/file/Sqler -o /root/file/git/${name}${version}.zip
+serset/filezip dotnet FileZip.dll zip -i /root/file/release -o /root/file/git/${name}${version}.zip
 
  
 
