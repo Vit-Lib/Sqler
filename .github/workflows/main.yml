@@ -29,11 +29,11 @@ jobs:
       - name: Run shell to build docker image and build release.zip
         run: |
            set -e
-           echo start build sqler
+           echo start build
            export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME  }}"
            export DOCKER_PASSWORD="${{ secrets.DOCKER_PASSWORD }}"
            export GIT_SSH_SECRET="${{ secrets.GIT_SSH_SECRET }}"
            cd ./Publish/DevOps/sqler
            bash 20.docker-build.sh
            bash 30.release-build.sh
-           echo builded sqler!
+           echo builded succeed!
