@@ -13,7 +13,7 @@ cd $curWorkDir
 
 
 export name=sqler
-export projectPath='Sqler'
+export projectPath=Sqler
 
 
 #----------------------------------------------

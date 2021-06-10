@@ -46,7 +46,7 @@ serset/filezip dotnet FileZip.dll zip -i /root/file/release -o /root/file/git/${
 
 
 #----------------------------------------------
-echo "(x.3)github-提交release文件"
+echo "(x.3)github-提交release文件到release仓库"
 # releaseFile=$codePath/Publish/git/${name}-${version}.zip
 
 #复制ssh key

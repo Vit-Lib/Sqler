@@ -14,7 +14,7 @@ export codePath=/root/docker/jenkins/workspace/sqler/svn
 export version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -oP '>(.*)<' | tr -d '<>'`
 
 export name=sqler
-export projectPath='Sqler'
+export projectPath=Sqler
 
 export DOCKER_USERNAME=serset
 export DOCKER_PASSWORD=xxx
@@ -32,8 +32,8 @@ docker run -i --rm \
 -v $codePath:/root/code \
 serset/dotnet:6.0-sdk \
 bash -c "
-cd '/root/code/$projectPath'; 
-dotnet build --configuration Release; 
+cd '/root/code/$projectPath'
+dotnet build --configuration Release
 dotnet publish --configuration Release --output '/root/code/Publish/06.Docker/制作镜像/$name/app' " 
 
 
