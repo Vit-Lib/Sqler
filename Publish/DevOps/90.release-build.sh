@@ -18,7 +18,7 @@ export name=sqler
 
 
 echo "(x.2)get version"
-version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -o '[0-9][0-9\.]\+'`
+version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -oP '>(.*)<' | tr -d '<>'`
 # echo $version
 
 
@@ -36,13 +36,13 @@ cp -rf  $codePath/Publish/06.Docker/制作镜像/${name}/app $codePath/Publish/r
  
 docker run --rm -i \
 -v $codePath/Publish:/root/file \
-serset/filezip dotnet FileZip.dll zip -i /root/file/release -o /root/file/git/${name}${version}.zip
+serset/filezip dotnet FileZip.dll zip -i /root/file/release -o /root/file/git/${name}-${version}.zip
 
  
 
 #----------------------------------------------
 echo "(x.3)提交release文件到github"
-# releaseFile=$codePath/Publish/git/${name}${version}.zip
+# releaseFile=$codePath/Publish/git/${name}-${version}.zip
 
 #复制ssh key
 cd $codePath/Publish
@@ -62,14 +62,17 @@ cd /root/code
 git clone git@github.com:serset/release.git /root/code
 mkdir -p /root/code/file/${name}
 cp /root/git/${name}${version}.zip /root/code/file/${name}
-git add file/${name}/${name}${version}.zip
+git add file/${name}/${name}-${version}.zip
 git commit  -m  'auto commit ${version}'
 git push -u origin master \" "
 
 
 
 
-#(x.5)
+
+
+#----------------------------------------------
+#(x.9)
 cd $curWorkDir
 
  
