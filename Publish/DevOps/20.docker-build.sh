@@ -1,6 +1,6 @@
 set -e
 
-# cd /root/docker/jenkins/workspace/sqler/svn/Publish/DevOps; bash 20.docker-build.sh
+# bash 20.docker-build.sh
 
 
 
@@ -23,7 +23,7 @@ export projectPath='Sqler'
 
 
 echo "(x.2)get version" 
-version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -o '[0-9][0-9\.]\+'`
+version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -oP '>(.*)<' | tr -d '<>'`
 # echo $version
 
 
