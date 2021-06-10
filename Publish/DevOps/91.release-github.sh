@@ -33,7 +33,7 @@ echo "release_name=${name}-${version}" >> $GITHUB_ENV
 echo "release_tag=${version}" >> $GITHUB_ENV
 
 echo "release_draft=false" >> $GITHUB_ENV
-echo "release_prerelease=true" >> $GITHUB_ENV
+echo "release_prerelease=false" >> $GITHUB_ENV
 
 echo "release_body=" >> $GITHUB_ENV
 
