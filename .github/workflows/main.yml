@@ -31,6 +31,8 @@ jobs:
            echo start build
            export DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME  }}"
            export DOCKER_PASSWORD="${{ secrets.DOCKER_PASSWORD }}"
+           export NUGET_SERVER="${{ secrets.NUGET_SERVER  }}"
+           export NUGET_KEY="${{ secrets.NUGET_KEY }}"
            export GIT_SSH_SECRET="${{ secrets.GIT_SSH_SECRET }}"
            cd ./Publish/DevOps
            bash startup.sh
