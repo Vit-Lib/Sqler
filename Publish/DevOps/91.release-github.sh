@@ -2,7 +2,7 @@ set -e
 
 
 #---------------------------------------------------------------------
-#(x.1)参数
+#(x.1)鍙傛暟
 args_="
 
 export codePath=/root/docker/jenkins/workspace/sqler/svn 
@@ -20,7 +20,7 @@ export name=sqler
 
 
 #---------------------------------------------------------------------
-#(x.2)初始化github release环境变量
+#(x.2)鍒濆鍖杇ithub release鐜鍙橀噺
 # releaseFile=$codePath/Publish/git/${name}-${version}.zip
 
 filePath="$codePath/Publish/git/${name}-${version}.zip"
