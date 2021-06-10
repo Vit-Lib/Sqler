@@ -20,9 +20,9 @@ version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -oP '>(.*)<' 
 
 #----------------------------------------------
 #(x.2)环境变量
-# releaseFile=$codePath/Publish/git/${name}${version}.zip
+# releaseFile=$codePath/Publish/git/${name}-${version}.zip
 
-filePath="$codePath/Publish/git/${name}${version}.zip"
+filePath="$codePath/Publish/git/${name}-${version}.zip"
 #name=Vit.Library
 #version=2.5
 
