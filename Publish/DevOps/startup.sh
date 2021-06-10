@@ -1,19 +1,29 @@
 set -e
 
 #----------------------------------------------
-#(x.1)当前路径 
-export curWorkDir=$PWD
-export curPath=$(dirname $0)
+#(x.1)褰撳墠璺緞 
+curWorkDir=$PWD
 
-cd $curPath/../..
+cd $curWorkDir/../..
 export codePath=$PWD
 cd $curWorkDir
 
-#  export codePath=/root/docker/jenkins/workspace/sqler/svn
 
 
 export name=sqler
 export projectPath=Sqler
+
+#export DOCKER_USERNAME=serset
+#export DOCKER_PASSWORD=xxx
+
+#export NUGET_SERVER=https://api.nuget.org/v3/index.json
+#export NUGET_KEY=xxxxxxxxxx
+
+#export export GIT_SSH_SECRET=xxxxxx
+
+
+
+
 
 
 #----------------------------------------------
@@ -22,14 +32,24 @@ export version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -oP '>
 # echo $version
 
 
+
+
+
+
+
 #----------------------------------------------
-echo "(x.3)自动发布 $name-$version"
+echo "(x.3)鑷姩鍙戝竷 $name-$version"
 
-sh 20.docker-build.sh
+for file in *.sh
+do
+    if [[ $file != "startup.sh" ]]
+    then
+        sh $file
+    fi
+done
 
-sh 90.release-build.sh
 
-sh 91.release-github.sh
+
 
 
 
