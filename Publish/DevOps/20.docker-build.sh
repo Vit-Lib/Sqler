@@ -3,34 +3,29 @@ set -e
 # bash 20.docker-build.sh
 
 
+#---------------------------------------------------------------------
+#(x.1)参数
+args_="
 
-#(x.1)当前路径 
-curWorkDir=$PWD
-curPath=$(dirname $0)
-
-cd $curPath/../..
-codePath=$PWD
-# codePath=/root/docker/jenkins/workspace/sqler/svn
+export codePath=/root/docker/jenkins/workspace/sqler/svn 
 
 
- 
-# export DOCKER_USERNAME=serset
-# export DOCKER_PASSWORD=xxx
+
+export version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -oP '>(.*)<' | tr -d '<>'`
+
 export name=sqler
 export projectPath='Sqler'
 
+export DOCKER_USERNAME=serset
+export DOCKER_PASSWORD=xxx
+
+# "
+
+ 
 
 
-
-echo "(x.2)get version" 
-version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -oP '>(.*)<' | tr -d '<>'`
-# echo $version
-
-
-
-
-tag=$version
-echo "(x.3)发布项目 $name:$tag"
+#---------------------------------------------------------------------
+echo "(x.2)dotnet-构建并发布项目文件"
 
 docker run -i --rm \
 --env LANG=C.UTF-8 \
@@ -46,7 +41,7 @@ dotnet publish --configuration Release --output '/root/code/Publish/06.Docker/�
 
 
 #---------------------------------------------------------------------
-#(x.4.1)初始化构建器
+#(x.3.1)docker-初始化多架构构建器
 
 #启用 buildx 插件
 export DOCKER_CLI_EXPERIMENTAL=enabled
@@ -73,12 +68,11 @@ docker buildx ls
 
 
 #---------------------------------------------------------------------
-#(x.4.2)构建多架构镜像（ arm、arm64 和 amd64 ）并推送到 Docker Hub
+#(x.3.2)docker-构建多架构镜像（ arm、arm64 和 amd64 ）并推送到 Docker Hub
 
 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
-cd $codePath/Publish/06.Docker/制作镜像/$name
-docker buildx build . -t $DOCKER_USERNAME/$name:$tag -t $DOCKER_USERNAME/$name --platform=linux/amd64,linux/arm64,linux/arm/v7 --push
+docker buildx build $codePath/Publish/06.Docker/制作镜像/$name -t $DOCKER_USERNAME/$name:$tag -t $DOCKER_USERNAME/$name --platform=linux/amd64,linux/arm64,linux/arm/v7 --push
  
 
 
@@ -87,7 +81,6 @@ docker buildx build . -t $DOCKER_USERNAME/$name:$tag -t $DOCKER_USERNAME/$name -
  
 
 
-#(x.5)
-cd $curWorkDir
+
 
  
