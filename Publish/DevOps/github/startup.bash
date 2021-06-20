@@ -1,17 +1,19 @@
 set -e
 
+# cd /root/temp/svn/Publish/DevOps/github;bash startup.bash;
+
 #----------------------------------------------
 #(x.1)当前路径 
 curWorkDir=$PWD
 
-cd $curWorkDir/../..
+cd $curWorkDir/../../..
 export codePath=$PWD
 cd $curWorkDir
 
 
+# export codePath=/root/temp/svn
 
-export name=sqler
-export projectPath=Sqler
+export name=ServiceAdaptor
 
 #export DOCKER_USERNAME=serset
 #export DOCKER_PASSWORD=xxx
@@ -28,13 +30,10 @@ export projectPath=Sqler
 
 #----------------------------------------------
 echo "(x.2)get version" 
-export version=`grep '<Version>' ${codePath} -r --include *.csproj | grep -oP '>(.*)<' | tr -d '<>'`
-# echo $version
+export version=`grep '<Version>' $(grep '<pack/>\|<publish>' ${codePath} -r --include *.csproj -l | head -n 1) | grep -oP '>(.*)<' | tr -d '<>'`
+echo $version
 
-
-
-
-
+ 
 
 
 #----------------------------------------------
@@ -42,10 +41,9 @@ echo "(x.3)自动发布 $name-$version"
 
 for file in *.sh
 do
-    if [[ $file != "startup.sh" ]]
-    then
-        sh $file
-    fi
+    echo %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    echo bash $file
+    bash $file
 done
 
 
