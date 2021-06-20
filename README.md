@@ -1,5 +1,5 @@
 ﻿# sqler说明书-docker
-
+> 注： 在容器中  sqler = dotnet /root/app/Sqler.dll
 
 ---------------------------------
 # 查看帮助
@@ -7,6 +7,7 @@
 ``` bash
 #查看全部帮助信息
 docker run --rm -it serset/sqler dotnet Sqler.dll help
+docker run --rm -it serset/sqler sqler help
 
 #查看命令MySql.BackupSqler的帮助信息
 docker run --rm -it serset/sqler dotnet Sqler.dll help -c MySql.BackupSqler
@@ -288,7 +289,7 @@ docker run --name=sqler --restart=always -d -p 4570:4570 serset/sqler
 docker logs sqler
 
 #在容器内执行命令行
-docker  exec -it sqler bash
+docker exec -it sqler bash
 
 #停止容器
 docker stop sqler
