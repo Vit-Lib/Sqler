@@ -13,7 +13,7 @@ cd $curWorkDir
 
 # export codePath=/root/temp/svn
 
-export name=ServiceAdaptor
+export name=Sqler
 
 #export DOCKER_USERNAME=serset
 #export DOCKER_PASSWORD=xxx
