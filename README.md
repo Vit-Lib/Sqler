@@ -1,5 +1,6 @@
 ﻿# sqler说明书-docker
-> 注： 在容器中  sqler = dotnet /root/app/Sqler.dll
+> 源码地址： https://github.com/serset/sqler  
+> 注： 在容器中  sqler = dotnet /root/app/Sqler.dll  
 
 ---------------------------------
 # 查看帮助
