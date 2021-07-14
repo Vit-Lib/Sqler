@@ -21,7 +21,7 @@ mkdir -p $codePath/Publish/release/release/publish
 docker run -i --rm \
 --env LANG=C.UTF-8 \
 -v $codePath:/root/code \
-serset/dotnet:6.0-sdk \
+serset/dotnet:sdk-6.0 \
 bash -c "
 set -e
 
