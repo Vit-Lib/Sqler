@@ -206,7 +206,7 @@ demo：
 docker run --rm -it \
 -v /root/data:/bak  \
 serset/sqler  \
-dotnet Sqler.dll SqlServer.RestoreLocalBak \
+dotnet Sqler.dll SqlServer.RestoreLocalBak -f \
 --filePath "/bak/wordpress.sqler.zip" \
 --databasePath "/data" \
 --ConnectionString 'Data Source=192.168.3.221,1434;Database=Db_Dev;UID=sa;PWD=LongLongPassword1!;'
