@@ -12,20 +12,29 @@ namespace App.Module.Sqler.ConsoleCommand
         [Command("SqlServer.CreateDataBase")]
         [Remarks("若数据库不存在，则创建数据库。参数说明：")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
+        [Remarks("-dp[--databasePath] (可选)数据库文件存放的路径 例如 \"/data/mssql\"")]
         [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]       
         [Remarks("示例： SqlServer.CreateDataBase -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" ")]
         public static void CreateDataBase(string[] args)
         {
             ConsoleHelp.Log("创建数据库...");
 
-            #region SqlBackup.SqlServerBackup.ConnectionString
+            #region arg SqlBackup.SqlServerBackup.ConnectionString
             string connStr = ConsoleHelp.GetArg(args, "-ConnStr") ?? ConsoleHelp.GetArg(args, "--ConnectionString");
             if (!string.IsNullOrEmpty(connStr))
             {
                 SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "SqlServerBackup", "ConnectionString");                
             }
-            #endregion           
-           
+            #endregion
+
+            #region arg SqlBackup.SqlServerBackup.MdfPath
+            string path = ConsoleHelp.GetArg(args, "-dp") ?? ConsoleHelp.GetArg(args, "--databasePath");
+            if (!string.IsNullOrEmpty(path))
+            {
+                SqlerHelp.sqlerConfig.root.ValueSetByPath(path, "SqlBackup", "SqlServerBackup", "MdfPath");
+            }
+            #endregion
+
 
             SqlServerLogical.CreateDataBase();
             ConsoleHelp.Log("操作成功");
@@ -69,6 +78,7 @@ namespace App.Module.Sqler.ConsoleCommand
         [Remarks("-fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 \"DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-fp[--filePath] (可选)备份文件路径，例如 \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
+        [Remarks("-dp[--databasePath] (可选)数据库文件存放的路径 例如 \"/data/mssql\"")]
         [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]
         [Remarks("示例： SqlServer.Restore -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" --filePath \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         public static void Restore(string[] args)
@@ -82,6 +92,17 @@ namespace App.Module.Sqler.ConsoleCommand
                 SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "SqlServerBackup", "ConnectionString");
             }
             #endregion
+
+
+
+            #region arg SqlBackup.SqlServerBackup.MdfPath
+            string path = ConsoleHelp.GetArg(args, "-dp") ?? ConsoleHelp.GetArg(args, "--databasePath");
+            if (!string.IsNullOrEmpty(path))
+            {
+                SqlerHelp.sqlerConfig.root.ValueSetByPath(path, "SqlBackup", "SqlServerBackup", "MdfPath");
+            }
+            #endregion
+
 
             string fileName = ConsoleHelp.GetArg(args, "-fn") ?? ConsoleHelp.GetArg(args, "--fileName");
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
@@ -109,6 +130,7 @@ namespace App.Module.Sqler.ConsoleCommand
         [Remarks("-fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 \"DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-fp[--filePath] (可选)备份文件路径，例如 \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
+        [Remarks("-dp[--databasePath] (可选)数据库文件存放的路径 例如 \"/data/mssql\"")]
         [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]
         [Remarks("示例： SqlServer.RestoreLocalBak -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" --filePath \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         public static void RestoreLocalBak(string[] args)
@@ -122,6 +144,17 @@ namespace App.Module.Sqler.ConsoleCommand
                 SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "SqlServerBackup", "ConnectionString");
             }
             #endregion
+
+
+            #region arg SqlBackup.SqlServerBackup.MdfPath
+            string path = ConsoleHelp.GetArg(args, "-dp") ?? ConsoleHelp.GetArg(args, "--databasePath");
+            if (!string.IsNullOrEmpty(path))
+            {
+                SqlerHelp.sqlerConfig.root.ValueSetByPath(path, "SqlBackup", "SqlServerBackup", "MdfPath");
+            }
+            #endregion
+
+
 
             string fileName = ConsoleHelp.GetArg(args, "-fn") ?? ConsoleHelp.GetArg(args, "--fileName");
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");

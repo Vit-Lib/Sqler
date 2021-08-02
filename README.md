@@ -1,8 +1,9 @@
 ﻿# sqler说明书-docker
-> 注： 在容器中  sqler = dotnet /root/app/Sqler.dll
+> 源码地址： https://github.com/serset/sqler  
+> 注： 在容器中  sqler = dotnet /root/app/Sqler.dll  
 
 ---------------------------------
-# 查看帮助
+# 1.查看帮助
 
 ``` bash
 #查看全部帮助信息
@@ -31,7 +32,7 @@ help
 
 
 ---------------------------------
-# mysql
+# 2.mysql
 Sqler可以对MySql数据库进行 备份、还原、创建、删除。
 
 
@@ -161,14 +162,14 @@ MySql.DropDataBase
 
 
 ---------------------------------
-# mssql
+# 3.mssql
 Sqler可以对msql(Sql Server)数据库进行 备份、还原、创建、删除。
 
 
  
 
 ## 二.备份数据库
-备份mysql数据库到指定文件，使用sqler备份方式
+备份数据库到指定文件，使用sqler备份方式
 > sqler备份步骤为：    
 > 1.构建建库脚本保存到文件(CreateDataBase.sql)    
 > 2.备份所有表数据到sqlite文件(Data.sqlite3)    
@@ -197,29 +198,31 @@ SqlServer.BackupLocalBak
 
 
 ## 三.还原数据库
-还原mysql备份文件到数据库
+还原备份文件到数据库
 
 demo：
 ``` bash
 #强制还原数据库
 docker run --rm -it \
--v /root/data:/root/data  \
+-v /root/data:/bak  \
 serset/sqler  \
-dotnet Sqler.dll MySql.Restore \
---filePath "/root/data/wordpress.sqler.zip" \
---ConnectionString "Data Source=mysql;Port=3306;Database=wordpress;User Id=root;Password=123456;CharSet=utf8;Convert Zero Datetime=True;Allow Zero Datetime=True;"
+sqler SqlServer.Restore \
+--filePath "/bak/wordpress.sqler.zip" \
+--databasePath "/data" \
+--ConnectionString "Data Source=192.168.1.45,1433;Database=Db_Dev;UID=sa;PWD=123456;"
 ```
 
 参数说明：
 ``` txt
-MySql.Restore
+SqlServer.Restore
 通过备份文件远程还原数据库。参数说明：备份文件名称和路径指定其一即可
 -f[--force] 强制还原数据库。若指定此参数，则在数据库已经存在时仍然还原数据库；否则仅在数据库尚未存在时还原数据库。
 -fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 "DbDev_2020-06-08_135203.bak"
 -fp[--filePath] (可选)备份文件路径，例如 "/root/docker/DbDev_2020-06-08_135203.bak"
 -ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;"
+-dp[--databasePath] (可选)数据库文件存放的路径 例如 "/data/mssql"
 --DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认："Data"
-示例： MySql.Restore -ConnStr "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;" --filePath "/root/docker/DbDev_2020-06-08_135203.bak"
+示例： SqlServer.Restore -ConnStr "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;" --filePath "/root/docker/DbDev_2020-06-08_135203.bak"
 
 ```
 
@@ -231,17 +234,18 @@ demo：
 ``` bash
 docker run --rm -it \
 serset/sqler \
-dotnet Sqler.dll MySql.CreateDataBase \
+dotnet Sqler.dll SqlServer.CreateDataBase \
 -ConnStr "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;"
 ```
 
 参数说明：
 ``` txt
-MySql.CreateDataBase
+SqlServer.CreateDataBase
 若数据库不存在，则创建数据库。参数说明：
 -ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;"
+-dp[--databasePath] (可选)数据库文件存放的路径 例如 "/data/mssql"
 --DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认："Data"
-示例： MySql.CreateDataBase -ConnStr "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;"
+示例： SqlServer.CreateDataBase -ConnStr "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;"
 ```
 
 
