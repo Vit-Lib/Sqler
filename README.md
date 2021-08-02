@@ -182,7 +182,7 @@ docker run --rm -it \
 serset/sqler  \
 dotnet Sqler.dll SqlServer.BackupLocalBak \
 --filePath "/root/data/wordpress.sqler.zip" \
---ConnectionString "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;"
+--ConnectionString 'Data Source=192.168.3.221,1434;Database=Db_Dev;UID=sa;PWD=LongLongPassword1!;'
 ```
 
 参数说明：
@@ -209,7 +209,7 @@ serset/sqler  \
 dotnet Sqler.dll SqlServer.RestoreLocalBak \
 --filePath "/bak/wordpress.sqler.zip" \
 --databasePath "/data" \
---ConnectionString "Data Source=192.168.1.45,1433;Database=Db_Dev;UID=sa;PWD=123456;"
+--ConnectionString 'Data Source=192.168.3.221,1434;Database=Db_Dev;UID=sa;PWD=LongLongPassword1!;'
 ```
 
 参数说明：
@@ -232,10 +232,9 @@ SqlServer.Restore
 
 demo：
 ``` bash
-docker run --rm -it \
-serset/sqler \
+docker run --rm -it serset/sqler \
 dotnet Sqler.dll SqlServer.CreateDataBase \
---ConnectionString 'Data Source=192.168.3.221,1434;Database=Db_Dev;UID=sa;PWD=123456!;' \
+--ConnectionString 'Data Source=192.168.3.221,1434;Database=Db_Dev;UID=sa;PWD=LongLongPassword1!;'
 --databasePath "/data"
 ```
 
@@ -250,6 +249,14 @@ SqlServer.CreateDataBase
 ```
 
 
+# 五.删除数据库
+
+demo：
+``` bash
+docker run --rm -it serset/sqler \
+dotnet Sqler.dll SqlServer.DropDataBase \
+--ConnectionString 'Data Source=192.168.3.221,1434;Database=Db_Dev;UID=sa;PWD=LongLongPassword1!;'
+```
 
 
 ---------------------------------
