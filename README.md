@@ -3,7 +3,7 @@
 > 注： 在容器中  sqler = dotnet /root/app/Sqler.dll  
 
 ---------------------------------
-# 1.查看帮助
+# 1 查看帮助
 
 ``` bash
 #查看全部帮助信息
@@ -32,11 +32,11 @@ help
 
 
 ---------------------------------
-# 2.mysql
+# 2 mysql
 Sqler可以对MySql数据库进行 备份、还原、创建、删除。
 
 
-## 一.连接字符串说明
+## 2.1 连接字符串说明
 
 ### (x.1)避免问题Unable to convert MySQL date/time value to System.DateTime
 读取MySql时，如果存在字段类型为date/datetime时可能会出现以下问题，“Unable to convert MySQL date/time value to System.DateTime”  
@@ -58,7 +58,7 @@ set global sql_mode='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_B
 ```
 
 
-## 二.备份数据库
+## 2.2 备份数据库
 备份mysql数据库到指定文件，使用sqler备份方式
 > sqler备份步骤为：    
 > 1.构建建库脚本保存到文件(CreateDataBase.sql)    
@@ -88,7 +88,7 @@ MySql.BackupSqler
 ```
 
 
-## 三.还原数据库
+## 2.3 还原数据库
 还原mysql备份文件到数据库
 
 demo：
@@ -117,7 +117,7 @@ MySql.Restore
 
 
 
-# 四.创建数据库
+## 2.4 创建数据库
 
 demo：
 ``` bash
@@ -140,7 +140,7 @@ MySql.CreateDataBase
 
 
 
-# 六.删除数据库
+## 2.5 删除数据库
 demo：
 ``` bash
 docker run --rm -it \
@@ -162,13 +162,13 @@ MySql.DropDataBase
 
 
 ---------------------------------
-# 3.mssql
+# 3 mssql
 Sqler可以对msql(Sql Server)数据库进行 备份、还原、创建、删除。
 
 
  
 
-## 二.备份数据库
+## 3.1 备份数据库
 备份数据库到指定文件，使用sqler备份方式
 > sqler备份步骤为：    
 > 1.构建建库脚本保存到文件(CreateDataBase.sql)    
@@ -197,7 +197,7 @@ SqlServer.BackupLocalBak
 ```
 
 
-## 三.还原数据库
+## 3.2 还原数据库
 还原备份文件到数据库（SqlServer.Restore、SqlServer.RestoreLocalBak）
 
 demo：
@@ -228,7 +228,7 @@ SqlServer.Restore
 
 
 
-# 四.创建数据库
+## 3.3 创建数据库
 
 demo：
 ``` bash
@@ -249,7 +249,7 @@ SqlServer.CreateDataBase
 ```
 
 
-# 五.删除数据库
+## 3.4 删除数据库
 
 demo：
 ``` bash
@@ -260,7 +260,7 @@ dotnet Sqler.dll SqlServer.DropDataBase \
 
 
 ---------------------------------
-# 六.常驻后台服务
+# 4.常驻后台服务
 
 ## (x.1)配置文件
 	  (x.x.1)把本文件所在目录中的Data拷贝到宿主机
@@ -293,8 +293,7 @@ docker run --name=sqler --restart=always -d -p 4570:4570 serset/sqler
 #访问地址为 http://ip:4570 
 
 
-
-#---------------------------------------
+#--------------------------------------
 #常用命令
 
 #查看容器logs
