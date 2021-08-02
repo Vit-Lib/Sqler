@@ -235,7 +235,8 @@ demo：
 docker run --rm -it \
 serset/sqler \
 dotnet Sqler.dll SqlServer.CreateDataBase \
--ConnStr "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;"
+--ConnectionString 'Data Source=192.168.3.221,1434;Database=Db_Dev;UID=sa;PWD=123456!;' \
+--databasePath "/data"
 ```
 
 参数说明：
