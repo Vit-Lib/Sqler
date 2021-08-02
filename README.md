@@ -198,7 +198,7 @@ SqlServer.BackupLocalBak
 
 
 ## 三.还原数据库
-还原备份文件到数据库
+还原备份文件到数据库（SqlServer.Restore、SqlServer.RestoreLocalBak）
 
 demo：
 ``` bash
@@ -206,7 +206,7 @@ demo：
 docker run --rm -it \
 -v /root/data:/bak  \
 serset/sqler  \
-dotnet Sqler.dll SqlServer.Restore \
+dotnet Sqler.dll SqlServer.RestoreLocalBak \
 --filePath "/bak/wordpress.sqler.zip" \
 --databasePath "/data" \
 --ConnectionString "Data Source=192.168.1.45,1433;Database=Db_Dev;UID=sa;PWD=123456;"
