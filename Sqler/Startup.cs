@@ -26,49 +26,51 @@ namespace App
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-            //配置跨域
-            services.AddCors();
-
-
             services.AddMvc(options =>
             {
                 //使用自定义异常处理器
                 options.Filters.Add<ExceptionFilter>();
+
+#if NETCOREAPP3_0_OR_GREATER
+                options.EnableEndpointRouting = false;
+#endif
             })
             .AddJsonOptions(options =>
             {
                 //全局配置Json序列化处理
+
+#if NETCOREAPP3_0_OR_GREATER
+
+                options.JsonSerializerOptions.AddConverter_Newtonsoft();
+                options.JsonSerializerOptions.AddConverter_DateTime();
+
+                options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All);
+                options.JsonSerializerOptions.IncludeFields = true;
+                options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+#else
 
                 //忽略循环引用
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 
                 //不更改元数据的key的大小写
                 options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+#endif
+
+
             })
-            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);     
- 
+            .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env)
         {
-            #region 允许跨域            
-            app.UseCors(builder => builder
-                       .AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader()
-                       .AllowCredentials());
-            #endregion
-
-
             //配置静态文件
             foreach (var config in Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<Vit.WebHost.StaticFilesConfig[]>("server.staticFiles"))
             {
                 app.UseStaticFiles(config);
             }
-         
+
 
             if (env.IsDevelopment())
             {
@@ -85,7 +87,7 @@ namespace App
             {
                 appBuilder.Run(async context =>
                 {
-                    var version= System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion;
+                    var version = System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion;
                     await context.Response.WriteAsync(version);
                 });
 
@@ -99,7 +101,7 @@ namespace App
 
 
             //SqlerHelp
-            Task.Run(App.Module.Sqler.Logical.SqlerHelp.InitAutoTemp);          
+            Task.Run(App.Module.Sqler.Logical.SqlerHelp.InitAutoTemp);
 
         }
     }

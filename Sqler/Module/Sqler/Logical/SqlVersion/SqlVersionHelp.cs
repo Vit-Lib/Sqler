@@ -25,7 +25,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
             #region (x.1)初始化 DbFactory
             {
-                efDbFactory = new DbContextFactory<VersionResultDbContext>().Init(SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlVersion.Config"));
+                efDbFactory = new DbContextFactory<VersionResultDbContext>().Init(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.EntityFramework.ConnectionInfo>("SqlVersion.Config"));
 
 
                 var ConnectionCreator = Vit.Db.Util.Data.ConnectionFactory.GetConnectionCreator(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlVersion.Config"));

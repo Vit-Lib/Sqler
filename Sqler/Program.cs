@@ -62,7 +62,7 @@ namespace App
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-            //.UseSerslot()
+            .AllowAnyOrigin()
             .UseUrls(Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<string[]>("server.urls"))
             .UseStartup<Startup>()
             .UseVitConfig()

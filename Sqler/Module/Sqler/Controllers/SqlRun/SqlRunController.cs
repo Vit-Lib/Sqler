@@ -34,14 +34,12 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
             Response.ContentType = "text/html;charset=utf-8";
 
-            var connInfo = SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlRun.Config");
-
             ExecSql(SendMsg, sql);
         }
 
         static void ExecSql( Action<EMsgType, String> sendMsg,string sqlCode)
         {
-            using (var conn = ConnectionFactory.GetOpenConnection(SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlRun.Config")))
+            using (var conn = ConnectionFactory.GetOpenConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config")))
             {               
                 using (var tran = conn.BeginTransaction())
                 {
@@ -95,7 +93,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
         {
             if (string.IsNullOrEmpty(sql)) sql = Request.Query["sql"];
 
-            using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlRun.Config")))
+            using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config")))
             {
                 return conn.Execute(sql);
             }
@@ -112,7 +110,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
             try
             {
                 DataSet ds;
-                using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlRun.Config")))
+                using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config")))
                 {
                     ds = conn.ExecuteDataSet(sql);
                 }
@@ -225,7 +223,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
             Response.ContentType = "text/html;charset=utf-8";
 
-            var connInfo = SqlerHelp.sqlerConfig.GetByPath<ConnectionInfo>("SqlRun.Config");
+            var connInfo = SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config");
 
             DbPortLogical.Export(SendMsg, connInfo.type, connInfo.ConnectionString, exportFileType, sql:sql);
         }
