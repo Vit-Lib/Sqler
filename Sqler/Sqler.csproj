@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<publish>sqler</publish>
+		<publish>Sqler</publish>
 		<docker>sqler</docker>
 	</PropertyGroup>
 
