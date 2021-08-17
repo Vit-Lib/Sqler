@@ -46,19 +46,23 @@ namespace App.Module.AutoTemp.Controllers
 
         public static void RegistDataProvider(params IDataProvider[] dataProviders)
         {
-            foreach (var dataProvider in dataProviders)
+            lock (dataProviderMap)
             {
-                dataProviderMap[dataProvider.template] = dataProvider;
+                foreach (var dataProvider in dataProviders)
+                {
+                    dataProviderMap[dataProvider.template] = dataProvider;
+                }
             }
         }
 
 
         public static void UnRegistDataProvider(params IDataProvider[] dataProviders)
         {
-            foreach (var dataProvider in dataProviders)
-            {
-                dataProviderMap.Remove(dataProvider.template);
-            }
+            lock (dataProviderMap)
+                foreach (var dataProvider in dataProviders)
+                {
+                    dataProviderMap.Remove(dataProvider.template);
+                }
         }
         public static IDataProvider GetDataProvider(string template)
         {
