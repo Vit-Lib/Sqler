@@ -41,7 +41,7 @@ jobs:
            bash startup.bash
            echo build succeed!
            
-           echo "appName=sqler" >> $GITHUB_ENV
+           echo "appName=Sqler" >> $GITHUB_ENV
            
            
       - name: release_create
