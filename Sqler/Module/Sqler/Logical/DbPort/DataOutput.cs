@@ -83,7 +83,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             //    return;
             //}
 
-            using (var conn = ConnectionFactory.GetConnection(new ConnectionInfo { type = type, ConnectionString = ConnectionString }))
+            using (var conn = ConnectionFactory.GetConnection(new Vit.Db.Util.Data.ConnectionInfo { type = type, ConnectionString = ConnectionString }))
             {
                 BatchImport(conn);
             }

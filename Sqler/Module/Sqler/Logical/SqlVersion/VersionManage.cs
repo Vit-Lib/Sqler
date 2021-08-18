@@ -169,10 +169,11 @@ namespace App.Module.Sqler.Logical.SqlVersion
         { 
             var repository = SqlVersionHelp.sqlCodeRepositorys.AsQueryable().FirstOrDefault(m => m.moduleName == module);
 
-            sendMsg = (EMsgType type, String msg) =>
+            sendMsg = 
+                ((EMsgType type, String msg) =>
             {
                 Logger.log.Log(Level.ApiTrace, msg);
-            }
+            })
             + sendMsg;
 
             int curVersion = GetDbCurVersion(module);

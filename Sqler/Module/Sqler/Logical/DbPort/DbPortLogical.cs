@@ -429,7 +429,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             try
             {
                 using (new Disposable(onDispose))
-                using (var conn = ConnectionFactory.GetConnection(new ConnectionInfo { type = type, ConnectionString = ConnectionString }))
+                using (var conn = ConnectionFactory.GetConnection(new Vit.Db.Util.Data.ConnectionInfo { type = type, ConnectionString = ConnectionString }))
                 {
                     var startTime = DateTime.Now;
 
@@ -781,7 +781,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
                 #region (x.2)init from_data
                 SendMsg(EMsgType.Title, "   init from_data");
-                using (var conn = ConnectionFactory.GetConnection(new ConnectionInfo
+                using (var conn = ConnectionFactory.GetConnection(new Vit.Db.Util.Data.ConnectionInfo
                 { type = from_type, ConnectionString = from_ConnectionString }))
                 {
                     if (string.IsNullOrWhiteSpace(from_sql))
@@ -808,7 +808,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 GetDataTableReader =
                     (tableName, curTbIndex) =>
                     {
-                        var conn = ConnectionFactory.GetConnection(new ConnectionInfo
+                        var conn = ConnectionFactory.GetConnection(new Vit.Db.Util.Data.ConnectionInfo
                         { type = from_type, ConnectionString = from_ConnectionString });
                         var dataReader = conn.ExecuteReader(from_sql, commandTimeout: DbPortLogical.commandTimeout);
                         int tableIndex = 0;

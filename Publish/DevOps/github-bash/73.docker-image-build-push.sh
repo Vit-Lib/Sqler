@@ -5,8 +5,9 @@ set -e
 #(x.1)参数
 args_="
 
-export codePath=/root/temp/svn
+export basePath=/root/temp/svn
 
+export version=`grep '<Version>' $(grep '<pack>\|<publish>' ${basePath} -r --include *.csproj -l | head -n 1) | grep -oP '>(.*)<' | tr -d '<>'`
 
 export DOCKER_USERNAME=serset
 export DOCKER_PASSWORD=xxx
@@ -49,7 +50,7 @@ docker buildx ls
 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
 
-dockerPath=$codePath/Publish/release/release/docker-image
+dockerPath=$basePath/Publish/release/release/docker-image
 
 for dockerName in `ls $dockerPath`
 do

@@ -1,4 +1,4 @@
-FROM serset/dotnet:2.1
+FROM serset/dotnet:5.0
 
 #(x.1)alias sqler
 RUN echo '#!/bin/bash\ndotnet /root/app/Sqler.dll $*' > /usr/bin/sqler && chmod +x /usr/bin/sqler

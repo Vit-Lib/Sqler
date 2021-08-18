@@ -35,7 +35,7 @@ namespace App.Module.Sqler.Logical.DataEditor
 
             //(x.2) init conn
             {
-                var connInfo = dataEditorConfig.GetByPath<ConnectionInfo>("Db");
+                var connInfo = dataEditorConfig.GetByPath<Vit.Orm.EntityFramework.ConnectionInfo>("Db");
 
 
                 if (connInfo == null || string.IsNullOrEmpty(connInfo.type) || string.IsNullOrEmpty(connInfo.ConnectionString))
