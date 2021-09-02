@@ -270,7 +270,7 @@ demo：
 docker run --rm -it \
 serset/sqler  \
 dotnet Sqler.dll SqlRun.Exec --quiet \
---sql "SHOW DATABASES WHERE `Database` NOT IN ('information_schema','mysql', 'performance_schema', 'sys');" \
+--sql "SHOW DATABASES WHERE \`Database\` NOT IN ('information_schema','mysql', 'performance_schema', 'sys');" \
 --format Values \
 --set "SqlRun.Config.type=mysql" \
 --set "SqlRun.Config.ConnectionString=Data Source=sers.cloud;Port=11052;User Id=root;Password=123456;CharSet=utf8;allowPublicKeyRetrieval=true;" 
