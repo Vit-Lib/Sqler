@@ -66,6 +66,7 @@ namespace App.Module.Sqler.ConsoleCommand
                 Console.Write(str);
             }
 
+            ConsoleHelp.Log("");
             ConsoleHelp.Log("操作成功");
         }
         #endregion

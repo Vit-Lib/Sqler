@@ -16,17 +16,17 @@ namespace App
             //var arg = new System.Collections.Generic.List<string>() {"SqlVersion.CurrentVersion" };
             //arg.AddRange(new[] { "--DataPath", @"W:\code\Data" });
             //args = arg.ToArray();
+
+            //args = new string[] { "SqlRun.Exec"
+            //    ,"--quiet"
+            //    ,"--sql","SHOW DATABASES WHERE `Database` NOT IN ('information_schema','mysql', 'performance_schema', 'sys');"
+            //    ,"--format","Values"
+            //    ,"--set","SqlRun.Config.type=mysql"
+            //    ,"--set","SqlRun.Config.ConnectionString=Data Source=lanxing.cloud;Port=11052;User Id=root;Password=123456;CharSet=utf8;allowPublicKeyRetrieval=true;"
+            //};
+
+
             if (args == null) args = new string[] { };
-
-            args = new string[] { "SqlRun.Exec"
-                ,"--quiet"
-                ,"--sql","SHOW DATABASES WHERE `Database` NOT IN ('information_schema','mysql', 'performance_schema', 'sys');"
-                ,"--format","Values"
-                ,"--set","SqlRun.Config.type=mysql"
-                ,"--set","SqlRun.Config.ConnectionString=Data Source=lanxing.cloud;Port=11052;User Id=root;Password=123456;CharSet=utf8;allowPublicKeyRetrieval=true;"
-            };
-
-
 
             #region (x.2) --quiet
             if (args.Any(arg => arg == "--quiet") == true)
