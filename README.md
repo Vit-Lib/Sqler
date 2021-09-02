@@ -163,7 +163,7 @@ MySql.DropDataBase
 
 ---------------------------------
 # 3 mssql
-Sqler可以对msql(Sql Server)数据库进行 备份、还原、创建、删除。
+Sqler可以对mssql(Sql Server)数据库进行 备份、还原、创建、删除。
 
 
  
@@ -259,8 +259,35 @@ dotnet Sqler.dll SqlServer.DropDataBase \
 ```
 
 
+
 ---------------------------------
-# 4.常驻后台服务
+# 4 执行sql语句
+Sqler可以直接对sqlite/mysql/mssql数据库执行sql语句并返回结果。
+
+
+demo：
+``` bash
+docker run --rm -it \
+serset/sqler  \
+dotnet Sqler.dll SqlRun.Exec --quiet \
+--sql "SHOW DATABASES WHERE `Database` NOT IN ('information_schema','mysql', 'performance_schema', 'sys');" \
+--format Values \
+--set "SqlRun.Config.type=mysql" \
+--set "SqlRun.Config.ConnectionString=Data Source=sers.cloud;Port=11052;User Id=root;Password=123456;CharSet=utf8;allowPublicKeyRetrieval=true;" 
+```
+
+参数说明：
+``` txt
+--quiet (可选)静默模式，只打印结果信息，忽略info信息
+--sql 执行的sql语句
+--format (可选)显示结果的格式，可为 json（默认值，序列化为json字符串）、AffectedRowCount（仅显示影响行数）、FirstCell(仅返回第一行第一列数据)
+          、Values(通过在行列直接加分隔符的方式返回所有数据，分隔符默认为逗号和换行，可通过--columnSeparator 和 --rowSeparator参数指定)
+--set (可选)设置配置文件（/Data/sqler.json）的值，格式为"name=value"。 连接字符串的name为SqlRun.Config.ConnectionString
+示例： SqlRun.Exec --quiet --sql "select 1" --format Values --set SqlRun.Config.type=sqlite --set "SqlRun.Config.ConnectionString=Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;"
+```
+
+---------------------------------
+# 5.常驻后台服务
 
 ## (x.1)配置文件
 	  (x.x.1)把本文件所在目录中的Data拷贝到宿主机
