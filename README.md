@@ -261,7 +261,7 @@ dotnet Sqler.dll SqlServer.DropDataBase \
 
 
 ---------------------------------
-# 4 执行sql语句
+# 4.执行sql语句
 Sqler可以直接对sqlite/mysql/mssql数据库执行sql语句并返回结果。
 
 
@@ -270,7 +270,7 @@ demo：
 docker run --rm -it \
 serset/sqler  \
 dotnet Sqler.dll SqlRun.Exec --quiet \
---sql "SHOW DATABASES WHERE `Database` NOT IN ('information_schema','mysql', 'performance_schema', 'sys');" \
+--sql "SHOW DATABASES WHERE \`Database\` NOT IN ('information_schema','mysql', 'performance_schema', 'sys');" \
 --format Values \
 --set "SqlRun.Config.type=mysql" \
 --set "SqlRun.Config.ConnectionString=Data Source=sers.cloud;Port=11052;User Id=root;Password=123456;CharSet=utf8;allowPublicKeyRetrieval=true;" 
@@ -285,9 +285,38 @@ dotnet Sqler.dll SqlRun.Exec --quiet \
 --set (可选)设置配置文件（/Data/sqler.json）的值，格式为"name=value"。 连接字符串的name为SqlRun.Config.ConnectionString
 示例： SqlRun.Exec --quiet --sql "select 1" --format Values --set SqlRun.Config.type=sqlite --set "SqlRun.Config.ConnectionString=Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;"
 ```
+---------------------------------
+# 5.SqlVersion
+
+
+demo：
+``` bash
+
+#查看数据库版本
+docker run --rm -it \
+serset/sqler  \
+dotnet Sqler.dll SqlRun.CurrentVersion --quiet 
+
+
+#查看可升级版本的数量（
+docker run --rm -it \
+serset/sqler  \
+dotnet Sqler.dll SqlRun.NewVersionCount --quiet 
+
+
+#一键升级数据库
+docker run --rm -it \
+serset/sqler  \
+dotnet Sqler.dll SqlRun.OneKeyUpgrade --quiet 
+
+
+
+```
+
+
 
 ---------------------------------
-# 5.常驻后台服务
+# 6.常驻后台服务
 
 ## (x.1)配置文件
 	  (x.x.1)把本文件所在目录中的Data拷贝到宿主机

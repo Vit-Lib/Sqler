@@ -28,7 +28,9 @@ namespace App.Module.Sqler.ConsoleCommand
            
 
             MySqlLogical.CreateDataBase();
-            ConsoleHelp.Log("操作成功");
+
+            ConsoleHelp.Log("操作是否成功：");
+            ConsoleHelp.Out("true");
         }
         #endregion
 
@@ -52,7 +54,9 @@ namespace App.Module.Sqler.ConsoleCommand
 
 
             MySqlLogical.DropDataBase();
-            ConsoleHelp.Log("操作成功");
+
+            ConsoleHelp.Log("操作是否成功：");
+            ConsoleHelp.Out("true");
         }
         #endregion
 
@@ -85,7 +89,9 @@ namespace App.Module.Sqler.ConsoleCommand
 
             MySqlLogical.Restore(filePath: filePath, fileName: fileName, force: force);
 
-            ConsoleHelp.Log("操作成功");
+
+            ConsoleHelp.Log("操作是否成功：");
+            ConsoleHelp.Out("true");
         }
         #endregion    
 
@@ -118,7 +124,9 @@ namespace App.Module.Sqler.ConsoleCommand
 
             MySqlLogical.BackupSqler(filePath, fileName,useMemoryCache: useMemoryCache);
 
-            ConsoleHelp.Log("操作成功");
+
+            ConsoleHelp.Log("操作是否成功：");
+            ConsoleHelp.Out("true");
         }
         #endregion
 

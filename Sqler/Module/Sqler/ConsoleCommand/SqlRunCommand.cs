@@ -62,8 +62,8 @@ namespace App.Module.Sqler.ConsoleCommand
                             break;
                         }
                 }
-               
-                Console.Write(str);
+
+                ConsoleHelp.Out(str);
             }
 
             ConsoleHelp.Log("");
