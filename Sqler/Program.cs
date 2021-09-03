@@ -89,7 +89,18 @@ namespace App
             var runAsCmd = (args.Length >= 1 && false == args[0]?.StartsWith("-"));
             if (runAsCmd)
             {
-                Vit.ConsoleUtil.ConsoleHelp.Log = (msg) => { Logger.Info(msg);  };
+                #region --quiet
+                if (args.Any(arg => arg == "--quiet") == true)
+                {
+                    Vit.ConsoleUtil.ConsoleHelp.Out = (msg) => { Logger.Info(msg); Console.WriteLine(msg); };
+                }
+                else
+                {
+                    Vit.ConsoleUtil.ConsoleHelp.Out = (msg) => { Logger.Info(msg); };
+                }
+                #endregion
+
+                Vit.ConsoleUtil.ConsoleHelp.Log = (msg) => { Logger.Info(msg); };
                 Vit.ConsoleUtil.ConsoleHelp.Exec(args);
                 return;
             }

@@ -9,6 +9,7 @@ using System.Text;
 using Vit.Core.Util.ConfigurationManager;
 using App.Module.Sqler.Logical.SqlVersion.Entity;
 using Sqler.Module.Sqler.Logical.Message;
+using Vit.Core.Util.ComponentModel.Data;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {   
@@ -164,9 +165,21 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
 
 
-        #region 升級
-        public static void UpgradeToVersion(string module, Action<EMsgType,String> sendMsg, int descVersion = -1)
-        { 
+        #region 升级
+
+        /// <summary>
+        /// 返回已经升级的版本数量
+        /// </summary>
+        /// <param name="module"></param>
+        /// <param name="sendMsg"></param>
+        /// <param name="descVersion"></param>
+        /// <returns></returns>
+        public static ApiReturn<int> UpgradeToVersion(string module, Action<EMsgType,String> sendMsg, int descVersion = -1)
+        {
+
+            ApiReturn<int> apiRet = new ApiReturn<int>(0);
+
+
             var repository = SqlVersionHelp.sqlCodeRepositorys.AsQueryable().FirstOrDefault(m => m.moduleName == module);
 
             sendMsg = 
@@ -176,7 +189,8 @@ namespace App.Module.Sqler.Logical.SqlVersion
             })
             + sendMsg;
 
-            int curVersion = GetDbCurVersion(module);
+            int oriVersion = GetDbCurVersion(module);
+            int curVersion = oriVersion;
             int lastVersion = repository.lastVersion;
             
             if (descVersion < 0) 
@@ -200,14 +214,17 @@ namespace App.Module.Sqler.Logical.SqlVersion
                 if (descVersion < curVersion)
                 {
                     sendMsg(EMsgType.Title, "无需执行，当前版本已经比目标版本高。");
-                    return;
+                    return apiRet;
                 }
 
                 if (descVersion == curVersion)
                 {
                     sendMsg(EMsgType.Title, "无需执行,当前版本已经为目标版本。");
-                    return;
-                } 
+                    return apiRet;
+                }
+
+              
+
 
                 sendMsg(EMsgType.Title, "执行数据库升级语句...");
                 sendMsg(EMsgType.Nomal, "");
@@ -220,9 +237,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
 
                 using (var scope = SqlVersionHelp.efDbFactory.CreateDbContext(out var dbContext))
-                {
-
-                  
+                {                  
                     //dbContext.Database.EnsureCreated();
                     //dbContext.SaveChanges();
 
@@ -237,7 +252,6 @@ namespace App.Module.Sqler.Logical.SqlVersion
                     }
                 }
 
-               
 
                 sendMsg(EMsgType.Nomal, "");
                 sendMsg(EMsgType.Nomal, "");
@@ -260,11 +274,20 @@ namespace App.Module.Sqler.Logical.SqlVersion
                 sendMsg(EMsgType.Title, "数据库目标版本：   " + descVersion);
 
                 Logger.Error("SqlRun执行sql语句出错.出错版本:" + (curVersion+1), e);
+
+                apiRet.success = false;
+                apiRet.error = e.GetBaseException();
+
             }
 
             sendMsg(EMsgType.Nomal, "");
             sendMsg(EMsgType.Nomal, "");
             sendMsg(EMsgType.Nomal, "");
+
+
+            apiRet.data = curVersion - oriVersion;
+            return apiRet;
+
         }
 
         #endregion

@@ -37,7 +37,8 @@ namespace App.Module.Sqler.ConsoleCommand
 
 
             SqlServerLogical.CreateDataBase();
-            ConsoleHelp.Log("操作成功");
+            ConsoleHelp.Log("操作是否成功：");
+            ConsoleHelp.Out("true");
         }
         #endregion
 
@@ -61,7 +62,8 @@ namespace App.Module.Sqler.ConsoleCommand
 
 
             SqlServerLogical.DropDataBase();
-            ConsoleHelp.Log("操作成功");
+            ConsoleHelp.Log("操作是否成功：");
+            ConsoleHelp.Out("true");
         }
         #endregion
 
@@ -119,7 +121,8 @@ namespace App.Module.Sqler.ConsoleCommand
 
             SqlServerLogical.Restore(filePath: filePath, fileName: fileName, sliceMb: sliceMb);
 
-            ConsoleHelp.Log("操作成功");
+            ConsoleHelp.Log("操作是否成功：");
+            ConsoleHelp.Out("true");
         }
         #endregion
 
@@ -162,7 +165,9 @@ namespace App.Module.Sqler.ConsoleCommand
 
             SqlServerLogical.RestoreLocalBak(filePath: filePath, fileName: fileName);
 
-            ConsoleHelp.Log("操作成功");
+
+            ConsoleHelp.Log("操作是否成功：");
+            ConsoleHelp.Out("true");
         }
         #endregion
 
@@ -193,7 +198,8 @@ namespace App.Module.Sqler.ConsoleCommand
 
             SqlServerLogical.BackupBak(filePath, fileName);
 
-            ConsoleHelp.Log("操作成功");
+            ConsoleHelp.Log("操作是否成功：");
+            ConsoleHelp.Out("true");
         }
         #endregion
 
@@ -227,7 +233,8 @@ namespace App.Module.Sqler.ConsoleCommand
 
             SqlServerLogical.BackupSqler(filePath, fileName, useMemoryCache: useMemoryCache);
 
-            ConsoleHelp.Log("操作成功");
+            ConsoleHelp.Log("操作是否成功：");
+            ConsoleHelp.Out("true");
         }
         #endregion
 
@@ -258,7 +265,9 @@ namespace App.Module.Sqler.ConsoleCommand
 
             SqlServerLogical.BackupLocalBak(filePath, fileName);
 
-            ConsoleHelp.Log("操作成功");
+
+            ConsoleHelp.Log("操作是否成功：");
+            ConsoleHelp.Out("true");
         }
         #endregion
 

@@ -1,8 +1,8 @@
-#region << 版本注释-v1 >>
+#region << 版本注释-v2 >>
 /*
  * ========================================================================
- * 版本：v1
- * 时间：2020-04-08
+ * 版本：v2
+ * 时间：2021-09-03
  * 作者：lith
  * 邮箱：serset@yeah.net
  * 说明： 
@@ -20,6 +20,7 @@ namespace Vit.ConsoleUtil
     public class ConsoleHelp
     {
         public static Action<string> Log = (msg) => { Console.WriteLine(msg); };
+        public static Action<string> Out = (msg) => { Console.WriteLine(msg); };
 
 
         #region GetArg
