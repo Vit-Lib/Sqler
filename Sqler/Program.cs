@@ -23,8 +23,7 @@ namespace App
             //    ,"--format","Values"
             //    ,"--set","SqlRun.Config.type=mysql"
             //    ,"--set","SqlRun.Config.ConnectionString=Data Source=lanxing.cloud;Port=11052;User Id=root;Password=123456;CharSet=utf8;allowPublicKeyRetrieval=true;"
-            //};
-
+            //};       
 
             if (args == null) args = new string[] { };
 
@@ -42,15 +41,13 @@ namespace App
 
 
 
-
-
             //(x.3) 初始化Sqler
             try
             { 
                 Logger.Info("[Sqler] version: "+ System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion );
 
                 string dataDirectoryPath = ConsoleHelp.GetArg(args, "--DataPath");
-                App.Module.Sqler.Logical.SqlerHelp.InitEnvironment(dataDirectoryPath);              
+                App.Module.Sqler.Logical.SqlerHelp.InitEnvironment(dataDirectoryPath,args);              
             }
             catch (System.Exception ex)
             {
@@ -61,31 +58,9 @@ namespace App
 
 
 
-            #region (x.4)--set path=value
-            {
-                for (var i = 1; i < args.Length; i++)
-                {
-                    if (args[i - 1] == "--set")
-                    {
-                        try
-                        {
-                            var str = args[i];
-                            var ei = str?.IndexOf('=') ?? -1;
-                            if (ei < 1) continue;
-
-                            var path = str.Substring(0, ei);
-                            var value = str.Substring(ei + 1);
-
-                            SqlerHelp.sqlerConfig.root.ValueSetByPath(value, path.Split('.'));
-                        }
-                        catch { }
-                    }
-                }
-            }
-            #endregion
 
 
-            //(x.5)
+            //(x.4)
             var runAsCmd = (args.Length >= 1 && false == args[0]?.StartsWith("-"));
             if (runAsCmd)
             {
@@ -107,7 +82,7 @@ namespace App
 
 
 
-            //(x.6)启动http服务
+            //(x.5)启动http服务
             try
             {
                 CreateWebHostBuilder(args).Build().Run();
