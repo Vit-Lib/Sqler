@@ -134,7 +134,7 @@ namespace App.Module.Sqler.Logical
 
         #region InitEnvironment      
 
-        public static void InitEnvironment(string dataDirectoryPath = null)
+        public static void InitEnvironment(string dataDirectoryPath ,string[]args)
         {
             Logger.Info("[Sqler]init ...");
 
@@ -163,14 +163,39 @@ namespace App.Module.Sqler.Logical
                 throw new Exception("[Sqler]Data Directory(" + dataDirectoryPath + ") does not exist");
             }
             #endregion
-                                           
 
-            #region init member        
-            sqlerConfig = new JsonFile(GetDataFilePath("sqler.json"));        
 
+            // (x.2)init sqlerConfig        
+            sqlerConfig = new JsonFile(GetDataFilePath("sqler.json"));
+
+
+            #region (x.3)--set path=value
+            {
+                for (var i = 1; i < args.Length; i++)
+                {
+                    if (args[i - 1] == "--set")
+                    {
+                        try
+                        {
+                            var str = args[i];
+                            var ei = str?.IndexOf('=') ?? -1;
+                            if (ei < 1) continue;
+
+                            var path = str.Substring(0, ei);
+                            var value = str.Substring(ei + 1);
+
+                            sqlerConfig.root.ValueSetByPath(value, path.Split('.'));
+                        }
+                        catch { }
+                    }
+                }
+            }
             #endregion
 
+
+            //(x.4)
             SqlVersion.SqlVersionHelp.InitEnvironment();
+
 
             Logger.Info("[Sqler]inited!");
         }
