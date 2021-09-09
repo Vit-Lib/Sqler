@@ -4,7 +4,6 @@ using Vit.Extensions;
 using System.Text.RegularExpressions;
 using System;
 using System.Linq;
-using Vit.Extensions.IEnumerable;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using Vit.Core.Util.XmlComment;
@@ -156,7 +155,7 @@ namespace App.Module.AutoTemp.Logical
                 {
                     var title = field["title"];
                     filterFields.Where(token => token["field"].EqualIgnore(column.column_name)
-                    && string.IsNullOrWhiteSpace(token["title"].ConvertToString())).ForEach(
+                    && string.IsNullOrWhiteSpace(token["title"].ConvertToString())).IEnumerable_ForEach(
                         token =>
                         {
                             token["title"] = title;
