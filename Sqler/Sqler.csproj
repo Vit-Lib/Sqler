@@ -26,6 +26,7 @@
 		<PackageReference Include="Vit.WebHost" Version="2.1.12" />
 		<PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.2.8" />
 		<PackageReference Include="Vit.Db.DbMng" Version="2.2.8" />
+		<PackageReference Include="Sers.Core" Version="2.1.13" />
 	</ItemGroup>
 
 
