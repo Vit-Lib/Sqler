@@ -5,10 +5,11 @@ using Vit.Orm.EntityFramework;
 using App.Module.AutoTemp.Controllers;
 using Vit.Extensions;
 using System;
-using App.Module.Sqler.AutoTemp.Logical;
-using App.Module.AutoTemp.Logical;
 using System.Collections.Generic;
- 
+using App.Module.Sqler.Logical.DataEditor;
+using Microsoft.Extensions.DependencyInjection;
+using Vit.AutoTemp.DataProvider;
+using Vit.AutoTemp.DataProvider.Ef;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {
@@ -64,19 +65,19 @@ namespace App.Module.Sqler.Logical.SqlVersion
             //(x.1)取消注册
             if (dataProviders.Count>0)
             {
-                global::App.Module.AutoTemp.Controllers.AutoTempController.UnRegistDataProvider(dataProviders.ToArray());
+                Vit.AutoTemp.AutoTempHelp.UnRegistDataProvider(dataProviders.ToArray());
                 dataProviders.Clear();
-            }           
+            }
 
             //(x.2)注册 SqlVersion Config
-            global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+            Vit.AutoTemp.AutoTempHelp.RegistDataProvider(
                 new global::App.Module.Sqler.Logical.SqlVersion.ConfigRepository().ToDataProvider("Sqler_SqlVersion_Config"));
 
             //(x.3)注册 ModuleMng            
             SqlVersionModuleModel[] moduleModels = sqlCodeRepositorys.AsQueryable()
                     .Select(rep => new SqlVersionModuleModel(rep) { id = Path.GetFileNameWithoutExtension(rep.fileName) }).ToArray();
 
-            global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+            Vit.AutoTemp.AutoTempHelp.RegistDataProvider(
                                 new ModuleRepository(moduleModels).ToDataProvider("Sqler_SqlVersion_Module"));
 
 
@@ -88,7 +89,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
                 dataProviders.AddRange(sqlCodeDataProviders);
 
-                global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(sqlCodeDataProviders);
+                Vit.AutoTemp.AutoTempHelp.RegistDataProvider(sqlCodeDataProviders);
             }
             #endregion
       
@@ -96,11 +97,11 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
             #region (x.6)注册 VersionResult( from database)
             {
-                EfDataProvider.DelCreateDbContext CreateDbContext = (out DbContext context) =>
+
+                Func<(IServiceScope, DbContext)> CreateDbContext = () =>
                 {
-                    var scope = efDbFactory.CreateDbContext(out var dbContext);
-                    context = dbContext;
-                    return scope;
+                    var scope = DataEditorHelp.efDbFactory.CreateDbContext(out var context);
+                    return (scope, context);
                 };
 
 
@@ -117,9 +118,8 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
                 var template = "Sqler_SqlVersion_VersionInfo";
                 var dataProvider = new EfDataProvider(template, typeof(Entity.sqler_version), CreateDbContext);
-                dataProvider.Init();
 
-                AutoTempController.RegistDataProvider(dataProvider);
+                Vit.AutoTemp.AutoTempHelp.RegistDataProvider(dataProvider);
 
             }
             #endregion

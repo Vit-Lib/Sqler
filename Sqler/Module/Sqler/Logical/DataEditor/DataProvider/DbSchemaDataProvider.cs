@@ -8,8 +8,8 @@ using Vit.Linq.Query;
 using System.Data;
 using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Core.Module.Log;
-using App.Module.AutoTemp.Logical;
 using Vit.Db.Module.Schema;
+using Vit.AutoTemp.DataProvider;
 
 namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 {

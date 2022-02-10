@@ -7,8 +7,7 @@ using Vit.Linq.Query;
 using Vit.Core.Util.ConfigurationManager;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
-using Vit.Core.Util.Common;
-using App.Module.AutoTemp.Logical.Repository;
+using Vit.AutoTemp.Repository;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {

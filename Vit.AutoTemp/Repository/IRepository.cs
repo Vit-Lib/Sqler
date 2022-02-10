@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.Query;
 using Vit.Linq.Query;
 
-namespace App.Module.AutoTemp.Logical.Repository
+namespace Vit.AutoTemp.Repository
 {
     public interface IRepository<T>
     {

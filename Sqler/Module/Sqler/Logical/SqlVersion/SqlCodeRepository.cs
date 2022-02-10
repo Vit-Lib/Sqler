@@ -1,14 +1,16 @@
 ﻿using Newtonsoft.Json.Linq;
+
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+
+using Vit.AutoTemp.Repository;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.Query;
+using Vit.Core.Util.ConfigurationManager;
 using Vit.Extensions;
 using Vit.Linq.Query;
-using Vit.Core.Util.ConfigurationManager;
-using System;
-using System.ComponentModel.DataAnnotations;
-using App.Module.AutoTemp.Logical.Repository;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {

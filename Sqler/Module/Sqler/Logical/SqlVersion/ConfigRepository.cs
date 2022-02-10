@@ -7,7 +7,7 @@ using Vit.Linq.Query;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using App.Module.AutoTemp.Logical.Repository;
+using Vit.AutoTemp.Repository;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {

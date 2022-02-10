@@ -7,9 +7,9 @@ using Vit.Extensions;
 using Vit.Linq.Query;
 using Vit.Extensions.ObjectExt;
 using Vit.Core.Util.Common;
-using App.Module.AutoTemp.Logical;
+using Vit.AutoTemp.DataProvider;
 
-namespace App.Module.AutoTemp.Demo
+namespace Vit.AutoTemp.Demo
 {
     public class DemoDataProvider : IDataProvider
     {

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Version>2.0.1</Version>
+		<Description>https://github.com/serset/AutoTemp</Description>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<DocumentationFile>bin\Debug\netstandard2.0\Vit.AutoTemp.xml</DocumentationFile>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<Compile Remove="Controllers\**" />
+		<EmbeddedResource Remove="Controllers\**" />
+		<None Remove="Controllers\**" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="Vit.Db" Version="2.2.8" />
+		<PackageReference Include="Vit.Orm.EntityFramework" Version="2.2.8" />
+	</ItemGroup>
+
+
+</Project>
