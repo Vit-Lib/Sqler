@@ -1,3 +1,5 @@
+autoTemp 2.0.2(2022-02-10)
+
 可通过修改数据库字段的注释 来配置字段控件属性。如：
  
     [fieldIgnore]        忽略当前字段
@@ -66,9 +68,9 @@ filter:
     http://localhost:4570/autoTemp/Scripts/autoTemp/list.html?dataProvider=LocalStorageProvider&tree=false
 
 
-
-
-
+	http://localhost:4570/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/demo_list/{action}
+	http://localhost:4570/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/demo_repository_list/{action}
+	http://localhost:4570/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/demo_tree/{action}
 
 
 

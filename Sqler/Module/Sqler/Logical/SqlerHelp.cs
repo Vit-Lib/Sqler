@@ -209,7 +209,7 @@ namespace App.Module.Sqler.Logical
             #region AutoTemp SqlRun
             {
                 //config
-                global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                Vit.AutoTemp.AutoTempHelp.RegistDataProvider(
                     new global::App.Module.Sqler.Logical.SqlRun.ConfigRepository().ToDataProvider("Sqler_SqlRun_Config"));
             }
             #endregion
@@ -222,7 +222,7 @@ namespace App.Module.Sqler.Logical
                     Logger.Info("[Sqler.AutoTemp][DataEditor]init ...");
 
                     //RegistDataProvider
-                    global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                    Vit.AutoTemp.AutoTempHelp.RegistDataProvider(
                         new global::App.Module.Sqler.Logical.DataEditor.ConfigRepository().ToDataProvider("Sqler_DataEditor_Config"));
 
 
@@ -242,10 +242,10 @@ namespace App.Module.Sqler.Logical
             #region AutoTemp SqlBackup
             {
                 //config
-                global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider( 
+                Vit.AutoTemp.AutoTempHelp.RegistDataProvider( 
                     new global::App.Module.Sqler.Logical.SqlBackup.SqlServerBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_SqlServerBackup_Config"));
 
-                global::App.Module.AutoTemp.Controllers.AutoTempController.RegistDataProvider(
+                Vit.AutoTemp.AutoTempHelp.RegistDataProvider(
                    new global::App.Module.Sqler.Logical.SqlBackup.MySqlBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_MySqlBackup_Config"));
 
                 Logger.Info("[Sqler.AutoTemp]inited SqlBackup!");

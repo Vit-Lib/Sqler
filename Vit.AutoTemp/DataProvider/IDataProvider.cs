@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
+
+using System.Collections.Generic;
+
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.Query;
 using Vit.Linq.Query;
 
-namespace App.Module.AutoTemp.Logical
+namespace Vit.AutoTemp.DataProvider
 {
     public interface IDataProvider
     {

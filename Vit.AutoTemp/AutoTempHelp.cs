@@ -1,16 +1,19 @@
-﻿using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
-using Vit.Extensions;
-using System.Text.RegularExpressions;
-using System;
-using System.Linq;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection;
-using Vit.Core.Util.XmlComment;
-using Vit.Core.Module.Log;
-using Vit.Db.Module.Schema;
+﻿using Newtonsoft.Json.Linq;
 
-namespace App.Module.AutoTemp.Logical
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Reflection;
+using System.Text.RegularExpressions;
+
+using Vit.AutoTemp.DataProvider;
+using Vit.Core.Module.Log;
+using Vit.Core.Util.XmlComment;
+using Vit.Db.Module.Schema;
+using Vit.Extensions;
+
+namespace Vit.AutoTemp
 {
     public class AutoTempHelp
     {
@@ -294,6 +297,37 @@ namespace App.Module.AutoTemp.Logical
 
             return controllerConfig;
         }
+        #endregion
+
+
+        #region static dataProviderMap
+        public readonly static SortedDictionary<string, IDataProvider> dataProviderMap = new SortedDictionary<string, IDataProvider>();
+
+        public static void RegistDataProvider(params IDataProvider[] dataProviders)
+        {
+            lock (dataProviderMap)
+            {
+                foreach (var dataProvider in dataProviders)
+                {
+                    dataProviderMap[dataProvider.template] = dataProvider;
+                }
+            }
+        }
+
+
+        public static void UnRegistDataProvider(params IDataProvider[] dataProviders)
+        {
+            lock (dataProviderMap)
+                foreach (var dataProvider in dataProviders)
+                {
+                    dataProviderMap.Remove(dataProvider.template);
+                }
+        }
+        public static IDataProvider GetDataProvider(string template)
+        {
+            return dataProviderMap.TryGetValue(template, out var v) ? v : null;
+        }
+
         #endregion
     }
 }

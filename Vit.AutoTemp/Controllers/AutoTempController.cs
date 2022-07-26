@@ -33,7 +33,7 @@ namespace App.Module.AutoTemp.Controllers
             dataProvider = new Vit.AutoTemp.Demo.DemoDataProvider { isTree = false, template = "demo_list" };
             Vit.AutoTemp.AutoTempHelp.RegistDataProvider(dataProvider);
 
- 
+
             dataProvider = new Vit.AutoTemp.Demo.DemoRepository().ToDataProvider("demo_repository_list");
             Vit.AutoTemp.AutoTempHelp.RegistDataProvider(dataProvider);
 
@@ -42,7 +42,7 @@ namespace App.Module.AutoTemp.Controllers
         }
 
 
-   
+
 
 
         #region (x.1) getConfig
@@ -74,7 +74,7 @@ namespace App.Module.AutoTemp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("{template}/getList")]
-        public ApiReturn getList(string template,  [FromQuery]string filter, [FromQuery]string sort, [FromQuery]string page, [FromQuery]string arg)
+        public ApiReturn getList(string template, [FromQuery] string filter, [FromQuery] string sort, [FromQuery] string page, [FromQuery] string arg)
         {
             try
             {
@@ -103,7 +103,7 @@ namespace App.Module.AutoTemp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("{template}/getModel")]
-        public ApiReturn getModel(string template, [FromQuery]string id)
+        public ApiReturn getModel(string template, [FromQuery] string id)
         {
             try
             {
@@ -127,7 +127,7 @@ namespace App.Module.AutoTemp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("{template}/insert")]
-        public ApiReturn insert(string template, [FromBody]JObject model)
+        public ApiReturn insert(string template, [FromBody] JObject model)
         {
             try
             {
@@ -151,7 +151,7 @@ namespace App.Module.AutoTemp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPut("{template}/update")]
-        public ApiReturn update(string template, [FromBody]JObject model)
+        public ApiReturn update(string template, [FromBody] JObject model)
         {
             try
             {
@@ -174,7 +174,7 @@ namespace App.Module.AutoTemp.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpDelete("{template}/delete")]
-        public ApiReturn delete(string template, [FromBody]JObject arg)
+        public ApiReturn delete(string template, [FromBody] JObject arg)
         {
             try
             {

@@ -4,13 +4,13 @@ using Vit.Core.Util.ComponentModel.Query;
 using Vit.Extensions;
 using Vit.Linq.Query;
 using System.ComponentModel.DataAnnotations;
-using App.Module.AutoTemp.Logical.Repository;
 using Vit.Core.Util.Common;
 using System.Linq;
 using Vit.Extensions.ObjectExt;
 using Vit.Core.Util.ComponentModel.SsError;
+using Vit.AutoTemp.Repository;
 
-namespace App.Module.AutoTemp.Demo
+namespace Vit.AutoTemp.Demo
 {
 
     #region Repository

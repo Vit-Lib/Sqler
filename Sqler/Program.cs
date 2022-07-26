@@ -6,6 +6,7 @@ using Vit.Core.Module.Log;
 using Vit.Extensions;
 using System.Linq;
 using App.Module.Sqler.Logical;
+using Microsoft.Extensions.Logging;
 
 namespace App
 {
@@ -28,16 +29,25 @@ namespace App
             if (args == null) args = new string[] { };
 
             #region (x.2) --quiet
+            Logger.PrintToTxt = false;
+            Logger.PrintToConsole = false;
+
             if (args.Any(arg => arg == "--quiet") == true)
             {
-                Logger.OnLog = (level, msg) => { };
+               
             }
-            else
-            {
-                Logger.OnLog = (level, msg) => { Console.WriteLine((level == Level.INFO ? "" : "[" + level + "]") + msg); };
-                //Logger.OnLog = (level, msg) => { Console.WriteLine("[" + level.ToString().ToLower() + "]" + msg); };
-            }
-            #endregion
+			else
+			{
+				//Logger.OnLog = (level, msg) => { Console.WriteLine((level == Level.INFO ? "" : "[" + level + "]") + msg); };
+				Logger.log.AddCollector(new Vit.Core.Module.Log.LogCollector.Collector
+				{
+					OnLog = (msg) =>
+					{
+						Console.WriteLine((msg.level == Level.info ? "" : "[" + msg.level + "]") + msg.message);
+					}
+				});
+			}
+			#endregion
 
 
 

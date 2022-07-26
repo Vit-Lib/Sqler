@@ -3,9 +3,9 @@
   "SqlRun": {
 
     "Config": {
-      /* Êı¾İ¿âÀàĞÍ£¬¿ÉÎª  mysql mssql sqlite */
+      /* æ•°æ®åº“ç±»å‹ï¼Œå¯ä¸º  mysql mssql sqlite */
       "type": "sqlite",
-      /* Á¬½Ó×Ö·û´® */
+      /* è¿æ¥å­—ç¬¦ä¸² */
       "ConnectionString": "data source=Data\\db.sqlite"
     }
   },
@@ -17,22 +17,22 @@
 
     "SqlServerBackup": {
 
-      /* Á¬½Ó×Ö·û´® */
+      /* è¿æ¥å­—ç¬¦ä¸² */
       "ConnectionString": "Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;",
 
-      /* ±¸·İÎÄ¼şËùÔÚÎÄ¼ş¼ĞµÄÂ·¾¶,Èô²»Ö¸¶¨ÔòÎªµ±Ç°Â·¾¶ÏÂµÄ"Data/SqlServerBackup"ÎÄ¼ş¼Ğ */
+      /* å¤‡ä»½æ–‡ä»¶æ‰€åœ¨æ–‡ä»¶å¤¹çš„è·¯å¾„,è‹¥ä¸æŒ‡å®šåˆ™ä¸ºå½“å‰è·¯å¾„ä¸‹çš„"Data/SqlServerBackup"æ–‡ä»¶å¤¹ */
       "BackupPath": "",
 
-      /* mdfÊı¾İ¿âÎÄ¼şËùÔÚÎÄ¼ş¼ĞµÄÂ·¾¶,Èô²»Ö¸¶¨ÔòÎªsqlserverÏµÍ³Â·¾¶ */
+      /* mdfæ•°æ®åº“æ–‡ä»¶æ‰€åœ¨æ–‡ä»¶å¤¹çš„è·¯å¾„,è‹¥ä¸æŒ‡å®šåˆ™ä¸ºsqlserverç³»ç»Ÿè·¯å¾„ */
       "MdfPath": ""
     },
 
     "MySqlBackup": {
 
-      /* Á¬½Ó×Ö·û´® */
+      /* è¿æ¥å­—ç¬¦ä¸² */
       "ConnectionString": "Data Source=.;Port=3306;Database=Db_Dev;SslMode=none;User Id=root;Password=123456;CharSet=utf8;",
 
-      /* ±¸·İÎÄ¼şËùÔÚÎÄ¼ş¼ĞµÄÂ·¾¶,Èô²»Ö¸¶¨ÔòÎªµ±Ç°Â·¾¶ÏÂµÄ"Data/MySqlBackup"ÎÄ¼ş¼Ğ */
+      /* å¤‡ä»½æ–‡ä»¶æ‰€åœ¨æ–‡ä»¶å¤¹çš„è·¯å¾„,è‹¥ä¸æŒ‡å®šåˆ™ä¸ºå½“å‰è·¯å¾„ä¸‹çš„"Data/MySqlBackup"æ–‡ä»¶å¤¹ */
       "BackupPath": ""
     }
 
@@ -46,12 +46,12 @@
   "SqlVersion": {
 
     "Config": {
-      /* Êı¾İ¿âÀàĞÍ£¬¿ÉÎª  mysql mssql sqlite */
+      /* æ•°æ®åº“ç±»å‹ï¼Œå¯ä¸º  mysql mssql sqlite */
       "type": "sqlite",
-      /*Á¬½Ó×Ö·û´® */
+      /*è¿æ¥å­—ç¬¦ä¸² */
       "ConnectionString": "data source=Data\\db.sqlite",
 
-      /* ÊÇ·ñ¿ÉĞŞ¸Äsql£¨ÈôÎªfalseÔò²»¿ÉĞŞ¸Ä£© */
+      /* æ˜¯å¦å¯ä¿®æ”¹sqlï¼ˆè‹¥ä¸ºfalseåˆ™ä¸å¯ä¿®æ”¹ï¼‰ */
       "SqlCodeEditable": true
     }
 

@@ -1,5 +1,6 @@
-﻿using App.Module.AutoTemp.Logical.Repository;
-using System;
+﻿using System;
+
+using Vit.AutoTemp.Repository;
 
 namespace Vit.Extensions
 {
@@ -12,10 +13,6 @@ namespace Vit.Extensions
             return new RespositoryDataProvider<T>(data, template, entityType) ;            
         }
         #endregion
-
- 
-
-
 
     }
 }

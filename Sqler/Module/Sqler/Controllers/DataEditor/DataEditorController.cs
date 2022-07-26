@@ -22,7 +22,7 @@ namespace App.Module.Sqler.Controllers.DataEditor
         {
             try
             { 
-                return new ApiReturn<List<string>> { data= AutoTempController.dataProviderMap.Keys.ToList() };
+                return new ApiReturn<List<string>> { data= Vit.AutoTemp.AutoTempHelp.dataProviderMap.Keys.ToList() };
             }
             catch (System.Exception ex)
             {
