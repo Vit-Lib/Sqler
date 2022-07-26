@@ -22,8 +22,8 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="Vit.Db" Version="2.2.8" />
-		<PackageReference Include="Vit.Orm.EntityFramework" Version="2.2.8" />
+		<PackageReference Include="Vit.Db" Version="2.2.10" />
+		<PackageReference Include="Vit.Orm.EntityFramework" Version="2.2.10" />
 	</ItemGroup>
 
 
