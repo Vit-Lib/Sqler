@@ -1,21 +1,17 @@
 ﻿using App.Module.AutoTemp.Controllers;
 using App.Module.Sqler.Logical.DataEditor.DataProvider;
-
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
+  
+ 
 using Vit.AutoTemp.DataProvider;
 using Vit.AutoTemp.DataProvider.Ef;
+using Vit.AutoTemp.DataProvider.VitormProvider;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.ConfigurationManager;
 using Vit.Db.Module.Schema;
 using Vit.Extensions;
-using Vit.Orm.EntityFramework;
-using Vit.Orm.EntityFramework.Dynamic;
+
+using Vitorm;
+
 
 namespace App.Module.Sqler.Logical.DataEditor
 {
@@ -39,7 +35,7 @@ namespace App.Module.Sqler.Logical.DataEditor
 
             //(x.2) init conn
             {
-                var connInfo = dataEditorConfig.GetByPath<Vit.Orm.EntityFramework.ConnectionInfo>("Db");
+                var connInfo = dataEditorConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("Db");
 
 
                 if (connInfo == null || string.IsNullOrEmpty(connInfo.type) || string.IsNullOrEmpty(connInfo.ConnectionString))
@@ -47,7 +43,7 @@ namespace App.Module.Sqler.Logical.DataEditor
                     return false;
                 }
 
-                efDbFactory = new DbContextFactory<AutoMapDbContext>().Init(connInfo);
+                dbFactory = new DbContextFactory<AutoMapDbContext>().Init(connInfo);
             }
 
 
@@ -86,17 +82,17 @@ namespace App.Module.Sqler.Logical.DataEditor
         public static readonly JsonFile dataEditorConfig = new JsonFile(SqlerHelp.GetDataFilePath("sqler.DataEditor.json"));
 
 
-        public static DbContextFactory<AutoMapDbContext> efDbFactory { get; private set; }
+        public static DbContextFactory<DbContext> dbFactory { get; private set; }
 
 
         #region dataProviderMap       
 
         public static void InitDataProvider(string tableName)
         {
-            var dataProvider = Vit.AutoTemp.AutoTempHelp.GetDataProvider("Sqler_DataEditor_Db_" + tableName) as EfDataProvider;
+            var dataProvider = Vit.AutoTemp.AutoTempHelp.GetDataProvider("Sqler_DataEditor_Db_" + tableName) as DataProvider_VitormQueryable;
             InitDataProvider(dataProvider);
         }
-        public static void InitDataProvider(EfDataProvider dataProvider)
+        public static void InitDataProvider(DataProvider_VitormQueryable dataProvider)
         {           
             if (dataProvider == null) return;
 
@@ -121,7 +117,7 @@ namespace App.Module.Sqler.Logical.DataEditor
         {
             List<TableSchema> schema;
             Dictionary<string, Type> entityMap;
-            using (var scope = DataEditorHelp.efDbFactory.CreateDbContext(out var db))
+            using (var scope = DataEditorHelp.dbFactory.CreateDbContext(out var db))
             {
                 //先调用，确保已经映射实体
                 entityMap = db.GetEntityTypeMap();
@@ -132,7 +128,7 @@ namespace App.Module.Sqler.Logical.DataEditor
 
             Func<(IServiceScope, DbContext)> CreateDbContext = () =>
             {
-                var scope = DataEditorHelp.efDbFactory.CreateDbContext(out var context);   
+                var scope = DataEditorHelp.dbFactory.CreateDbContext(out var context);   
                 return (scope, context);
             };
 

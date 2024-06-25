@@ -5,9 +5,12 @@ using System.Collections.Generic;
 
 using Vit.AutoTemp.DataProvider;
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
+ 
 using Vit.Extensions;
-using Vit.Linq.Query;
+using Vit.Extensions.Json_Extensions;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
+
 
 namespace Vit.AutoTemp.Repository
 {
@@ -37,8 +40,8 @@ namespace Vit.AutoTemp.Repository
         { 
             return respository.Delete(respository.GetModel(arg["id"].Value<string>()).data);
         }
-      
-        public ApiReturn getList(object sender, List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page, JObject arg)
+
+        public ApiReturn getList(object sender, FilterRule filter, IEnumerable<OrderField> sort, PageInfo page, JObject arg)
         {
             return respository.GetList(filter, sort, page);
         }

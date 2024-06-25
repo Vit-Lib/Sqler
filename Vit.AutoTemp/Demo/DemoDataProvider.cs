@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Extensions;
-using Vit.Linq.Query;
-using Vit.Extensions.ObjectExt;
 using Vit.Core.Util.Common;
 using Vit.AutoTemp.DataProvider;
+using Vit.Extensions.Object_Serialize_Extensions;
+using Vit.Linq.Filter.ComponentModel;
+using Vit.Linq.ComponentModel;
+using Vit.Extensions.Linq_Extensions;
+using Vit.Extensions.Json_Extensions;
+using Vit.Extensions.Object_Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
 
 namespace Vit.AutoTemp.Demo
 {
@@ -113,19 +116,19 @@ namespace Vit.AutoTemp.Demo
 
 
         #region getList
-        public ApiReturn getList(object sender, List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page, JObject arg)
-        { 
+        public ApiReturn getList(object sender, FilterRule filter, IEnumerable<OrderField> sort, PageInfo page, JObject arg)
+        {
             var query = dataSource.AsQueryable();
 
             var pageData = query.ToPageData(filter, sort, page);
 
 
-            #region _childrenCount            
-            pageData.rows.ForEach(m =>
+            // childrenCount
+            pageData.items.ForEach(m =>
             {
                 m._childrenCount = query.Count(child => child.pid == m.id);
             });
-            #endregion
+        
 
             return new ApiReturn<PageData<Model>> { data = pageData };
         }

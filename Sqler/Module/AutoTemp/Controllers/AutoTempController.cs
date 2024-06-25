@@ -2,14 +2,13 @@
 
 using Newtonsoft.Json.Linq;
 
-using System.Collections.Generic;
-
 using Vit.AutoTemp.DataProvider;
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
 using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Extensions;
-using Vit.Linq.Query;
+using Vit.Extensions.Object_Serialize_Extensions;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
 
 namespace App.Module.AutoTemp.Controllers
 {
@@ -79,8 +78,8 @@ namespace App.Module.AutoTemp.Controllers
             try
             {
                 var page_ = page.Deserialize<PageInfo>();
-                var filter_ = filter.Deserialize<List<DataFilter>>() ?? new List<DataFilter>();
-                var sort_ = sort.Deserialize<SortItem[]>();
+                var filter_ = filter.Deserialize<FilterRule>() ?? new FilterRule();
+                var sort_ = sort.Deserialize<OrderField[]>();
                 //{ isRoot: true,pid: 5}
                 var arg_ = arg.Deserialize<JObject>() ?? new JObject();
 

@@ -1,16 +1,15 @@
 ﻿using Newtonsoft.Json.Linq;
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 using Vit.AutoTemp.Repository;
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
 using Vit.Core.Util.ConfigurationManager;
-using Vit.Extensions;
-using Vit.Linq.Query;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
+using Vit.Extensions.Linq_Extensions;
+using Vit.Extensions.Json_Extensions;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {
@@ -50,10 +49,10 @@ namespace App.Module.Sqler.Logical.SqlVersion
             throw new Exception("不可删除sql语句");
         }
 
-        public ApiReturn<PageData<SqlCodeModel>> GetList(List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page)
+        public ApiReturn<PageData<SqlCodeModel>> GetList(FilterRule filter, IEnumerable<OrderField> sort, PageInfo page)
         {
-            var queryable=(dataSource.GetByPath<List<SqlCodeModel>>("data")??new List<SqlCodeModel>()).AsQueryable();
-            return  queryable.ToPageData(filter, sort,page);   
+            var queryable = (dataSource.GetByPath<List<SqlCodeModel>>("data") ?? new List<SqlCodeModel>()).AsQueryable();
+            return queryable.ToPageData(filter, sort, page);
         }
 
         public ApiReturn<SqlCodeModel> GetModel(string id)

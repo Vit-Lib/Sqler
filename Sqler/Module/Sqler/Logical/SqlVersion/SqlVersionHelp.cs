@@ -1,15 +1,6 @@
-﻿using System.IO;
-using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using Vit.Orm.EntityFramework;
-using App.Module.AutoTemp.Controllers;
-using Vit.Extensions;
-using System;
-using System.Collections.Generic;
+﻿using Vit.Extensions;
 using App.Module.Sqler.Logical.DataEditor;
-using Microsoft.Extensions.DependencyInjection;
 using Vit.AutoTemp.DataProvider;
-using Vit.AutoTemp.DataProvider.Ef;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {
@@ -100,7 +91,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
                 Func<(IServiceScope, DbContext)> CreateDbContext = () =>
                 {
-                    var scope = DataEditorHelp.efDbFactory.CreateDbContext(out var context);
+                    var scope = DataEditorHelp.dbFactory.CreateDbContext(out var context);
                     return (scope, context);
                 };
 

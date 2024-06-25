@@ -1,5 +1,7 @@
 ﻿using App.Module.Sqler.Logical.DataEditor;
-using MySql.Data.MySqlClient;
+
+using MySqlConnector;
+
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,6 +12,7 @@ using Vit.Db.DbMng;
 using Vit.Db.DbMng.MsSql;
 using Vit.Db.Util.Data;
 using Vit.Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
 
 
 namespace App.Module.Sqler.Logical
@@ -143,7 +146,7 @@ namespace App.Module.Sqler.Logical
             //(x.x.1)from appsettings.json
             if (string.IsNullOrWhiteSpace(dataDirectoryPath))
             {
-                dataDirectoryPath = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetStringByPath("Sqler.DataPath");
+                dataDirectoryPath = Appsettings.json.GetStringByPath("Sqler.DataPath");
             }
 
             //(x.x.2)默认

@@ -1,11 +1,13 @@
 ﻿using App.Module.Sqler.Logical;
-using Dapper;
+
 using System;
 using System.Data;
 using Vit.ConsoleUtil;
 using Vit.Db.Util.Data;
 using Vit.Extensions;
 using System.Linq;
+using Vit.Extensions.Db_Extensions;
+using Vit.Extensions.Object_Serialize_Extensions;
 
 namespace App.Module.Sqler.ConsoleCommand
 {
@@ -29,11 +31,11 @@ namespace App.Module.Sqler.ConsoleCommand
             using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config")))
             {
                 string str;
-                switch (format) 
+                switch (format)
                 {
                     case "AffectedRowCount":
                         {
-                            str = conn.Execute(sql).ToString();                           
+                            str = conn.Execute(sql).ToString();
                             break;
                         }
                     case "FirstCell":
@@ -71,10 +73,10 @@ namespace App.Module.Sqler.ConsoleCommand
         }
         #endregion
 
- 
-        
 
-       
+
+
+
 
     }
 }

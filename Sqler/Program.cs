@@ -7,6 +7,7 @@ using Vit.Extensions;
 using System.Linq;
 using App.Module.Sqler.Logical;
 using Microsoft.Extensions.Logging;
+using Vit.Core.Util.ConfigurationManager;
 
 namespace App
 {
@@ -108,7 +109,7 @@ namespace App
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
             .AllowAnyOrigin()
-            .UseUrls(Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetByPath<string[]>("server.urls"))
+            .UseUrls(Appsettings.json.GetByPath<string[]>("server.urls"))
             .UseStartup<Startup>()
             .UseVitConfig()
             ;

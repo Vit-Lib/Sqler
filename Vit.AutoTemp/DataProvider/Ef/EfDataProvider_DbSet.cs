@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 using Newtonsoft.Json.Linq;
 
@@ -9,13 +8,11 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
 using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Db.Module.Schema;
 using Vit.Extensions;
-using Vit.Extensions.ObjectExt;
-using Vit.Linq.Query;
-using Vit.Orm.EntityFramework.Extensions;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
 
 namespace Vit.AutoTemp.DataProvider.Ef
 {
@@ -76,7 +73,7 @@ namespace Vit.AutoTemp.DataProvider.Ef
 
 
         #region getList
-        public ApiReturn getList(object sender, List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page, JObject arg)
+        public ApiReturn getList(object sender, List<FilterRule> filter, IEnumerable<OrderField> sort, PageInfo page, JObject arg)
         {
             var (scope, dbContext,dbSet) = CreateDbContext();
             using (scope)

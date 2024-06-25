@@ -1,25 +1,24 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Extensions;
-using Vit.Linq.Query;
-using System;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using Vit.AutoTemp.Repository;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Extensions.Json_Extensions;
 
 namespace App.Module.Sqler.Logical.SqlRun
 {
 
     #region ConfigRepository
     public class ConfigRepository : IRepository<Model>
-    {   
+    {
 
-       
+
         public ApiReturn<Model> GetModel(string id)
         {
-            var m = SqlerHelp.sqlerConfig.GetByPath<Model>("SqlRun.Config");            
+            var m = SqlerHelp.sqlerConfig.GetByPath<Model>("SqlRun.Config");
             return m;
         }
 
@@ -37,7 +36,7 @@ namespace App.Module.Sqler.Logical.SqlRun
             throw new System.NotImplementedException();
         }
 
-        public ApiReturn<PageData<Model>> GetList(List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page)
+        public ApiReturn<PageData<Model>> GetList(FilterRule filter, IEnumerable<OrderField> sort, PageInfo page)
         {
             throw new System.NotImplementedException();
         }
@@ -74,7 +73,7 @@ namespace App.Module.Sqler.Logical.SqlRun
         /// 连接字符串[field:ig-class=TextArea]
         /// </summary>
         public String ConnectionString { get; set; }
- 
+
 
     }
 

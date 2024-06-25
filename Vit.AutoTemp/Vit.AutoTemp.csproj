@@ -1,30 +1,38 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+    </PropertyGroup>
 
-	<PropertyGroup>
-		<Version>2.0.1</Version>
-		<Description>https://github.com/serset/AutoTemp</Description>
-	</PropertyGroup>
+    <PropertyGroup>
+        <Description>https://github.com/serset/AutoTemp</Description>
+    </PropertyGroup>
 
-	<PropertyGroup>
-		<DocumentationFile>bin\Debug\netstandard2.0\Vit.AutoTemp.xml</DocumentationFile>
-	</PropertyGroup>
-
-
-	<ItemGroup>
-		<Compile Remove="Controllers\**" />
-		<EmbeddedResource Remove="Controllers\**" />
-		<None Remove="Controllers\**" />
-	</ItemGroup>
+    <PropertyGroup>
+        <DocumentationFile>bin\Debug\netstandard2.0\Vit.AutoTemp.xml</DocumentationFile>
+    </PropertyGroup>
 
 
-	<ItemGroup>
-		<PackageReference Include="Vit.Db" Version="2.2.10" />
-		<PackageReference Include="Vit.Orm.EntityFramework" Version="2.2.10" />
-	</ItemGroup>
+    <ItemGroup>
+        <Compile Remove="Controllers\**" />
+        <Compile Remove="DataProvider\Ef\**" />
+        <EmbeddedResource Remove="Controllers\**" />
+        <EmbeddedResource Remove="DataProvider\Ef\**" />
+        <None Remove="Controllers\**" />
+        <None Remove="DataProvider\Ef\**" />
+    </ItemGroup>
+
+
+
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Vit.Db\src\Vit.Db\Vit.Db\Vit.Db.csproj" />
+        <ProjectReference Include="..\..\VitormLib\Vit.Linq\src\Vit.Linq\Vit.Linq.csproj" />
+        <ProjectReference Include="..\..\VitormLib\Vitorm\src\Vitorm.MySql\Vitorm.MySql.csproj" />
+        <ProjectReference Include="..\..\VitormLib\Vitorm\src\Vitorm.Sqlite\Vitorm.Sqlite.csproj" />
+        <ProjectReference Include="..\..\VitormLib\Vitorm\src\Vitorm.SqlServer\Vitorm.SqlServer.csproj" />
+        <ProjectReference Include="..\..\VitormLib\Vitorm\src\Vitorm\Vitorm.csproj" />
+    </ItemGroup>
 
 
 </Project>

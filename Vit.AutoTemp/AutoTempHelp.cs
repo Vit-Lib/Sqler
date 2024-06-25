@@ -9,9 +9,12 @@ using System.Text.RegularExpressions;
 
 using Vit.AutoTemp.DataProvider;
 using Vit.Core.Module.Log;
+using Vit.Core.Module.Serialization;
 using Vit.Core.Util.XmlComment;
 using Vit.Db.Module.Schema;
 using Vit.Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Extensions.Object_Serialize_Extensions;
 
 namespace Vit.AutoTemp
 {
@@ -22,7 +25,7 @@ namespace Vit.AutoTemp
 
         public static TableSchema EfEntityToTableSchema(Type type)
         {
-            TableSchema tableSchema = new TableSchema { table_name=type.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.TableAttribute>()?.Name   , columns = new List<ColumnSchema>() };
+            TableSchema tableSchema = new TableSchema { table_name = type.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.TableAttribute>()?.Name, columns = new List<ColumnSchema>() };
 
             using (var xmlMng = new XmlCommentMng())
             {
@@ -54,15 +57,15 @@ namespace Vit.AutoTemp
         {
 
             #region SplitStringTo2
-            void SplitStringTo2(string oriString,string splitString,out string part1,out string part2)
-            { 
+            void SplitStringTo2(string oriString, string splitString, out string part1, out string part2)
+            {
                 int splitIndex = oriString.IndexOf(splitString);
                 if (splitIndex >= 0)
                 {
                     part1 = oriString.Substring(0, splitIndex);
                     part2 = oriString.Substring(splitIndex + splitString.Length);
                 }
-                else 
+                else
                 {
                     part1 = oriString;
                     part2 = null;
@@ -95,7 +98,7 @@ namespace Vit.AutoTemp
                 }
 
                 var field = new JObject();
-              
+
                 field["field"] = column.column_name;
                 field["list_width"] = 200;
 
@@ -114,10 +117,10 @@ namespace Vit.AutoTemp
                         string key, value;
 
                         #region (x.x.1)获取key value 用户配置信息
-                        var comm = item.Value.Substring(1, item.Value.Length - 2);                       
+                        var comm = item.Value.Substring(1, item.Value.Length - 2);
 
-                        SplitStringTo2(comm,":",out key,out value);
-                        value = value?.Replace("\\x5B", "[").Replace("\\x5D", "]");                         
+                        SplitStringTo2(comm, ":", out key, out value);
+                        value = value?.Replace("\\x5B", "[").Replace("\\x5D", "]");
                         if (string.IsNullOrWhiteSpace(key)) continue;
                         #endregion                       
 
@@ -130,7 +133,7 @@ namespace Vit.AutoTemp
                 #endregion
 
                 //fieldIgnore
-                if ((comment ?? "").Contains("[fieldIgnore]")) 
+                if ((comment ?? "").Contains("[fieldIgnore]"))
                 {
                     continue;
                 }
@@ -166,7 +169,7 @@ namespace Vit.AutoTemp
                 }
                 #endregion
 
-            
+
 
                 #region Method BuildFieldConfigFromComment
                 void BuildFieldConfigFromComment(string key, string value)
@@ -237,13 +240,13 @@ namespace Vit.AutoTemp
                     {
                         try
                         {
-                            SplitStringTo2(value, "=", out var part1, out var part2);                           
+                            SplitStringTo2(value, "=", out var part1, out var part2);
                             object jsonValue;
                             try
                             {
                                 jsonValue = part2?.Deserialize<object>();
                             }
-                            catch 
+                            catch
                             {
                                 jsonValue = part2;
                             }
@@ -253,7 +256,7 @@ namespace Vit.AutoTemp
                         {
                             Logger.Error(ex);
                         }
-                        return;                   
+                        return;
                     }
                     #endregion
 

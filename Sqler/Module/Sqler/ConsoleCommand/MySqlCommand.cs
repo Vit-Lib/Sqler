@@ -2,6 +2,7 @@
 using Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup;
 using Vit.ConsoleUtil;
 using Vit.Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
 
 namespace App.Module.Sqler.ConsoleCommand
 {

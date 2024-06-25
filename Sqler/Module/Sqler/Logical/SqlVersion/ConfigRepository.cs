@@ -1,26 +1,25 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Extensions;
-using Vit.Linq.Query;
-using System;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using Vit.AutoTemp.Repository;
+using Vit.Linq.Filter.ComponentModel;
+using Vit.Linq.ComponentModel;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Extensions.Json_Extensions;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {
 
     #region ConfigRepository
     public class ConfigRepository : IRepository<Model>
-    {   
+    {
 
-       
+
         public ApiReturn<Model> GetModel(string id)
         {
-            return SqlerHelp.sqlerConfig.GetByPath<Model>("SqlVersion.Config")?? new Model();           
-        
+            return SqlerHelp.sqlerConfig.GetByPath<Model>("SqlVersion.Config") ?? new Model();
+
         }
 
 
@@ -40,7 +39,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
             throw new System.NotImplementedException();
         }
 
-        public ApiReturn<PageData<Model>> GetList(List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page)
+        public ApiReturn<PageData<Model>> GetList(FilterRule filter, IEnumerable<OrderField> sort, PageInfo page)
         {
             throw new System.NotImplementedException();
         }

@@ -1,15 +1,14 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 using Vit.AutoTemp.Repository;
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Extensions;
-using Vit.Linq.Query;
+using Vit.Extensions.Json_Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
 
 namespace App.Module.Sqler.Logical.DataEditor
 {
@@ -50,7 +49,7 @@ namespace App.Module.Sqler.Logical.DataEditor
             throw new System.NotImplementedException();
         }
 
-        public ApiReturn<PageData<Model>> GetList(List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page)
+        public ApiReturn<PageData<Model>> GetList(FilterRule filter, IEnumerable<OrderField> sort, PageInfo page)
         {
             throw new System.NotImplementedException();
         }

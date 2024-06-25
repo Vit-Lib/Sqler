@@ -1,15 +1,17 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using System.Linq;
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
 using Vit.Extensions;
-using Vit.Linq.Query;
 using System.Data;
 using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Core.Module.Log;
 using Vit.Db.Module.Schema;
 using Vit.AutoTemp.DataProvider;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
+using Vit.Extensions.Linq_Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Extensions.Json_Extensions;
+using Vit.Core.Module.Serialization;
 
 namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 {
@@ -25,7 +27,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
             #region (x.1)从数据库获取表结构
 
            
-            using (var scope = DataEditorHelp.efDbFactory.CreateDbContext(out var db))
+            using (var scope = DataEditorHelp.dbFactory.CreateDbContext(out var db))
             {
                 schema= (db.GetDbConnection() as IDbConnection).GetSchema();          
             }
@@ -48,7 +50,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
             }).ToList();
             #endregion
 
-            #region (x.2)autoTemp.json获取表字段描述           
+            #region (x.2)autoTemp.json获取表字段描述
             foreach (var table in DataEditorHelp.dataEditorConfig?.Get<JObject>("dbComment") ??new JObject() )
             {
                 try
@@ -138,14 +140,14 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
                     { field: 'name', title: 'name',filterOpt:'Contains' }
                 ]
             }";
-            return new ApiReturn<JObject>(data.Deserialize<JObject>());   
+            return new ApiReturn<JObject>(Json.Deserialize<JObject>(data));   
         }
         #endregion
 
 
 
         #region getList
-        public ApiReturn getList(object sender, List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page, JObject arg)
+        public ApiReturn getList(object sender, FilterRule filter, IEnumerable<OrderField> sort, PageInfo page, JObject arg)
         {                
 
             var query = dataSource.AsQueryable();
@@ -153,14 +155,13 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
             var pageData = query.ToPageData(filter, sort, page);
 
 
-            #region _childrenCount            
-            pageData.rows.ForEach(m =>
+            // _childrenCount
+            pageData.items.ForEach(m =>
             {
                 m._childrenCount = query.Count(child => child.pid == m.id);
             });
-            #endregion
 
-            return new ApiReturn<PageData<Model>> { data = pageData };
+            return new ApiReturn<object> { data = pageData };
         }
         #endregion
 
