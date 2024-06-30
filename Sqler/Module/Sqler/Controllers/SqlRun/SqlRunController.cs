@@ -224,7 +224,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
             var connInfo = SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config");
 
-            DbPortLogical.Export(SendMsg, connInfo.type, connInfo.ConnectionString, exportFileType, sql: sql);
+            DbPortLogical.Export(SendMsg, connInfo.type, connInfo.connectionString, exportFileType, sql: sql);
         }
         #endregion
 

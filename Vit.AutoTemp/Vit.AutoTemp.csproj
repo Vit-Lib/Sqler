@@ -14,18 +14,6 @@
 
 
     <ItemGroup>
-        <Compile Remove="Controllers\**" />
-        <Compile Remove="DataProvider\Ef\**" />
-        <EmbeddedResource Remove="Controllers\**" />
-        <EmbeddedResource Remove="DataProvider\Ef\**" />
-        <None Remove="Controllers\**" />
-        <None Remove="DataProvider\Ef\**" />
-    </ItemGroup>
-
-
-
-
-    <ItemGroup>
         <ProjectReference Include="..\..\Vit.Db\src\Vit.Db\Vit.Db\Vit.Db.csproj" />
         <ProjectReference Include="..\..\VitormLib\Vitorm\src\Vitorm\Vitorm.csproj" />
     </ItemGroup>

@@ -88,7 +88,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
         /// </summary>
         /// <param name="SendMsg"></param>
         /// <param name="type"></param>
-        /// <param name="ConnectionString"></param>
+        /// <param name="connectionString"></param>
         /// <param name="exportFileType"></param>
         /// <param name="sql"></param>
         /// <param name="inTableNames"></param>
@@ -99,7 +99,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
            (
             Action<EMsgType, string> SendMsg,
             string type,
-            string ConnectionString,
+            string connectionString,
             [SsDescription("sqlite/sqlite-NoMemoryCache/excel/csv/txt")] string exportFileType,
             string sql = null, List<string> inTableNames = null, //指定一个即可,若均不指定，则返回所有表
             string outFilePath = null, string outFileName = null, //指定一个即可
@@ -111,26 +111,26 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
             #region (x.1)连接字符串
 
-            if (string.IsNullOrWhiteSpace(ConnectionString))
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
                 SendMsg(EMsgType.Err, "Export error - invalid arg conn.");
                 return;
             }
 
             //解析ConnectionString
-            if (ConnectionString.StartsWith("sqler.json::"))
+            if (connectionString.StartsWith("sqler.json::"))
             {
-                ConnectionString = SqlerHelp.sqlerConfig.GetStringByPath(ConnectionString.Substring("sqler.json::".Length));
+                connectionString = SqlerHelp.sqlerConfig.GetStringByPath(connectionString.Substring("sqler.json::".Length));
             }
 
 
             if (type == "mysql")
             {
-                ConnectionString = SqlerHelp.MySql_FormatConnectionString(ConnectionString);
+                connectionString = SqlerHelp.MySql_FormatConnectionString(connectionString);
             }
             else if (type == "mssql")
             {
-                ConnectionString = SqlerHelp.SqlServer_FormatConnectionString(ConnectionString);
+                connectionString = SqlerHelp.SqlServer_FormatConnectionString(connectionString);
             }
             #endregion
 
@@ -433,7 +433,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             try
             {
                 using (new Disposable(onDispose))
-                using (var conn = ConnectionFactory.GetConnection(new Vit.Db.Util.Data.ConnectionInfo { type = type, ConnectionString = ConnectionString }))
+                using (var conn = ConnectionFactory.GetConnection(new Vit.Db.Util.Data.ConnectionInfo { type = type, connectionString = connectionString }))
                 {
                     var startTime = DateTime.Now;
 
@@ -561,7 +561,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
         /// <param name="SendMsg"></param>
         /// <param name="filePath"></param>
         /// <param name="type"></param>
-        /// <param name="ConnectionString"></param>
+        /// <param name="connectionString"></param>
         /// <param name="createTable"></param>
         /// <param name="delete"></param>
         /// <param name="truncate"></param>
@@ -569,7 +569,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
              Action<EMsgType, string> SendMsg,
              string filePath,
              string type,
-             string ConnectionString,
+             string connectionString,
              bool createTable,
              bool delete,
              bool truncate
@@ -581,26 +581,26 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
             #region (x.2)连接字符串
 
-            if (string.IsNullOrWhiteSpace(ConnectionString))
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
                 SendMsg(EMsgType.Err, "Export error - invalid arg conn.");
                 return;
             }
 
             //解析ConnectionString
-            if (ConnectionString.StartsWith("sqler.json::"))
+            if (connectionString.StartsWith("sqler.json::"))
             {
-                ConnectionString = SqlerHelp.sqlerConfig.GetStringByPath(ConnectionString.Substring("sqler.json::".Length));
+                connectionString = SqlerHelp.sqlerConfig.GetStringByPath(connectionString.Substring("sqler.json::".Length));
             }
 
 
             if (type == "mysql")
             {
-                ConnectionString = SqlerHelp.MySql_FormatConnectionString(ConnectionString);
+                connectionString = SqlerHelp.MySql_FormatConnectionString(connectionString);
             }
             else if (type == "mssql")
             {
-                ConnectionString = SqlerHelp.SqlServer_FormatConnectionString(ConnectionString);
+                connectionString = SqlerHelp.SqlServer_FormatConnectionString(connectionString);
             }
             #endregion
 
@@ -693,7 +693,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 var output = new DataOutput();
                 output.SendMsg = SendMsg;
                 output.type = type;
-                output.ConnectionString = ConnectionString;
+                output.connectionString = connectionString;
                 output.createTable = createTable;
                 output.delete = delete;
                 output.truncate = truncate;
@@ -794,7 +794,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 #region (x.2)init from_data
                 SendMsg(EMsgType.Title, "   init from_data");
                 using (var conn = ConnectionFactory.GetConnection(new Vit.Db.Util.Data.ConnectionInfo
-                { type = from_type, ConnectionString = from_ConnectionString }))
+                { type = from_type, connectionString = from_ConnectionString }))
                 {
                     if (string.IsNullOrWhiteSpace(from_sql))
                     {
@@ -821,7 +821,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                     (tableName, curTbIndex) =>
                     {
                         var conn = ConnectionFactory.GetConnection(new Vit.Db.Util.Data.ConnectionInfo
-                        { type = from_type, ConnectionString = from_ConnectionString });
+                        { type = from_type, connectionString = from_ConnectionString });
                         var dataReader = conn.ExecuteReader(from_sql, commandTimeout: DbPortLogical.commandTimeout);
                         int tableIndex = 0;
 
@@ -855,7 +855,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                 var output = new DataOutput();
                 output.SendMsg = SendMsg;
                 output.type = to_type;
-                output.ConnectionString = to_ConnectionString;
+                output.connectionString = to_ConnectionString;
                 output.createTable = createTable;
                 output.delete = delete;
                 output.truncate = truncate;

@@ -29,10 +29,10 @@
                         <input type='radio' name='from_type' value="sqlite" />sqlite
                     </td>
                 </tr>
-                <tr><td>ConnectionString</td><td><textarea name='from_ConnectionString' cols="100" rows="2"></textarea></td></tr>
+                <tr><td>connectionString</td><td><textarea name='from_ConnectionString' cols="100" rows="2"></textarea></td></tr>
                 <tr><td>sql(若不指定则复制所有表数据)</td><td><textarea name='from_sql' cols="100" rows="8">
-/* <SqlRunConfig>                
-<tableNames>["aaa","bbb"]</tableNames>                  
+/* <SqlRunConfig>
+<tableNames>["aaa","bbb"]</tableNames>
 </SqlRunConfig> */
 </textarea></td></tr>
                 <tr><td colspan="2" style="text-align:left;padding-top:40px;"><b>目标配置</b> 指定要将数据复制到何处:</td></tr>
@@ -41,10 +41,10 @@
                     <td>
                         <input type='radio' name='to_type' value="mssql" checked="checked" />mssql
                         <input type='radio' name='to_type' value="mysql" />mysql
-                        <input type='radio' name='to_type' value="sqlite" />sqlite                  
+                        <input type='radio' name='to_type' value="sqlite" />sqlite
                     </td>
                 </tr>
-                <tr><td>ConnectionString</td><td><textarea name='to_ConnectionString' cols="100" rows="2"></textarea></td></tr>
+                <tr><td>connectionString</td><td><textarea name='to_ConnectionString' cols="100" rows="2"></textarea></td></tr>
 
                 <tr><td>createTable</td><td><input type='checkbox' name='createTable' /></td></tr>
                 <tr><td>delete</td><td><input type='checkbox' name='delete' /></td></tr>

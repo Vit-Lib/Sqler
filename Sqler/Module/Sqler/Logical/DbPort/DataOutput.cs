@@ -21,7 +21,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
         /// mssql、mysql、sqlite
         /// </summary>
         public string type;
-        public string ConnectionString; //数据库连接字符串。亦可从配置文件获取，如 sqler.config:SqlBackup.SqlServerBackup.ConnectionString
+        public string connectionString { get; set; } //数据库连接字符串。亦可从配置文件获取，如 sqler.config:SqlBackup.SqlServerBackup.ConnectionString
         public bool createTable;
         public bool delete;
         public bool truncate;
@@ -74,18 +74,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
         public void Output()
         {
-
-            //if (type == "sqlite-NoMemoryCache")
-            //{
-            //    using (var conn = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath())
-            //    using (new Vit.Orm.Dapper.Data.Sqlite.SQLiteBackup(conn, ConnectionString: ConnectionString))
-            //    {
-            //        BatchImport(conn);
-            //    }
-            //    return;
-            //}
-
-            using (var conn = ConnectionFactory.GetConnection(new Vit.Db.Util.Data.ConnectionInfo { type = type, ConnectionString = ConnectionString }))
+            using (var conn = ConnectionFactory.GetConnection(new Vit.Db.Util.Data.ConnectionInfo { type = type, connectionString = connectionString }))
             {
                 BatchImport(conn);
             }

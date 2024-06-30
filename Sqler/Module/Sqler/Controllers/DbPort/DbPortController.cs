@@ -30,13 +30,13 @@ namespace App.Module.Sqler.Controllers.DbPort
         [HttpGet("Export")]
         public void Export
            ([FromForm] string type,
-            [FromForm] string ConnectionString,
+            [FromForm] string connectionString,
             [FromForm, SsDescription("sqlite/sqlite-NoMemoryCache/excel/csv/txt")] string exportFileType)
         {
             Response.ContentType = "text/html;charset=utf-8";
 
             DbPortLogical.Export(SendMsg,
-                type, ConnectionString,
+                type, connectionString,
                 exportFileType
                 );
         }
@@ -51,7 +51,7 @@ namespace App.Module.Sqler.Controllers.DbPort
         public void Import(
             [FromForm] IList<IFormFile> files,
             [FromForm] string type,
-            [FromForm] string ConnectionString,
+            [FromForm] string connectionString,
             [FromForm, SsDescription("on代表true")] string createTable,
             [FromForm] string delete,
             [FromForm] string truncate
@@ -62,7 +62,7 @@ namespace App.Module.Sqler.Controllers.DbPort
 
 
             //(x.2)连接字符串
-            if (string.IsNullOrWhiteSpace(ConnectionString))
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
                 SendMsg(EMsgType.Err, "import error - invalid arg conn.");
                 return;
@@ -90,7 +90,7 @@ namespace App.Module.Sqler.Controllers.DbPort
 
 
             //(x.5)导入数据
-            DbPortLogical.Import(SendMsg, filePath, type, ConnectionString, createTable == "on", delete == "on", truncate == "on");
+            DbPortLogical.Import(SendMsg, filePath, type, connectionString, createTable == "on", delete == "on", truncate == "on");
 
         }
 

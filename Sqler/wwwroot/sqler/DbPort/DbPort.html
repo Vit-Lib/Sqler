@@ -25,7 +25,7 @@
                         <input type='radio' name='type' value="sqlite" />sqlite
                     </td>
                 </tr>
-                <tr><td>ConnectionString</td><td><textarea name='ConnectionString' cols="100" rows="2"></textarea></td></tr>
+                <tr><td>connectionString</td><td><textarea name='connectionString' cols="100" rows="2"></textarea></td></tr>
                 <tr>
                     <td>导出类型</td>
                     <td>
@@ -41,7 +41,7 @@
         <pre>
             <code>
                 type:              数据库类型，可为 mssql、mysql、sqlite
-                ConnectionString:  数据库连接字符串
+                connectionString:  数据库连接字符串
             </code>
     </pre>
     </fieldset>
@@ -59,7 +59,7 @@
                         <input type='radio' name='type' value="sqlite" />sqlite
                     </td>
                 </tr>
-                <tr><td><label title="数据导入到何处">ConnectionString</label></td><td><textarea name='ConnectionString' cols="100" rows="2"></textarea></td></tr>
+                <tr><td><label title="数据导入到何处">connectionString</label></td><td><textarea name='connectionString' cols="100" rows="2"></textarea></td></tr>
 
                 <tr><td>createTable</td><td><input type='checkbox' name='createTable' /></td></tr>
                 <tr><td>delete</td><td><input type='checkbox' name='delete' /></td></tr>
@@ -72,7 +72,7 @@
             <code>
                 file:               从哪里导入数据。导入文件可为 sqlite、xls、xlsx等
                 type:               数据导入到何处。数据库类型，可为 mssql、mysql、sqlite
-                ConnectionString:   数据导入到何处。数据库连接字符串
+                connectionString:   数据导入到何处。数据库连接字符串
                 createTable:        若指定(on)，则在导入数据前自动创建表结构
                 delete:             若指定(on)，则在导入数据前使用delete语句清空待操作的表
                 truncate:           若指定(on)，则在导入数据前使用truncate语句清空待操作的表
