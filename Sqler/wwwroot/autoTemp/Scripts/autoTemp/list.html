@@ -51,12 +51,13 @@
 
     <script type="text/javascript">
 
+        var dependencyCount = 0;
         var controllerConfig;
         var controller;
         var template;
         var dataProvider = autoTemp.createDataPrivider();
 
-     
+
 
         //获取配置
         dataProvider.getControllerConfig(null, function (apiRet) {
@@ -74,26 +75,24 @@
                     }
                 }
 
-                if (controllerConfig.dependency.js) {                
+                if (controllerConfig.dependency.js) {
                     for (var src of controllerConfig.dependency.js) {
                         dependencyCount++;
                         $.getScript(src, function (response, status) {
                             dependencyCount--;
                             doAfterLoadedDependency();
-                        });                                        
+                        });
                     }
                 }
             }
 
             //(x.2)
             doAfterLoadedDependency();
-
         });
-
-        var dependencyCount = 0;
+    
 
         function doAfterLoadedDependency() {
-            if (dependencyCount != 0) return;
+            if (dependencyCount) return;
 
             $(function () {
 
@@ -251,16 +250,18 @@
                     }],
                     loader: function (param, success, error) {
                         //success(data)：当检索数据成功时调用该回调函数
+                        var filterRules = [];
                         var queryParam = {
                             "page": {
                                 "pageSize": param.rows,
                                 "pageIndex": param.page
                             },
-                            "filter": [], "sort": []
+                            "filter":  { condition: "and", rules: filterRules },
+                            "sort": []
                         };
 
                         //(x.1)filter
-                        autoTemp.Field.getFilter(queryParam.filter, filterAtFields);
+                        autoTemp.Field.getFilter(filterRules, filterAtFields);
 
                         //(x.2)sort
                         if (param.sort) {
@@ -280,7 +281,7 @@
                             }
 
                             //{"total":500,"rows":[]}
-                            var data = { "total": apiRet.data.totalCount, "rows": apiRet.data.rows };
+                            var data = { "total": apiRet.data.totalCount, "rows": apiRet.data.items };
                             success(data);
                         }
 
@@ -451,8 +452,10 @@
                     loader: function (param, success, error) {
                         //success(data)：当检索数据成功时调用该回调函数。
 
+                        var filterRules = [];
                         var queryParam = {
-                            "filter": [], "sort": []
+                            "filter": { condition: "and", rules: filterRules },
+                            "sort": []
                         };
 
 
@@ -462,20 +465,18 @@
                             //is root
                             queryParam.page = { pageSize: param.rows, pageIndex: param.page };
                             queryParam.arg = { isRoot: true, pid: rootPidValue };
-                            queryParam.filter.push({ field: pidField, opt: "=", value: rootPidValue });
-
-
+                            filterRules.push({ field: pidField, operator: "=", value: rootPidValue });
                         } else {
                             //not root
                             isRoot = false;
                             queryParam.arg = { isRoot: false, pid: param.pid };
-                            queryParam.filter.push({ field: pidField, opt: "=", value: param.pid });
+                            filterRules.push({ field: pidField, operator: "=", value: param.pid });
                         }
 
 
                         //(x.2)filter
                         if (isRoot && filterAtFields && filterAtFields.length != 0) {
-                            autoTemp.Field.getFilter(queryParam.filter, filterAtFields);
+                            autoTemp.Field.getFilter(filterRules, filterAtFields);
                         }
 
                         //(x.3)sort
@@ -495,7 +496,7 @@
                                 return;
                             }
 
-                            var rows = apiRet.data.rows;
+                            var rows = apiRet.data.items;
                             for (var t in rows) {
                                 var row = rows[t];
                                 if (row._childrenCount != 0)

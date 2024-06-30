@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Mvc;
 using Vit.Core.Util.ComponentModel.Model;
 using Vit.Core.Util.Common;
-using System.IO;
 using Sqler.Module.Sqler.Logical.Message;
 using Sqler.Module.Sqler.Logical.DbPort;
 
@@ -34,15 +30,15 @@ namespace App.Module.Sqler.Controllers.DbPort
         [HttpGet("Export")]
         public void Export
            ([FromForm] string type,
-            [FromForm]string ConnectionString,
-            [FromForm,SsDescription("sqlite/sqlite-NoMemoryCache/excel/csv/txt")]string exportFileType)
+            [FromForm] string ConnectionString,
+            [FromForm, SsDescription("sqlite/sqlite-NoMemoryCache/excel/csv/txt")] string exportFileType)
         {
             Response.ContentType = "text/html;charset=utf-8";
 
-            DbPortLogical.Export(SendMsg, 
+            DbPortLogical.Export(SendMsg,
                 type, ConnectionString,
                 exportFileType
-                );             
+                );
         }
         #endregion
 
@@ -56,14 +52,14 @@ namespace App.Module.Sqler.Controllers.DbPort
             [FromForm] IList<IFormFile> files,
             [FromForm] string type,
             [FromForm] string ConnectionString,
-            [FromForm, SsDescription("on代表true")]string createTable,
+            [FromForm, SsDescription("on代表true")] string createTable,
             [FromForm] string delete,
             [FromForm] string truncate
             )
         {
             Response.ContentType = "text/html;charset=utf-8";
 
- 
+
 
             //(x.2)连接字符串
             if (string.IsNullOrWhiteSpace(ConnectionString))
@@ -73,7 +69,7 @@ namespace App.Module.Sqler.Controllers.DbPort
             }
 
 
-            #region (x.3)检验文件是否合法       
+            #region (x.3)检验文件是否合法
             if (files == null || files.Count != 1)
             {
                 SendMsg(EMsgType.Err, "请指定合法的文件");
@@ -82,9 +78,9 @@ namespace App.Module.Sqler.Controllers.DbPort
             #endregion
 
 
-            #region (x.4)文件保存至本地       
+            #region (x.4)文件保存至本地
             var file = files[0];
-            string filePath = CommonHelp.GetAbsPath("wwwroot", "temp", "Import" , DateTime.Now.ToString("yyyyMMdd_HHmmss_") + file.FileName);
+            string filePath = CommonHelp.GetAbsPath("wwwroot", "temp", "Import", DateTime.Now.ToString("yyyyMMdd_HHmmss_") + file.FileName);
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
             using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
             {
@@ -114,7 +110,7 @@ namespace App.Module.Sqler.Controllers.DbPort
             [FromForm] string to_type,
             [FromForm] string to_ConnectionString,
 
-            [FromForm, SsDescription("on代表true")]string createTable,
+            [FromForm, SsDescription("on代表true")] string createTable,
             [FromForm] string delete,
             [FromForm] string truncate
             )
@@ -122,9 +118,9 @@ namespace App.Module.Sqler.Controllers.DbPort
             Response.ContentType = "text/html;charset=utf-8";
 
             DbPortLogical.DataTransfer(SendMsg,
-                from_type,from_ConnectionString,from_sql,
-                to_type,to_ConnectionString,
-                createTable=="on",delete=="on",truncate=="on");
+                from_type, from_ConnectionString, from_sql,
+                to_type, to_ConnectionString,
+                createTable == "on", delete == "on", truncate == "on");
         }
 
         #endregion

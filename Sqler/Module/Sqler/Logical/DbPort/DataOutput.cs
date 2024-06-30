@@ -1,4 +1,4 @@
-﻿using Dapper;
+﻿
 using Sqler.Module.Sqler.Logical.Message;
 using System;
 using System.Collections.Generic;
@@ -7,6 +7,8 @@ using Vit.Core.Module.Log;
 using Vit.Extensions;
 using System.Data;
 using Vit.Db.Util.Data;
+using Vit.Extensions.Db_Extensions;
+using Vit.Extensions.Object_Serialize_Extensions;
 
 namespace Sqler.Module.Sqler.Logical.DbPort
 {
@@ -25,13 +27,13 @@ namespace Sqler.Module.Sqler.Logical.DbPort
         public bool truncate;
 
         public List<TableInfo> tableInfos;
-        public int sourceSumRowCount=0;
+        public int sourceSumRowCount = 0;
 
         public Func<string, int, DataTableReader> GetDataTableReader;
 
 
         public int importedSumRowCount { get; private set; } = 0;
-        int sourceRowCount=0;
+        int sourceRowCount = 0;
 
 
 
@@ -43,23 +45,23 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             if (sourceRowCount > 0)
             {
                 var process = (((float)importedRowCount) / sourceRowCount * 100).ToString("f2");
-                SendMsg(EMsgType.Nomal, $"           cur: [{process}%] {importedRowCount }/{sourceRowCount}");
+                SendMsg(EMsgType.Nomal, $"           cur: [{process}%] {importedRowCount}/{sourceRowCount}");
             }
-            else 
+            else
             {
-                SendMsg(EMsgType.Nomal, $"           cur: { importedRowCount }");
+                SendMsg(EMsgType.Nomal, $"           cur: {importedRowCount}");
             }
 
             if (sourceSumRowCount > 0)
             {
                 var process = (((float)importedSumRowCount) / sourceSumRowCount * 100).ToString("f2");
-                SendMsg(EMsgType.Nomal, $"           sum: [{process}%] {importedSumRowCount }/{sourceSumRowCount}");
+                SendMsg(EMsgType.Nomal, $"           sum: [{process}%] {importedSumRowCount}/{sourceSumRowCount}");
             }
             else
             {
-                SendMsg(EMsgType.Nomal, $"           sum: { importedSumRowCount }");
+                SendMsg(EMsgType.Nomal, $"           sum: {importedSumRowCount}");
             }
-            
+
         }
         #endregion
 

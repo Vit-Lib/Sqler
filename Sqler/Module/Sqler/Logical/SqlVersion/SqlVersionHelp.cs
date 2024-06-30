@@ -1,6 +1,10 @@
 ﻿using Vit.Extensions;
-using App.Module.Sqler.Logical.DataEditor;
 using Vit.AutoTemp.DataProvider;
+using Vitorm;
+using App.Module.Sqler.Logical.SqlVersion.Entity;
+using System.Data;
+using Vit.AutoTemp;
+using Vitorm.Sql;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {
@@ -12,23 +16,33 @@ namespace App.Module.Sqler.Logical.SqlVersion
         static List<IDataProvider> dataProviders = new List<IDataProvider>();
 
         #region static Init
+        public static SqlDbContext CreateDbContext()
+        {
+            return Data.DataProvider<sqler_version>().CreateSqlDbContext();
+        }
+
+        public static IDbConnection CreateOpenedDbConnection()
+        {
+            var conn = Data.DataProvider<sqler_version>().CreateSqlDbContext()?.dbConnection;
+            conn?.Open();
+            return conn;
+        }
+
+
+
         public static void InitEnvironment()
-        {            
+        {
 
-            #region (x.1)初始化 DbFactory
+            #region (x.1) init dataSource
             {
-                efDbFactory = new DbContextFactory<VersionResultDbContext>().Init(SqlerHelp.sqlerConfig.GetByPath<Vit.Orm.EntityFramework.ConnectionInfo>("SqlVersion.Config"));
+                var dataSourceConfig = SqlerHelp.sqlerConfig.GetByPath<Dictionary<string, object>>("SqlVersion.Config");
+                dataSourceConfig["namespace"] = typeof(sqler_version).Namespace;
 
+                var moduleLabel = "configBy_SqlerSqlVersion";
+                dataSourceConfig[moduleLabel] = true;
 
-                var ConnectionCreator = Vit.Db.Util.Data.ConnectionFactory.GetConnectionCreator(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlVersion.Config"));
-
-                CreateOpenedDbConnection =
-                () =>
-                {
-                    var conn = ConnectionCreator();
-                    conn?.Open();
-                    return conn;
-                };
+                Data.ClearDataSource(provider => provider.dataSourceConfig.ContainsKey(moduleLabel));
+                var success = Data.AddDataSource(dataSourceConfig);
             }
             #endregion
 
@@ -47,6 +61,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
                 sqlCodeRepositorys = new SqlCodeRepository[0];
             }
             #endregion
+
         }
 
 
@@ -64,7 +79,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
             Vit.AutoTemp.AutoTempHelp.RegistDataProvider(
                 new global::App.Module.Sqler.Logical.SqlVersion.ConfigRepository().ToDataProvider("Sqler_SqlVersion_Config"));
 
-            //(x.3)注册 ModuleMng            
+            //(x.3)注册 ModuleMng
             SqlVersionModuleModel[] moduleModels = sqlCodeRepositorys.AsQueryable()
                     .Select(rep => new SqlVersionModuleModel(rep) { id = Path.GetFileNameWithoutExtension(rep.fileName) }).ToArray();
 
@@ -83,35 +98,15 @@ namespace App.Module.Sqler.Logical.SqlVersion
                 Vit.AutoTemp.AutoTempHelp.RegistDataProvider(sqlCodeDataProviders);
             }
             #endregion
-      
-         
+
+
 
             #region (x.6)注册 VersionResult( from database)
             {
-
-                Func<(IServiceScope, DbContext)> CreateDbContext = () =>
-                {
-                    var scope = DataEditorHelp.dbFactory.CreateDbContext(out var context);
-                    return (scope, context);
-                };
-
-
-                //#region 确保表 sqler_version 存在
-                //{
-                //    using (var scope = CreateDbContext(out var dbContext))
-                //    {
-                //        //dbContext.AddEntityType(typeof(Entity.sqler_version));
-                //        dbContext.Database.EnsureCreated();
-                //    }
-                //}
-                //#endregion
-
-
                 var template = "Sqler_SqlVersion_VersionInfo";
-                var dataProvider = new EfDataProvider(template, typeof(Entity.sqler_version), CreateDbContext);
+                var dataProvider = AutoTempHelp.CreateDataProvider<sqler_version>(template, CreateDbContext);
 
                 Vit.AutoTemp.AutoTempHelp.RegistDataProvider(dataProvider);
-
             }
             #endregion
 
@@ -125,45 +120,6 @@ namespace App.Module.Sqler.Logical.SqlVersion
         }
 
         #endregion
-
-
-
-
-        #region DbFactory
-        public static DbContextFactory<VersionResultDbContext> efDbFactory { get; private set; }
-        public static Func<System.Data.IDbConnection> CreateOpenedDbConnection { get; private set; }
-
-        #endregion
-
-
-
-
-        #region VersionResult
-
-
-
-
-        public class VersionResultDbContext : DbContext
-        {
-            public VersionResultDbContext(DbContextOptions<VersionResultDbContext> options)
-                : base(options)
-            {
-            }
-
-
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                //(x.1)
-                base.OnModelCreating(modelBuilder);
-
-                modelBuilder.Model.AddEntityType(typeof(Entity.sqler_version));
-
-            }
-
-        }
-        #endregion
-
-
 
 
 

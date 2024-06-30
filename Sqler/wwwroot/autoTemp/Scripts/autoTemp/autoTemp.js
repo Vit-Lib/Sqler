@@ -5,23 +5,23 @@
  * author : Lith
  * email  : serset@yeah.net
 
- */ 
+ */
 ; (function (scope) {
 
     scope.createDataPrivider = function () {
-        var dataProviderClass = document.url_GetCurArg('dataProvider') ||'ApiProvider';
+        var dataProviderClass = document.url_GetCurArg('dataProvider') || 'ApiProvider';
 
         try {
             with (autoTemp.dataProvider) {
                 var clazz = eval(dataProviderClass);
             }
-            var dataProvider = new clazz();            
+            var dataProvider = new clazz();
         } catch (e) {
         }
 
         //var dataProvider = new autoTemp.dataProvider.ApiProvider();
         return dataProvider;
-    };    
+    };
 
 })(autoTemp = {});
 
@@ -32,7 +32,7 @@
  * author:Lith
  */
 ; (function (obj) {
- 
+
 
 
 
@@ -48,7 +48,7 @@
 
     // var id=document.url_GetCurArg('id');
     obj.url_GetCurArg = function (key) {
-        return obj.url_GetArg(location.search,key);
+        return obj.url_GetArg(location.search, key);
     }
 
     obj.url_GetArg = function (src, key) {
@@ -158,7 +158,7 @@
     };
 
 
-    
+
     obj.loadCss = function (cssSrc) {
         /// <summary>载入css文件。在文档加载过程中或已经加载完成后载入css文件。</summary>
         /// <param name="cssSrc" type="string">例如："/Scripts/jquery-easyui/themes/icon.css"</param>
@@ -410,4 +410,3 @@
 
 
 })(String);
- 

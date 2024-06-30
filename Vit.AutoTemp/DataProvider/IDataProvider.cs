@@ -11,7 +11,7 @@ namespace Vit.AutoTemp.DataProvider
     public interface IDataProvider
     {
         string template { get; }
-        ApiReturn delete(object sender,JObject arg);
+        ApiReturn delete(object sender, JObject arg);
         ApiReturn getControllerConfig(object sender);
         ApiReturn getList(object sender, FilterRule filter, IEnumerable<OrderField> sort, PageInfo page, JObject arg);
         ApiReturn getModel(object sender, string id);

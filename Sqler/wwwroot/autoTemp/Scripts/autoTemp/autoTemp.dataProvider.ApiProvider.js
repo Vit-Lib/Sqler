@@ -6,20 +6,20 @@
  * email  : serset@yeah.net 
  * 
  */
-; (function (scope) {   
+; (function (scope) {
 
     var apiRoute = document.url_GetCurArg('apiRoute') || '/autoTemp/{url.template}/{action}';
 
-     // ajax({ url:'http://a.com/a',type:'POST',header:{},data:{},onSuc:function(apiRet){ } });
+    // ajax({ url:'http://a.com/a',type:'POST',header:{},data:{},onSuc:function(apiRet){ } });
     // ajax({ action:'config',type:'POST',header:{},data:{},onSuc:function(apiRet){ } });
     function ajax(param) {
 
         var url = param.url, type = param.type || 'GET', header = param.header, data = param.data, onSuc = param.onSuc;
 
         if (!url) {
-            url = apiRoute;           
+            url = apiRoute;
         }
-   
+
         url = url.replace('{action}', param.action);
 
         if (type == 'GET') {
@@ -79,7 +79,7 @@
      * 列表数据    
      */
     scope.ApiProvider = function () {
-        var self = this;       
+        var self = this;
 
         /**
          * 
@@ -88,7 +88,7 @@
          */
         self.getControllerConfig = function (param, callback) {
 
-            ajax({ action: 'getConfig', type: 'GET', data: {},onSuc: callback });     
+            ajax({ action: 'getConfig', type: 'GET', data: {}, onSuc: callback });
 
         };
 
@@ -103,21 +103,21 @@
          * @param { function(ApiRet){}} callback   {success:true,data:{ "totalCount": 59,    "pageSize": 10, "pageIndex": 1,rows:[]  } }
          */
         self.getList = function (param, callback) {
-            ajax({ action: 'getList', type: 'GET', data: param, onSuc: callback });                      
+            ajax({ action: 'getList', type: 'GET', data: param, onSuc: callback });
         };
-  
+
 
         self.getModel = function (id, callback) {
             ajax({ action: 'getModel', type: 'GET', data: { id: id }, onSuc: callback });
         };
 
-         /**
-         * 
-         * @param {any} model
-         * @param {Function} callback  function(apiReturn){}
-         */
+        /**
+        * 
+        * @param {any} model
+        * @param {Function} callback  function(apiReturn){}
+        */
         self.insert = function (model, callback) {
-            ajax({ action: 'insert', type: 'POST', data: model, onSuc: callback }); 
+            ajax({ action: 'insert', type: 'POST', data: model, onSuc: callback });
         };
 
         /**
@@ -126,12 +126,12 @@
          * @param {function(ApiRet){}} callback  function(apiRet){}
          */
         self.update = function (model, callback) {
-            ajax({ action: 'update', type: 'PUT', data: model, onSuc: callback });              
+            ajax({ action: 'update', type: 'PUT', data: model, onSuc: callback });
         };
 
         self.delete = function (id, callback) {
-            ajax({ action: 'delete', type: 'DELETE', data: { id:id}, onSuc: callback });              
-        };      
+            ajax({ action: 'delete', type: 'DELETE', data: { id: id }, onSuc: callback });
+        };
 
     };
 

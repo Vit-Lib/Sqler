@@ -5,7 +5,7 @@
  * author : Lith
  * email  : serset@yeah.net
 
- */ 
+ */
 ; (function (scope) {
 
 
@@ -46,7 +46,7 @@
         //(x.1)idField treeField
         gridConfig.idField = controllerConfig.idField;
         gridConfig.treeField = controllerConfig.treeField;
-   
+
 
         //(x.2)title
         if (controllerConfig.list) {
@@ -76,8 +76,8 @@
                             if (typeof (button.handler) == 'string') {
                                 button.handler = eval('(' + button.handler + ')');
                             }
-                            theme.progressStart(button.text);                         
-                       
+                            theme.progressStart(button.text);
+
                             button.handler(theme.progressStop);
                             return;
                         }
@@ -155,7 +155,7 @@
 
                             });
                         }
- 
+
                     }
                 });
             });
@@ -200,7 +200,7 @@
 
         self.controllerConfig = controllerConfig;
 
-        self.rowButtons = [ ]
+        self.rowButtons = []
 
 
         if (!controllerConfig.idField) controllerConfig.idField = 'id';
@@ -212,12 +212,12 @@
 
         self.addRowButton = function (btnConfig) {
             self.rowButtons.push(btnConfig);
-        };     
+        };
 
         self.getPermit = function (opt) {
             if (!self.controllerConfig.permit) return true;
-            var value = self.controllerConfig.permit[opt] ;
-            return value != false && value != 'false';           
+            var value = self.controllerConfig.permit[opt];
+            return value != false && value != 'false';
         };
 
 
@@ -274,7 +274,7 @@
                         });
                     }
                 });
-            }         
+            }
 
             //(x.4)buildGridConfig
             return buildGridConfig(self);

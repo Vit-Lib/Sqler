@@ -9,7 +9,6 @@ using System.Text.RegularExpressions;
 
 using Vit.AutoTemp.DataProvider;
 using Vit.Core.Module.Log;
-using Vit.Core.Module.Serialization;
 using Vit.Core.Util.XmlComment;
 using Vit.Db.Module.Schema;
 using Vit.Extensions;
@@ -21,18 +20,38 @@ namespace Vit.AutoTemp
     public class AutoTempHelp
     {
 
-        #region EfEntityToTableSchema 
-
-        public static TableSchema EfEntityToTableSchema(Type type)
+        #region CreateDataProvider
+        public static IDataProvider_Vitorm CreateDataProvider(string template, Type entityType, Func<global::Vitorm.DbContext> CreateDbContext, TableSchema tableSchema = null)
         {
-            TableSchema tableSchema = new TableSchema { table_name = type.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.TableAttribute>()?.Name, columns = new List<ColumnSchema>() };
+            return CreateDataProviderMethod.MakeGenericMethod(entityType).Invoke(null, new object[] { template, CreateDbContext, tableSchema }) as IDataProvider_Vitorm;
+        }
+
+        public static DataProvider_Vitorm<Model, global::Vitorm.DbContext> CreateDataProvider<Model>
+            (string template, Func<global::Vitorm.DbContext> CreateDbContext, TableSchema tableSchema = null)
+            where Model : class
+        {
+            return new DataProvider_Vitorm<Model, global::Vitorm.DbContext>(template, CreateDbContext, tableSchema);
+        }
+        static readonly System.Reflection.MethodInfo CreateDataProviderMethod =
+            new Func<string, Func<global::Vitorm.DbContext>, TableSchema, DataProvider_Vitorm<object, global::Vitorm.DbContext>>
+            (CreateDataProvider<object>)
+            .Method.GetGenericMethodDefinition();
+
+        #endregion
+
+
+        #region EntityTypeToTableSchema 
+
+        public static TableSchema EntityTypeToTableSchema(Type entityType)
+        {
+            TableSchema tableSchema = new TableSchema { table_name = entityType.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.TableAttribute>()?.Name, columns = new List<ColumnSchema>() };
 
             using (var xmlMng = new XmlCommentMng())
             {
                 xmlMng.AddBin();
-                var xmlHelp = xmlMng.GetXmlHelp(type);
+                var xmlHelp = xmlMng.GetXmlHelp(entityType);
 
-                foreach (var field in type.GetProperties())
+                foreach (var field in entityType.GetProperties())
                 {
                     tableSchema.columns.Add(new ColumnSchema
                     {
@@ -49,9 +68,9 @@ namespace Vit.AutoTemp
 
 
         #region BuildControllerConfigByTable
-        public static JObject BuildControllerConfigByType(Type type)
+        public static JObject BuildControllerConfigByEntityType(Type entityType)
         {
-            return BuildControllerConfigByTable(EfEntityToTableSchema(type));
+            return BuildControllerConfigByTable(EntityTypeToTableSchema(entityType));
         }
         public static JObject BuildControllerConfigByTable(TableSchema tableInfo)
         {

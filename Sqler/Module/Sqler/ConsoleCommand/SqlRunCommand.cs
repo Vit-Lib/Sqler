@@ -73,10 +73,5 @@ namespace App.Module.Sqler.ConsoleCommand
         }
         #endregion
 
-
-
-
-
-
     }
 }

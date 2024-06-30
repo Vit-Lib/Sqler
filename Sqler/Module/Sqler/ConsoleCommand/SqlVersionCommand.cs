@@ -4,6 +4,7 @@ using System;
 using Vit.ConsoleUtil;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Extensions;
+using Vit.Extensions.Object_Serialize_Extensions;
 
 namespace App.Module.Sqler.ConsoleCommand
 {

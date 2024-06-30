@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using System;
-using Vit.ConsoleUtil;
+﻿using Vit.ConsoleUtil;
 using Vit.Core.Module.Log;
 using Vit.Extensions;
-using System.Linq;
-using App.Module.Sqler.Logical;
-using Microsoft.Extensions.Logging;
 using Vit.Core.Util.ConfigurationManager;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc;
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ComponentModel.SsError;
+using Vit.Core.Module.Serialization;
 
 namespace App
 {
@@ -35,30 +34,30 @@ namespace App
 
             if (args.Any(arg => arg == "--quiet") == true)
             {
-               
+
             }
-			else
-			{
-				//Logger.OnLog = (level, msg) => { Console.WriteLine((level == Level.INFO ? "" : "[" + level + "]") + msg); };
-				Logger.log.AddCollector(new Vit.Core.Module.Log.LogCollector.Collector
-				{
-					OnLog = (msg) =>
-					{
-						Console.WriteLine((msg.level == Level.info ? "" : "[" + msg.level + "]") + msg.message);
-					}
-				});
-			}
-			#endregion
+            else
+            {
+                //Logger.OnLog = (level, msg) => { Console.WriteLine((level == Level.INFO ? "" : "[" + level + "]") + msg); };
+                Logger.log.AddCollector(new Vit.Core.Module.Log.LogCollector.Collector
+                {
+                    OnLog = (msg) =>
+                    {
+                        Console.WriteLine((msg.level == Level.info ? "" : "[" + msg.level + "]") + msg.message);
+                    }
+                });
+            }
+            #endregion
 
 
 
-            //(x.3) 初始化Sqler
+            // #3 init Sqler
             try
-            { 
-                Logger.Info("[Sqler] version: "+ System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion );
+            {
+                Logger.Info("[Sqler] version: " + System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion);
 
                 string dataDirectoryPath = ConsoleHelp.GetArg(args, "--DataPath");
-                App.Module.Sqler.Logical.SqlerHelp.InitEnvironment(dataDirectoryPath,args);              
+                App.Module.Sqler.Logical.SqlerHelp.InitEnvironment(dataDirectoryPath, args);
             }
             catch (System.Exception ex)
             {
@@ -71,7 +70,7 @@ namespace App
 
 
 
-            //(x.4)
+            // #4
             var runAsCmd = (args.Length >= 1 && false == args[0]?.StartsWith("-"));
             if (runAsCmd)
             {
@@ -93,25 +92,120 @@ namespace App
 
 
 
-            //(x.5)启动http服务
+            // #5 start http service
             try
             {
-                CreateWebHostBuilder(args).Build().Run();
+                var builder = WebApplication.CreateBuilder(args);
+
+                // ##1
+                builder.WebHost
+                    .AllowAnyOrigin()
+                    .UseUrls(Appsettings.json.GetByPath<string[]>("server.urls"))
+                    .UseVitConfig()
+                    ;
+
+                #region ##2 Add services to the container.
+                {
+                    builder.Services.AddControllers(options =>
+                    {
+                        //use custom exception filter
+                        options.Filters.Add<ExceptionFilter>();
+
+                        //options.EnableEndpointRouting = false;
+                    }).AddJsonOptions(options =>
+                    {
+                        //Json Serialize config
+
+                        options.JsonSerializerOptions.AddConverter_Newtonsoft();
+                        options.JsonSerializerOptions.AddConverter_DateTime();
+
+
+                        options.JsonSerializerOptions.IncludeFields = true;
+
+                        //JsonNamingPolicy.CamelCase 首字母小写（默认）,null则为不改变大小写
+                        options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                        //取消Unicode编码 
+                        options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All);
+                        //忽略空值
+                        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+                        //允许额外符号
+                        options.JsonSerializerOptions.AllowTrailingCommas = true;
+
+                    });
+
+                }
+                #endregion
+
+
+                var app = builder.Build();
+
+                #region ##3 Configure
+                {
+                    // static file (wwwroot)
+                    foreach (var config in Appsettings.json.GetByPath<Vit.WebHost.StaticFilesConfig[]>("server.staticFiles"))
+                    {
+                        app.UseStaticFiles(config);
+                    }
+
+                    #region api for appVersion
+                    app.Map("/version", appBuilder =>
+                    {
+                        appBuilder.Run(async context =>
+                        {
+                            var version = System.Diagnostics.FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetEntryAssembly().Location).FileVersion;
+                            await context.Response.WriteAsync(version);
+                        });
+                    });
+                    #endregion
+
+                    //SqlerHelp
+                    Task.Run(App.Module.Sqler.Logical.SqlerHelp.InitAutoTemp);
+                }
+                #endregion
+
+                //app.UseAuthorization();
+                app.MapControllers();
+
+                app.Run();
             }
             catch (System.Exception ex)
             {
                 Logger.Error(ex);
             }
+        }
 
+
+        public class ExceptionFilter : Microsoft.AspNetCore.Mvc.Filters.IExceptionFilter
+        {
+            public void OnException(Microsoft.AspNetCore.Mvc.Filters.ExceptionContext context)
+            {
+                if (context.ExceptionHandled == false)
+                {
+                    Logger.Error(context.Exception);
+                    SsError error = (SsError)context.Exception;
+                    ApiReturn apiRet = error;
+
+
+                    context.Result = new ContentResult
+                    {
+                        Content = Json.Serialize(apiRet),
+                        StatusCode = StatusCodes.Status200OK,
+                        ContentType = "application/json; charset=utf-8"
+                    };
+
+                    //context.HttpContext.Response.Headers.Add("responseState", "fail");
+                    //context.HttpContext.Response.Headers.Add("responseError_Base64", error?.SerializeToBytes()?.BytesToBase64String());
+                }
+                context.ExceptionHandled = true;
+            }
+
+            public Task OnExceptionAsync(ExceptionContext context)
+            {
+                OnException(context);
+                return Task.CompletedTask;
+            }
 
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-            .AllowAnyOrigin()
-            .UseUrls(Appsettings.json.GetByPath<string[]>("server.urls"))
-            .UseStartup<Startup>()
-            .UseVitConfig()
-            ;
     }
 }

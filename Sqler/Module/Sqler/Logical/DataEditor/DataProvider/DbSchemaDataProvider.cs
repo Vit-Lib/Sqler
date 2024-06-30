@@ -22,19 +22,13 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
         List<Model> dataSource = getDataSource();
         static List<Model> getDataSource()
         {
-            List<TableSchema> schema;
+            List<TableSchema> schema = DataEditorHelp.schema;
 
             #region (x.1)从数据库获取表结构
-
-           
-            using (var scope = DataEditorHelp.dbFactory.CreateDbContext(out var db))
+            var models = schema.SelectMany(table =>
             {
-                schema= (db.GetDbConnection() as IDbConnection).GetSchema();          
-            }
-
-            var models = schema.SelectMany(table => {
-
-                return table.columns.Select(col => {
+                return table.columns.Select(col =>
+                {
                     var m = col.ConvertBySerialize<Model>();
                     m.name = col.column_name;
                     m.id = table.table_name + "." + col.column_name;
@@ -51,7 +45,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
             #endregion
 
             #region (x.2)autoTemp.json获取表字段描述
-            foreach (var table in DataEditorHelp.dataEditorConfig?.Get<JObject>("dbComment") ??new JObject() )
+            foreach (var table in DataEditorHelp.dataEditorConfig?.Get<JObject>("dbComment") ?? new JObject())
             {
                 try
                 {
@@ -65,7 +59,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
                 catch (System.Exception ex)
                 {
                     Logger.Error(ex);
-                }                           
+                }
             }
             #endregion
 
@@ -118,8 +112,8 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
         public ApiReturn getControllerConfig(object sender)
         {
             var data = @"{
-                idField: 'id',               
-                pidField: 'pid',               
+                idField: 'id',
+                pidField: 'pid',
                 treeField: 'name',
 
                 dependency: {
@@ -127,7 +121,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
                     js: []
                 },
  
-                fields: [                  
+                fields: [
                     {  field: 'name', title: 'name', list_width: 200,editable:false },
                     {  field: 'primary_key', title: 'primary_key', list_width: 80,editable:false },
                     {  field: 'autoincrement', title: 'autoincrement', list_width: 100,editable:false },
@@ -140,7 +134,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
                     { field: 'name', title: 'name',filterOpt:'Contains' }
                 ]
             }";
-            return new ApiReturn<JObject>(Json.Deserialize<JObject>(data));   
+            return new ApiReturn<JObject>(Json.Deserialize<JObject>(data));
         }
         #endregion
 
@@ -148,7 +142,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 
         #region getList
         public ApiReturn getList(object sender, FilterRule filter, IEnumerable<OrderField> sort, PageInfo page, JObject arg)
-        {                
+        {
 
             var query = dataSource.AsQueryable();
 
@@ -167,7 +161,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 
 
         #region getModel
-        public ApiReturn  getModel(object sender, string id)
+        public ApiReturn getModel(object sender, string id)
         {
             var query = dataSource.AsQueryable();
             var model = query.FirstOrDefault(m => m.id == id);
@@ -177,7 +171,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
         #endregion
 
         #region insert
-        public ApiReturn  insert(object sender, JObject model)
+        public ApiReturn insert(object sender, JObject model)
         {
             return new SsError
             {
@@ -196,7 +190,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 
             if (model_Data != null)
             {
-                #region (x.1)保存                
+                #region (x.1)保存
                 model_Data.user_comment = model_.user_comment;
                 DataEditorHelp.dataEditorConfig.SetByPath(model_.user_comment, "dbComment." + model_Data.id);
                 DataEditorHelp.dataEditorConfig.SaveToFile();
@@ -204,7 +198,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 
 
                 #region (x.2)重新初始化模板
-                DataEditorHelp.InitDataProvider(model_Data.pid);               
+                DataEditorHelp.InitDataProvider(model_Data.pid);
                 #endregion
 
 

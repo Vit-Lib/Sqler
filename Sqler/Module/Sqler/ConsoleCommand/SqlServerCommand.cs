@@ -1,7 +1,9 @@
 ﻿using App.Module.Sqler.Logical;
 using App.Module.Sqler.Logical.SqlBackup.SqlServerBackup;
+
 using Vit.ConsoleUtil;
 using Vit.Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
 
 namespace App.Module.Sqler.ConsoleCommand
 {
@@ -13,7 +15,7 @@ namespace App.Module.Sqler.ConsoleCommand
         [Remarks("若数据库不存在，则创建数据库。参数说明：")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
         [Remarks("-dp[--databasePath] (可选)数据库文件存放的路径 例如 \"/data/mssql\"")]
-        [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]       
+        [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]
         [Remarks("示例： SqlServer.CreateDataBase -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" ")]
         public static void CreateDataBase(string[] args)
         {
@@ -23,7 +25,7 @@ namespace App.Module.Sqler.ConsoleCommand
             string connStr = ConsoleHelp.GetArg(args, "-ConnStr") ?? ConsoleHelp.GetArg(args, "--ConnectionString");
             if (!string.IsNullOrEmpty(connStr))
             {
-                SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "SqlServerBackup", "ConnectionString");                
+                SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "SqlServerBackup", "ConnectionString");
             }
             #endregion
 
@@ -117,7 +119,7 @@ namespace App.Module.Sqler.ConsoleCommand
             {
                 sliceMb = sliceMb_;
             }
-      
+
 
             SqlServerLogical.Restore(filePath: filePath, fileName: fileName, sliceMb: sliceMb);
 
@@ -127,18 +129,18 @@ namespace App.Module.Sqler.ConsoleCommand
         #endregion
 
 
-        #region RestoreLocalBak
-        [Command("SqlServer.RestoreLocalBak")]
-        [Remarks("通过本地bak文件还原数据库。参数说明：备份文件名称和路径指定其一即可")]
+        #region RestoreServerBak
+        [Command("SqlServer.RestoreServerBak")]
+        [Remarks("通过server bak文件还原数据库。参数说明：备份文件名称和路径指定其一即可")]
         [Remarks("-fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 \"DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-fp[--filePath] (可选)备份文件路径，例如 \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
         [Remarks("-dp[--databasePath] (可选)数据库文件存放的路径 例如 \"/data/mssql\"")]
         [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]
-        [Remarks("示例： SqlServer.RestoreLocalBak -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" --filePath \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
+        [Remarks("示例： SqlServer.RestoreServerBak -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" --filePath \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         public static void RestoreLocalBak(string[] args)
         {
-            ConsoleHelp.Log("通过本地bak文件还原数据库...");
+            ConsoleHelp.Log("通过server bak文件还原数据库...");
 
             #region (x.1) arg SqlBackup.SqlServerBackup.ConnectionString
             string connStr = ConsoleHelp.GetArg(args, "-ConnStr") ?? ConsoleHelp.GetArg(args, "--ConnectionString");
@@ -163,7 +165,7 @@ namespace App.Module.Sqler.ConsoleCommand
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
 
-            SqlServerLogical.RestoreLocalBak(filePath: filePath, fileName: fileName);
+            SqlServerLogical.RestoreServerBak(filePath: filePath, fileName: fileName);
 
 
             ConsoleHelp.Log("操作是否成功：");
@@ -174,7 +176,7 @@ namespace App.Module.Sqler.ConsoleCommand
 
         #region BackupBak
         [Command("SqlServer.BackupBak")]
-        [Remarks("远程bak备份数据库。参数说明：备份文件名称和路径指定其一即可,若均不指定则自动生成")]
+        [Remarks("备份数据库到server bak并下载到本地。参数说明：备份文件名称和路径指定其一即可,若均不指定则自动生成")]
         [Remarks("-fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 \"DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-fp[--filePath] (可选)备份文件路径，例如 \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
@@ -196,7 +198,7 @@ namespace App.Module.Sqler.ConsoleCommand
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
 
-            SqlServerLogical.BackupBak(filePath, fileName);
+            SqlServerLogical.BackupToLocalBak(filePath, fileName);
 
             ConsoleHelp.Log("操作是否成功：");
             ConsoleHelp.Out("true");
@@ -240,16 +242,16 @@ namespace App.Module.Sqler.ConsoleCommand
 
 
         #region BackupLocalBak
-        [Command("SqlServer.BackupLocalBak")]
-        [Remarks("本地bak备份数据库。参数说明：备份文件名称和路径指定其一即可,若均不指定则自动生成")]
+        [Command("SqlServer.BackupToServerBak")]
+        [Remarks("备份数据库到ServerBak文件。参数说明：备份文件名称和路径指定其一即可,若均不指定则自动生成")]
         [Remarks("-fn[--fileName] (可选)备份文件名称，备份文件在当前管理的备份文件夹中。例如 \"DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-fp[--filePath] (可选)备份文件路径，例如 \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
         [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]
-        [Remarks("示例： SqlServer.BackupLocalBak -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" --filePath \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
+        [Remarks("示例： SqlServer.BackupToServerBak -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" --filePath \"/root/docker/DbDev_2020-06-08_135203.bak\"")]
         public static void BackupLocalBak(string[] args)
         {
-            ConsoleHelp.Log("本地bak备份数据库...");
+            ConsoleHelp.Log("备份数据库到ServerBak文件...");
 
             #region (x.1) arg SqlBackup.SqlServerBackup.ConnectionString
             string connStr = ConsoleHelp.GetArg(args, "-ConnStr") ?? ConsoleHelp.GetArg(args, "--ConnectionString");
@@ -263,7 +265,7 @@ namespace App.Module.Sqler.ConsoleCommand
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
 
-            SqlServerLogical.BackupLocalBak(filePath, fileName);
+            SqlServerLogical.BackupToServerBak(filePath, fileName);
 
 
             ConsoleHelp.Log("操作是否成功：");

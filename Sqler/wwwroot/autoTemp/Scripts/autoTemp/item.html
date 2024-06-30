@@ -35,6 +35,7 @@
 
         //insert  update show disable(禁用控件 的编辑模式)
 
+        var dependencyCount = 0;
         var mode = document.url_GetCurArg('mode') || 'update';
         var id = document.url_GetCurArg('id');
         var pid = document.url_GetCurArg('pid');
@@ -79,10 +80,9 @@
         });
 
 
-        var dependencyCount = 0;
 
         function doAfterLoadedDependency() {
-            if (dependencyCount != 0) return;
+            if (dependencyCount) return;
 
             //initCtrl
             $(function () {

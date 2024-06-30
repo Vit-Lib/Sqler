@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Linq.Query;
-using Vit.Extensions;
 using Vit.Core.Util.ComponentModel.SsError;
-using System.Linq;
-using System;
 using App.Module.Sqler.Logical;
-using System.IO;
 using Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup;
 using Vit.Db.DbMng;
+using Vit.Extensions.Object_Serialize_Extensions;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
+using Vit.Core.Module.Serialization;
+using System.Linq;
+using Vit.Extensions.Linq_Extensions;
+using Vit.Extensions.Json_Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
 
 namespace App.Module.Sqler.Controllers.SqlBackup
 {
@@ -64,11 +65,11 @@ namespace App.Module.Sqler.Controllers.SqlBackup
                     insert:false,
                     update:true,
                     show:false,
-                    delete:true                 
+                    delete:true
                 },
 
                 list:{
-                    rowButtons:[                          
+                    rowButtons:[
                             {text:'还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/Restore?fileName={id}'    }     }
                     ]
                 },
@@ -188,15 +189,15 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
                 //(x.2)条件筛选
-                var page_ = page.Deserialize<PageInfo>();
-                var filter_ = filter.Deserialize<List<DataFilter>>() ?? new List<DataFilter>();
-                var sort_ = sort.Deserialize<SortItem[]>();
+                var page_ = Json.Deserialize<PageInfo>(page);
+                var filter_ = Json.Deserialize<FilterRule>(filter)  ;
+                var sort_ = Json.Deserialize<OrderField[]>(sort);
 
                 var queryable = backupFiles.AsQueryable();
 
-                var pageData = queryable.Where(filter_).Sort(sort_).Select(m => m.ConvertBySerialize<JObject>()).ToPageData(page_);
+                var pageData = queryable.Where(filter_).OrderBy(sort_).Select(m => m.ConvertBySerialize<JObject>()).ToPageData(page_);
 
-                pageData.rows.ForEach(model =>
+                pageData.items.ForEach(model =>
                 {
                     model["id"] = model["fileName"];
                     float size = model["size"].Value<float>();

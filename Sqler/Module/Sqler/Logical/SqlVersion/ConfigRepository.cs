@@ -14,14 +14,10 @@ namespace App.Module.Sqler.Logical.SqlVersion
     #region ConfigRepository
     public class ConfigRepository : IRepository<Model>
     {
-
-
         public ApiReturn<Model> GetModel(string id)
         {
             return SqlerHelp.sqlerConfig.GetByPath<Model>("SqlVersion.Config") ?? new Model();
-
         }
-
 
         public ApiReturn<Model> Update(Model m)
         {
@@ -34,20 +30,9 @@ namespace App.Module.Sqler.Logical.SqlVersion
             return m;
         }
 
-        public ApiReturn Delete(Model m)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public ApiReturn<PageData<Model>> GetList(FilterRule filter, IEnumerable<OrderField> sort, PageInfo page)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public ApiReturn<Model> Insert(Model m)
-        {
-            throw new System.NotImplementedException();
-        }
+        public ApiReturn<PageData<Model>> GetList(FilterRule filter, IEnumerable<OrderField> sort, PageInfo page) => throw new System.NotImplementedException();
+        public ApiReturn Delete(Model m) => throw new System.NotImplementedException();
+        public ApiReturn<Model> Insert(Model m) => throw new System.NotImplementedException();
 
     }
     #endregion
@@ -66,22 +51,28 @@ namespace App.Module.Sqler.Logical.SqlVersion
         public int id { get; set; } = 1;
 
 
+
         /// <summary>
         /// 数据库类型
         /// </summary>
-        public String type { get; set; }
+        public String provider { get; set; }
+
+        /// <summary>
+        /// dll文件
+        /// </summary>
+        public String assemblyFile { get; set; }
 
 
         /// <summary>
         /// 连接字符串[field:ig-class=TextArea]
         /// </summary>
-        public String ConnectionString { get; set; }
+        public String connectionString { get; set; }
 
 
         /// <summary>
         /// 是否可修改sql
         /// </summary>
-        public String SqlCodeEditable { get; set; }
+        public String sqlCodeEditable { get; set; }
 
 
     }

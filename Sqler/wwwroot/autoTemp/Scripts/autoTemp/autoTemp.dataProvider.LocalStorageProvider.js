@@ -113,29 +113,29 @@
          */
         self.getList = function (param, callback) {
             
-            //(x.1)DataSource          
-            var rows = getDataSource();
+            //(x.1)DataSource
+            var items = getDataSource();
             var data = {};
             var apiRet = { success: true, data: data };
  
 
             //(x.2)filter
-            if (param.filter && param.filter.length > 0) {
-                var filters = param.filter;
-                rows = rows.filter(function (item) {
+            var filters = param.filter.rules;
+            if (filters && filters.length) {
+                items = items.filter(function (item) {
                     for (var t in filters) {
                         var filter = filters[t];
-                        if (filter.opt == '=') {
+                        if (filter.operator == '=') {
                             if (item[filter.field] != filter.value) return false;
-                        } else if (filter.opt == 'Contains') {
-                            if (item[filter.field].indexOf(filter.value)<0) return false;                            
+                        } else if (filter.operator == 'Contains') {
+                            if (item[filter.field].indexOf(filter.value) < 0) return false;
                         }
                     }
                     return true;
                 });
             }
 
-            data.totalCount = rows.length;
+            data.totalCount = items.length;
 
 
             //(x.3)sort
@@ -143,9 +143,9 @@
             var sortField = sort.field;
             var sortAsc = sort.asc;
             if (sortAsc) {
-                rows = rows.sort(function (a, b) { return a[sortField] <= b[sortField] ? -1 : 1; });
+                items = items.sort(function (a, b) { return a[sortField] <= b[sortField] ? -1 : 1; });
             } else {
-                rows = rows.sort(function (a, b) { return a[sortField] <= b[sortField] ? 1 : -1; });
+                items = items.sort(function (a, b) { return a[sortField] <= b[sortField] ? 1 : -1; });
             }
 
             //(x.4)page
@@ -153,7 +153,7 @@
 
                 var page = param.page;
                 var startIndex = page.pageSize * (page.pageIndex - 1);
-                rows = rows.slice(startIndex, startIndex + page.pageSize);
+                items = items.slice(startIndex, startIndex + page.pageSize);
 
                 data.pageSize = page.pageSize;
                 data.pageIndex = page.pageIndex;
@@ -163,14 +163,14 @@
 
             //(x.5)_childrenCount
             var dataSource = getDataSource();
-            for (var t in rows) {
-                var row = rows[t];
+            for (var t in items) {
+                var row = items[t];
                 row._childrenCount = dataSource.filter(function (item) { return item[pidField] == row[idField]; }).length;
             }
 
 
             //(x.6)返回数据
-            data.rows = rows;
+            data.items = items;
             callback(apiRet);
         };
 

@@ -1,51 +1,51 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Vit.Core.Module.Log;
 using Vit.Extensions;
-using Dapper;
 using System.Text;
 using Vit.Core.Util.ConfigurationManager;
 using App.Module.Sqler.Logical.SqlVersion.Entity;
 using Sqler.Module.Sqler.Logical.Message;
 using Vit.Core.Util.ComponentModel.Data;
+using Vit.Extensions.Db_Extensions;
+using Vitorm;
 
 namespace App.Module.Sqler.Logical.SqlVersion
-{   
+{
     public class VersionManage
     {
-
-        static void EnsureTableCreate() 
+        static bool EnsureTableCreate()
         {
-       
-            using (var conn = SqlVersionHelp.CreateOpenedDbConnection()) 
+            using (var conn = SqlVersionHelp.CreateOpenedDbConnection())
             {
                 var dbType = conn.GetDbType();
 
                 var sql = new JsonFile(SqlerHelp.GetDataFilePath("sqler.SqlVersion.table.json")).GetStringByPath("initDb." + dbType);
-                if (string.IsNullOrWhiteSpace(sql)) return;
 
-                conn.Execute(sql);
+                if (!string.IsNullOrWhiteSpace(sql))
+                {
+                    conn.Execute(sql);
+                    return true;
+                }
             }
+
+            Data.Create<sqler_version>();
+
+            return true;
         }
 
 
 
-        public static int GetDbCurVersion(string module) 
+        public static int GetDbCurVersion(string module)
         {
             try
             {
-                using (var scope = SqlVersionHelp.efDbFactory.CreateDbContext(out var db))
-                {                   
-                    var dbSet = db.GetDbSet<sqler_version>();
+                var versionResult = (from v in Data.Query<sqler_version>()
+                                     where v.module == module && v.success == 1
+                                     orderby v.version descending
+                                     select v)
+                                   .FirstOrDefault();
 
-                    var versionResult = (from v in dbSet
-                                       where v.module == module && v.success==1
-                                       orderby v.version descending
-                                       select v).FirstOrDefault();
-                    return versionResult?.version??0;
-                }
+                return versionResult?.version ?? 0;
             }
             catch (Exception ex)
             {
@@ -56,11 +56,11 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
 
 
- 
 
-        static void ExecVersion(string module,SqlCodeModel versionData, Action<EMsgType, String> sendMsg,DbSet<sqler_version> dbSet, DbContext dbContext)
+
+        static void ExecVersion(string module, SqlCodeModel versionData, Action<EMsgType, String> sendMsg)
         {
-            #region (x.1)版本检验            
+            #region (x.1)版本检验
             //int? dbVersioin = GetDbCurVersion(module);
             //if (
             //    (dbVersioin == null && versionData.version.Value != 1)
@@ -74,14 +74,14 @@ namespace App.Module.Sqler.Logical.SqlVersion
             sendMsg(EMsgType.Title, "执行版本" + versionData.version + "升级语句。");
             sendMsg(EMsgType.Nomal, "comment:" + versionData.comment);
 
-            #region (x.2)对象构建           
+            #region (x.2)对象构建
             sqler_version versionResult = new sqler_version();
 
             versionResult.module = module;
             versionResult.version = versionData.version;
             versionResult.code = versionData.code;
             versionResult.exec_time = DateTime.Now;
-    
+
             versionResult.result = "";
             versionResult.remarks = "";
             #endregion
@@ -91,13 +91,14 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
             #region (x.3)执行语句函数
             void ExecSql()
-            {        
-                using (var conn = SqlVersionHelp.CreateOpenedDbConnection())          
+            {
+                using (var conn = SqlVersionHelp.CreateOpenedDbConnection())
                 {
-                    conn.RunInTransaction((tran) => {
+                    conn.RunInTransaction((tran) =>
+                    {
 
                         int index = 1;
-                        //  /*GO*/GO 中间可出现多个空白字符，包括空格、制表符、换页符等          
+                        //  /*GO*/GO 中间可出现多个空白字符，包括空格、制表符、换页符等
                         //Regex reg = new Regex("/\\*GO\\*/\\s*GO");
                         Regex reg = new Regex("\\sGO\\s");
                         var sqls = reg.Split(versionResult.code);
@@ -117,8 +118,8 @@ namespace App.Module.Sqler.Logical.SqlVersion
                             }
                         }
 
-                    },onException:Logger.Error);
-                     
+                    }, onException: Logger.Error);
+
                 }
             }
             #endregion
@@ -143,15 +144,14 @@ namespace App.Module.Sqler.Logical.SqlVersion
                 try
                 {
                     versionResult.result = execResult.ToString();
-                    dbSet.Add(versionResult);
-                    dbContext.SaveChanges();
+                    Data.Add(versionResult);
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(ex);
-                }               
+                }
             }
-           
+
             #endregion
 
 
@@ -174,7 +174,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
         /// <param name="sendMsg"></param>
         /// <param name="descVersion"></param>
         /// <returns></returns>
-        public static ApiReturn<int> UpgradeToVersion(string module, Action<EMsgType,String> sendMsg, int descVersion = -1)
+        public static ApiReturn<int> UpgradeToVersion(string module, Action<EMsgType, String> sendMsg, int descVersion = -1)
         {
 
             ApiReturn<int> apiRet = new ApiReturn<int>(0);
@@ -182,7 +182,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
             var repository = SqlVersionHelp.sqlCodeRepositorys.AsQueryable().FirstOrDefault(m => m.moduleName == module);
 
-            sendMsg = 
+            sendMsg =
                 ((EMsgType type, String msg) =>
             {
                 Logger.log.Log(Level.ApiTrace, msg);
@@ -192,14 +192,14 @@ namespace App.Module.Sqler.Logical.SqlVersion
             int oriVersion = GetDbCurVersion(module);
             int curVersion = oriVersion;
             int lastVersion = repository.lastVersion;
-            
-            if (descVersion < 0) 
+
+            if (descVersion < 0)
             {
                 descVersion = lastVersion;
             }
 
             try
-            {            
+            {
 
                 if (lastVersion < descVersion) descVersion = lastVersion;
 
@@ -208,7 +208,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
                 sendMsg(EMsgType.Title, "当前版本：   " + curVersion);
                 sendMsg(EMsgType.Title, "目标版本：   " + descVersion);
                 sendMsg(EMsgType.Title, "最新版本：   " + lastVersion);
-         
+
 
 
                 if (descVersion < curVersion)
@@ -223,7 +223,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
                     return apiRet;
                 }
 
-              
+
 
 
                 sendMsg(EMsgType.Title, "执行数据库升级语句...");
@@ -232,24 +232,15 @@ namespace App.Module.Sqler.Logical.SqlVersion
 
 
 
-                //确保表 sqler_version 存在
+                // ensure table sqler_version exist
                 EnsureTableCreate();
 
 
-                using (var scope = SqlVersionHelp.efDbFactory.CreateDbContext(out var dbContext))
-                {                  
-                    //dbContext.Database.EnsureCreated();
-                    //dbContext.SaveChanges();
-
-
-                    var dbSet = dbContext.GetDbSet<sqler_version>();
-
-                    while (curVersion < descVersion)
-                    {
-                        var sqlCode = repository.GetModel("" + (curVersion + 1));
-                        ExecVersion(module, sqlCode.data, sendMsg, dbSet, dbContext);
-                        curVersion++;
-                    }
+                while (curVersion < descVersion)
+                {
+                    var sqlCode = repository.GetModel("" + (curVersion + 1));
+                    ExecVersion(module, sqlCode.data, sendMsg);
+                    curVersion++;
                 }
 
 
@@ -266,14 +257,14 @@ namespace App.Module.Sqler.Logical.SqlVersion
                 sendMsg(EMsgType.Err, e.GetBaseException().Message);
                 try
                 {
-                    curVersion = GetDbCurVersion(module);                  
+                    curVersion = GetDbCurVersion(module);
                 }
                 catch { }
 
                 sendMsg(EMsgType.Title, "数据库当前版本：   " + curVersion);
                 sendMsg(EMsgType.Title, "数据库目标版本：   " + descVersion);
 
-                Logger.Error("SqlRun执行sql语句出错.出错版本:" + (curVersion+1), e);
+                Logger.Error("SqlRun执行sql语句出错.出错版本:" + (curVersion + 1), e);
 
                 apiRet.success = false;
                 apiRet.error = e.GetBaseException();
@@ -291,10 +282,10 @@ namespace App.Module.Sqler.Logical.SqlVersion
         }
 
         #endregion
-       
 
 
- 
+
+
 
 
     }

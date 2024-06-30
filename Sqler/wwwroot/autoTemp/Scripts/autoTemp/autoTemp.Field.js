@@ -5,7 +5,7 @@
  * author : Lith
  * email  : serset@yeah.net
  */
-; (function (scope) {   
+; (function (scope) {
 
 
 
@@ -33,14 +33,14 @@
 
 
 
-        self.setValue = function (value) {     
+        self.setValue = function (value) {
             var igWidget = getIgWidget();
             if (igWidget) igWidget.setValue(value);
         };
 
 
 
-        self.getValue = function () {      
+        self.getValue = function () {
             var igWidget = getIgWidget();
             if (igWidget) return igWidget.getValue();
             return null;
@@ -68,7 +68,7 @@
         self.build_infoGet_Html = function () {
             if (!self.getVisiable()) {
                 return '';
-            }        
+            }
 
             var html = "<li><table><tr><td class='mtbTitle'>";
             html += self.config.title;
@@ -83,7 +83,7 @@
                 igParam = self.config['ig-param'];
                 if (typeof (igParam) == 'string') {
                     try {
-                        igParam = eval('(' + igParam+')')
+                        igParam = eval('(' + igParam + ')')
                     } catch (e) {
                     }
                 }
@@ -91,7 +91,7 @@
 
             if (!self.getEditable()) {
                 if (!igParam) igParam = {};
-                igParam.disabled=true;                
+                igParam.disabled = true;
             }
 
             if (igParam) {
@@ -118,7 +118,7 @@
             var self = filterAtFields[t];
             var value = self.getValue();
             if (value) {
-                filter.push({ field: self.config.field, opt: self.config.filterOpt || "=", value: value });
+                filter.push({ field: self.config.field, operator: self.config.filterOpt || "=", value: value });
             }
         }
     };

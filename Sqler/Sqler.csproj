@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <publish>Sqler</publish>
@@ -7,11 +7,9 @@
 
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-
         <ImplicitUsings>enable</ImplicitUsings>
         <Version>4.0.0-temp</Version>
         <Description>https://github.com/serset/Sqler</Description>
-
     </PropertyGroup>
 
 
@@ -21,16 +19,22 @@
 
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
 
-        <PackageReference Include="Vit.WebHost" Version="2.1.16" />
-        <!--<PackageReference Include="Vit.Orm.EntityFramework.Dynamic" Version="2.2.10" />
-        <PackageReference Include="Vit.Db.DbMng" Version="2.2.10" />-->
-        <PackageReference Include="Sers.Core" Version="2.1.18" />
+        <PackageReference Include="Vit.WebHost" Version="2.1.21" />
+        <!--<PackageReference Include="Vit.Db.DbMng" Version="2.2.10" />-->
+        <PackageReference Include="Sers.Core" Version="2.1.24" />
     </ItemGroup>
 
 
     <ItemGroup>
         <ProjectReference Include="..\..\Vit.Db\src\Vit.Db\Vit.Db.DbMng\Vit.Db.DbMng.csproj" />
+        <ProjectReference Include="..\..\Vit.Library\Vit.Excel\Vit.Excel\Vit.Excel.csproj" />
+        <ProjectReference Include="..\..\VitormLib\Vitorm\src\Vitorm.Data\Vitorm.Data.csproj" />
+        <ProjectReference Include="..\..\VitormLib\Vitorm\src\Vitorm.MySql\Vitorm.MySql.csproj" />
+        <ProjectReference Include="..\..\VitormLib\Vitorm\src\Vitorm.Sqlite\Vitorm.Sqlite.csproj" />
+        <ProjectReference Include="..\..\VitormLib\Vitorm\src\Vitorm.SqlServer\Vitorm.SqlServer.csproj" />
         <ProjectReference Include="..\Vit.AutoTemp\Vit.AutoTemp.csproj" />
     </ItemGroup>
 
@@ -78,13 +82,5 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-
-    <!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="xcopy  &quot;$(ProjectDir)wwwroot&quot; &quot;$(TargetDir)\wwwroot&quot; /e /i /r /y" />
-  </Target>-->
-
-    <!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="xcopy  &quot;$(ProjectDir)Data&quot; &quot;$(TargetDir)\Data&quot; /e /i /r /y" />
-  </Target>-->
 
 </Project>

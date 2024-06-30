@@ -64,7 +64,7 @@ namespace App.Module.Sqler.Logical.SqlRun
 
 
         /// <summary>
-        /// 数据库类型
+        /// 数据库类型(MySql/SqlServer/Sqlite)
         /// </summary>
         public String type { get; set; }
 

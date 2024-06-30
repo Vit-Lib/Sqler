@@ -17,6 +17,7 @@ namespace App.Module.Sqler.Logical.SqlVersion.Entity
         /// [controller:permit.delete=false]
         /// [filter:,=]
         /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column(TypeName = "nvarchar(1000)")]
         public string module { get; set; }
 
         /// <summary>
@@ -33,23 +34,26 @@ namespace App.Module.Sqler.Logical.SqlVersion.Entity
 
         /// <summary>
         /// 语句执行结果
-        /// [field:ig-class=TextArea]       
+        /// [field:ig-class=TextArea]
         /// [field:ig-param={height:250}]
         /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column(TypeName = "ntext")]
         public string result { get; set; }
 
 
         /// <summary>
         /// sql语句
-        /// [field:ig-class=TextArea]       
+        /// [field:ig-class=TextArea]
         /// [field:ig-param={height:50}]
         /// </summary>
+        [System.ComponentModel.DataAnnotations.Schema.Column(TypeName = "ntext")]
         public string code { get; set; }
 
 
 
         public DateTime? exec_time { get; set; }
 
+        [System.ComponentModel.DataAnnotations.Schema.Column(TypeName = "nvarchar(2000)")]
         public string remarks { get; set; }
 
     }
