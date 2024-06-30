@@ -3,9 +3,9 @@
 <head>
     <title></title>
 
-    <script type="text/javascript" src="/autoTemp/Scripts/jquery-easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="/Scripts/jquery/jquery.min.js"></script>
 
-    <script src="/autoTemp/Scripts/util/theme.js"></script>
+    <script src="/Scripts/util/theme.js"></script>
 
 
     <script type="text/javascript">
@@ -23,7 +23,7 @@
 
                 for (t in templateList) {
                     var template = templateList[t];
-                    html += t + '. <a href="#" src="/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/' + template + '/{action}">' + template + '</a><br /><br />';
+                    html += t + '. <a href="#" src="/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/' + template + '/{action}">' + template + '</a><br /><br />';
                 }
 
                 $('#templateList').html(html);
@@ -51,10 +51,8 @@
 
     <div style="width:100%;height:1px; background-color:#dbe5e7;margin-top: 10px;margin-bottom: 10px;"></div>
     <div id='templateDemo'>
-        <a href="#" src="/autoTemp/Scripts/autoTemp/list.html?dataProvider=LocalStorageProvider&tree=false">LocalStorage list</a><br /><br />
-        <a href="#" src="/autoTemp/Scripts/autoTemp/list.html?dataProvider=LocalStorageProvider">LocalStorage tree</a><br /><br />
-        <!--<a href="#" src="/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/demo_list/{action}">demo_list</a><br /><br />
-        <a href="#" src="/autoTemp/Scripts/autoTemp/list.html?apiRoute=/autoTemp/data/demo_tree/{action}">demo_tree</a><br /><br />-->
+        <a href="#" src="/Scripts/autoTemp/list.html?dataProvider=LocalStorageProvider&tree=false">LocalStorage list</a><br /><br />
+        <a href="#" src="/Scripts/autoTemp/list.html?dataProvider=LocalStorageProvider">LocalStorage tree</a><br /><br />
     </div>
     <div id='templateList'>
     </div>
