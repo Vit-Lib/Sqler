@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+
+using Newtonsoft.Json.Linq;
 
 using Vit.AutoTemp.DataProvider;
 using Vit.Core.Module.Log;
@@ -13,7 +13,7 @@ using Vit.Core.Util.XmlComment;
 using Vit.Db.Module.Schema;
 using Vit.Extensions;
 using Vit.Extensions.Newtonsoft_Extensions;
-using Vit.Extensions.Object_Serialize_Extensions;
+using Vit.Extensions.Serialize_Extensions;
 
 namespace Vit.AutoTemp
 {
@@ -57,7 +57,7 @@ namespace Vit.AutoTemp
                     {
                         column_name = field.Name,
                         primary_key = (field.GetCustomAttribute<KeyAttribute>() != null) ? 1 : 0,
-                        column_comment = xmlHelp.Property_GetSummary(field),
+                        column_comment = xmlHelp?.Property_GetSummary(field),
                         column_clr_type = field.ReflectedType
                     });
                 }
@@ -81,8 +81,8 @@ namespace Vit.AutoTemp
                 int splitIndex = oriString.IndexOf(splitString);
                 if (splitIndex >= 0)
                 {
-                    part1 = oriString.Substring(0, splitIndex);
-                    part2 = oriString.Substring(splitIndex + splitString.Length);
+                    part1 = oriString[..splitIndex];
+                    part2 = oriString[(splitIndex + splitString.Length)..];
                 }
                 else
                 {
@@ -136,7 +136,7 @@ namespace Vit.AutoTemp
                         string key, value;
 
                         #region (x.x.1)获取key value 用户配置信息
-                        var comm = item.Value.Substring(1, item.Value.Length - 2);
+                        var comm = item.Value[1..^1];
 
                         SplitStringTo2(comm, ":", out key, out value);
                         value = value?.Replace("\\x5B", "[").Replace("\\x5D", "]");

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using App.Module.Sqler.Logical.SqlVersion;
+﻿using App.Module.Sqler.Logical.SqlVersion;
+
+using Microsoft.AspNetCore.Mvc;
+
 using Sqler.Module.Sqler.Logical.Message;
 
 namespace App.Module.Sqler.Controllers.SqlVersion
@@ -72,10 +74,10 @@ namespace App.Module.Sqler.Controllers.SqlVersion
             //Response.AppendHeader("Content-Disposition", "attachment;filename=" + HttpUtility.UrlEncode(responseFileName, Encoding.UTF8));
             Response.Headers.Add("Content-Disposition", "attachment;filename=sqler(" + DateTime.Now.ToString("yyyy-MM-dd") + ").sql");
 
-            Action<String> sendMsg = (String msg) =>
+            void sendMsg(String msg)
             {
                 Response.WriteAsync(msg + "\r\n");
-            };
+            }
 
             var query = SqlVersionHelp.sqlCodeRepositorys.AsQueryable();
 

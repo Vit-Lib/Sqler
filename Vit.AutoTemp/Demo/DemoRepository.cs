@@ -1,17 +1,16 @@
 ﻿using System.Collections.Generic;
-using Vit.Core.Util.ComponentModel.Data;
-
 using System.ComponentModel.DataAnnotations;
-using Vit.Core.Util.Common;
 using System.Linq;
 
-using Vit.Core.Util.ComponentModel.SsError;
 using Vit.AutoTemp.Repository;
+using Vit.Core.Util.Common;
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ComponentModel.SsError;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Extensions.Object_Extensions;
+using Vit.Linq;
 using Vit.Linq.ComponentModel;
 using Vit.Linq.Filter.ComponentModel;
-using Vit.Extensions.Object_Extensions;
-using Vit.Extensions.Linq_Extensions;
-using Vit.Extensions.Json_Extensions;
 
 
 namespace Vit.AutoTemp.Demo
@@ -65,7 +64,7 @@ namespace Vit.AutoTemp.Demo
 
 
         #region DataSource
-        static List<Model> dataSource = getDataSource();
+        static readonly List<Model> dataSource = getDataSource();
 
 
         static List<Model> getDataSource()
@@ -157,7 +156,7 @@ namespace Vit.AutoTemp.Demo
         {
             var model_ = model.ConvertBySerialize<Model>();
 
-            model_.id = dataSource[dataSource.Count - 1].id + 1;
+            model_.id = dataSource[^1].id + 1;
             dataSource.Add(model_);
 
             return model_;

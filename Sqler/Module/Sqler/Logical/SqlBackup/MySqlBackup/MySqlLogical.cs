@@ -1,7 +1,5 @@
 ﻿using App.Module.Sqler.Logical;
 
-using System;
-
 using Vit.Core.Module.Log;
 
 namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
@@ -17,13 +15,11 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
         #region (x.1) CreateDataBase         
         public static void CreateDataBase()
         {
-            using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
+            using var conn = SqlerHelp.MySqlBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
 
-                dbMng.CreateDataBase();
-                Logger.Info("Sqler-CreateDataBase");
-            }
+            dbMng.CreateDataBase();
+            Logger.Info("Sqler-CreateDataBase");
         }
         #endregion
 
@@ -31,13 +27,11 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
         #region (x.2) DropDataBase
         public static void DropDataBase()
         {
-            using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
+            using var conn = SqlerHelp.MySqlBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
 
-                dbMng.DropDataBase();
-                Logger.Info("[Sqler]MsDbMng-DropDataBase");
-            }
+            dbMng.DropDataBase();
+            Logger.Info("[Sqler]MsDbMng-DropDataBase");
 
         }
         #endregion

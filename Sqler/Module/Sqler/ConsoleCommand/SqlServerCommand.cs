@@ -2,7 +2,6 @@
 using App.Module.Sqler.Logical.SqlBackup.SqlServerBackup;
 
 using Vit.ConsoleUtil;
-using Vit.Extensions;
 using Vit.Extensions.Newtonsoft_Extensions;
 
 namespace App.Module.Sqler.ConsoleCommand

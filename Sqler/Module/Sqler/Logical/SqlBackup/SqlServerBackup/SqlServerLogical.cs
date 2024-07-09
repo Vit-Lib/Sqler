@@ -1,6 +1,4 @@
-﻿using System;
-
-using Vit.Core.Module.Log;
+﻿using Vit.Core.Module.Log;
 
 namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 {
@@ -15,12 +13,10 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
         #region (x.1) CreateDataBase
         public static void CreateDataBase()
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-                dbMng.CreateDataBase();
-                Logger.Info("Sqler-CreateDataBase");
-            }
+            using var conn = SqlerHelp.SqlServerBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+            dbMng.CreateDataBase();
+            Logger.Info("Sqler-CreateDataBase");
         }
         #endregion
 
@@ -30,12 +26,10 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 
         public static void DropDataBase()
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-                dbMng.DropDataBase();
-                Logger.Info("[Sqler]MsSqlDbMng-DropDataBase");
-            }
+            using var conn = SqlerHelp.SqlServerBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+            dbMng.DropDataBase();
+            Logger.Info("[Sqler]MsSqlDbMng-DropDataBase");
         }
         #endregion
 
@@ -45,12 +39,10 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 
         public static void AttachDataBase()
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-                dbMng.Attach();
-                Logger.Info("[Sqler]MsSqlDbMng-AttachDataBase");
-            }
+            using var conn = SqlerHelp.SqlServerBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+            dbMng.Attach();
+            Logger.Info("[Sqler]MsSqlDbMng-AttachDataBase");
         }
         #endregion
 
@@ -58,12 +50,10 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 
         public static void DetachDataBase()
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-                dbMng.Detach();
-                Logger.Info("[Sqler]MsSqlDbMng-DetachDataBase");
-            }
+            using var conn = SqlerHelp.SqlServerBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+            dbMng.Detach();
+            Logger.Info("[Sqler]MsSqlDbMng-DetachDataBase");
         }
         #endregion
 
@@ -72,12 +62,10 @@ namespace App.Module.Sqler.Logical.SqlBackup.SqlServerBackup
 
         public static void KillProcess()
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-                dbMng.KillProcess();
-                Logger.Info("[Sqler]MsSqlDbMng-KillProcess");
-            }
+            using var conn = SqlerHelp.SqlServerBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+            dbMng.KillProcess();
+            Logger.Info("[Sqler]MsSqlDbMng-KillProcess");
         }
         #endregion
 

@@ -10,11 +10,10 @@
 */
 #endregion
 
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 using Vit.Db.Module.Schema;
-using System;
 
 namespace Vit.DynamicCompile.EntityGenerate
 {

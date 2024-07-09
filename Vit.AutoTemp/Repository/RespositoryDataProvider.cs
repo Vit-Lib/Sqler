@@ -1,13 +1,11 @@
-﻿using Newtonsoft.Json.Linq;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
+
+using Newtonsoft.Json.Linq;
 
 using Vit.AutoTemp.DataProvider;
 using Vit.Core.Util.ComponentModel.Data;
-
-using Vit.Extensions;
-using Vit.Extensions.Json_Extensions;
+using Vit.Extensions.Serialize_Extensions;
 using Vit.Linq.ComponentModel;
 using Vit.Linq.Filter.ComponentModel;
 
@@ -27,7 +25,7 @@ namespace Vit.AutoTemp.Repository
             controllerConfig = AutoTempHelp.BuildControllerConfigByEntityType(entityType ?? typeof(T));
         }
 
-        JObject controllerConfig;
+        readonly JObject controllerConfig;
 
         public string template { get; private set; }
         public ApiReturn getControllerConfig(object sender)

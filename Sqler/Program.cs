@@ -1,12 +1,13 @@
-﻿using Vit.ConsoleUtil;
-using Vit.Core.Module.Log;
-using Vit.Extensions;
-using Vit.Core.Util.ConfigurationManager;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc;
+
+using Vit.ConsoleUtil;
+using Vit.Core.Module.Log;
+using Vit.Core.Module.Serialization;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
-using Vit.Core.Module.Serialization;
+using Vit.Core.Util.ConfigurationManager;
+using Vit.Extensions;
 
 namespace App
 {
@@ -26,7 +27,7 @@ namespace App
             //    ,"--set","SqlRun.Config.ConnectionString=Data Source=lanxing.cloud;Port=11052;User Id=root;Password=123456;CharSet=utf8;allowPublicKeyRetrieval=true;"
             //};       
 
-            if (args == null) args = new string[] { };
+            args ??= Array.Empty<string>();
 
             #region (x.2) --quiet
             Logger.PrintToTxt = false;
@@ -97,12 +98,16 @@ namespace App
             {
                 var builder = WebApplication.CreateBuilder(args);
 
-                // ##1
-                builder.WebHost
-                    .AllowAnyOrigin()
-                    .UseUrls(Appsettings.json.GetByPath<string[]>("server.urls"))
-                    .UseVitConfig()
-                    ;
+
+                #region ##1 config WebHost
+                {
+                    builder.WebHost
+                        .AllowAnyOrigin()
+                        .UseUrls(Appsettings.json.GetByPath<string[]>("server.urls"))
+                        .UseVitConfig()
+                        ;
+                }
+                #endregion
 
                 #region ##2 Add services to the container.
                 {
@@ -122,13 +127,16 @@ namespace App
 
                         options.JsonSerializerOptions.IncludeFields = true;
 
-                        //JsonNamingPolicy.CamelCase 首字母小写（默认）,null则为不改变大小写
+                        // JsonNamingPolicy.CamelCase makes the first letter lowercase (default), null leaves case unchanged
                         options.JsonSerializerOptions.PropertyNamingPolicy = null;
-                        //取消Unicode编码 
+
+                        // set the JSON encoder to allow all Unicode characters, preventing the default behavior of encoding non-ASCII characters.
                         options.JsonSerializerOptions.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.Create(System.Text.Unicode.UnicodeRanges.All);
-                        //忽略空值
+
+                        // Ignore null values
                         options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
-                        //允许额外符号
+
+                        // extra comma at the end of a list of JSON values in an object or array is allowed (and ignored) within the JSON payload being deserialized.
                         options.JsonSerializerOptions.AllowTrailingCommas = true;
 
                     });

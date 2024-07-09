@@ -181,8 +181,8 @@ namespace App.Module.Sqler.Logical
                             var ei = str?.IndexOf('=') ?? -1;
                             if (ei < 1) continue;
 
-                            var path = str.Substring(0, ei);
-                            var value = str.Substring(ei + 1);
+                            var path = str[..ei];
+                            var value = str[(ei + 1)..];
 
                             sqlerConfig.root.ValueSetByPath(value, path.Split('.'));
                         }

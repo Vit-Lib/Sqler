@@ -10,8 +10,6 @@
 */
 #endregion
 
-using System;
-using System.Linq;
 using System.Reflection;
 
 namespace Vit.ConsoleUtil
@@ -63,9 +61,9 @@ namespace Vit.ConsoleUtil
             //arg.AddRange(new[] { "-o", "T:\\temp\\un7z" });
             //args = arg.ToArray();
 
-            #region (x.1)通过反射获取所有命令            
+            #region (x.1)通过反射获取所有命令
             var cmdMap =
-                //获取所有type
+                //获取所有 type
                 Assembly.GetEntryAssembly().GetTypes()
                 //获取所有静态函数
                 .SelectMany(type => type.GetMethods(BindingFlags.Static | BindingFlags.Public))
@@ -106,10 +104,10 @@ namespace Vit.ConsoleUtil
 
                 if (method == null)
                 {
-                    throw new Exception($"命令 { args[0] } 不存在！（help命令可查看命令说明）");                 
+                    throw new Exception($"命令 {args[0]} 不存在！（help命令可查看命令说明）");
                 }
-                ConsoleHelp.Log("------------------------------");        
-                ConsoleHelp.Log($"开始执行命令 { args[0] } ...");
+                ConsoleHelp.Log("------------------------------");
+                ConsoleHelp.Log($"开始执行命令 {args[0]} ...");
                 ConsoleHelp.Log("---------------");
 
                 method.Invoke(null, new object[] { args });
@@ -120,7 +118,7 @@ namespace Vit.ConsoleUtil
                 ConsoleHelp.Log("出错：" + ex.Message);
                 ConsoleHelp.Log("出错：" + ex.StackTrace);
 
-                exitCode = 1;             
+                exitCode = 1;
             }
             #endregion
 
@@ -138,7 +136,7 @@ namespace Vit.ConsoleUtil
 
         #region Exit
         public static int exitCode = 0;
-        public static void Exit() 
+        public static void Exit()
         {
             //退出当前进程以及当前进程开启的所有进程
             System.Environment.Exit(exitCode);

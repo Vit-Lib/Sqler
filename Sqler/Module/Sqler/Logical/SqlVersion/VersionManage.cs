@@ -1,12 +1,16 @@
-﻿using System.Text.RegularExpressions;
-using Vit.Core.Module.Log;
-using Vit.Extensions;
-using System.Text;
-using Vit.Core.Util.ConfigurationManager;
+﻿using System.Text;
+using System.Text.RegularExpressions;
+
 using App.Module.Sqler.Logical.SqlVersion.Entity;
+
 using Sqler.Module.Sqler.Logical.Message;
+
+using Vit.Core.Module.Log;
 using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ConfigurationManager;
+using Vit.Extensions;
 using Vit.Extensions.Db_Extensions;
+
 using Vitorm;
 
 namespace App.Module.Sqler.Logical.SqlVersion
@@ -92,35 +96,32 @@ namespace App.Module.Sqler.Logical.SqlVersion
             #region (x.3)执行语句函数
             void ExecSql()
             {
-                using (var conn = SqlVersionHelp.CreateOpenedDbConnection())
+                using var conn = SqlVersionHelp.CreateOpenedDbConnection();
+                conn.RunInTransaction((tran) =>
                 {
-                    conn.RunInTransaction((tran) =>
+
+                    int index = 1;
+                    //  /*GO*/GO 中间可出现多个空白字符，包括空格、制表符、换页符等
+                    //Regex reg = new Regex("/\\*GO\\*/\\s*GO");
+                    Regex reg = new Regex("\\sGO\\s");
+                    var sqls = reg.Split(versionResult.code);
+                    foreach (String sql in sqls)
                     {
-
-                        int index = 1;
-                        //  /*GO*/GO 中间可出现多个空白字符，包括空格、制表符、换页符等
-                        //Regex reg = new Regex("/\\*GO\\*/\\s*GO");
-                        Regex reg = new Regex("\\sGO\\s");
-                        var sqls = reg.Split(versionResult.code);
-                        foreach (String sql in sqls)
+                        if (String.IsNullOrEmpty(sql.Trim()))
                         {
-                            if (String.IsNullOrEmpty(sql.Trim()))
-                            {
-                                sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]空语句，无需执行.");
-                            }
-                            else
-                            {
-                                sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]执行sql语句：");
-                                sendMsg(EMsgType.Nomal, sql);
-                                var result = "执行结果:" + conn.Execute(sql, null, tran) + " Lines effected.";
-                                execResult.AppendLine(result);
-                                sendMsg(EMsgType.Title, result);
-                            }
+                            sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]空语句，无需执行.");
                         }
+                        else
+                        {
+                            sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]执行sql语句：");
+                            sendMsg(EMsgType.Nomal, sql);
+                            var result = "执行结果:" + conn.Execute(sql, null, tran) + " Lines effected.";
+                            execResult.AppendLine(result);
+                            sendMsg(EMsgType.Title, result);
+                        }
+                    }
 
-                    }, onException: Logger.Error);
-
-                }
+                }, onException: Logger.Error);
             }
             #endregion
 

@@ -1,10 +1,11 @@
-﻿using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ConfigurationManager;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+
 using Vit.AutoTemp.Repository;
-using Vit.Linq.Filter.ComponentModel;
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ConfigurationManager;
+using Vit.Linq;
 using Vit.Linq.ComponentModel;
-using Vit.Extensions.Linq_Extensions;
+using Vit.Linq.Filter.ComponentModel;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {
@@ -12,7 +13,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
     #region SqlVersionModuleRepository
     public class ModuleRepository : IRepository<SqlVersionModuleModel>
     {
-        SqlVersionModuleModel[] moduleModels;
+        readonly SqlVersionModuleModel[] moduleModels;
         public ModuleRepository(SqlVersionModuleModel[] moduleModels)
         {
             this.moduleModels = moduleModels;

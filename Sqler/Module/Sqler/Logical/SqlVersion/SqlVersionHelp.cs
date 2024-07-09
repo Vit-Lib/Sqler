@@ -1,9 +1,12 @@
-﻿using Vit.Extensions;
-using Vit.AutoTemp.DataProvider;
-using Vitorm;
+﻿using System.Data;
+
 using App.Module.Sqler.Logical.SqlVersion.Entity;
-using System.Data;
+
 using Vit.AutoTemp;
+using Vit.AutoTemp.DataProvider;
+using Vit.Extensions;
+
+using Vitorm;
 using Vitorm.Sql;
 
 namespace App.Module.Sqler.Logical.SqlVersion
@@ -11,9 +14,9 @@ namespace App.Module.Sqler.Logical.SqlVersion
     public class SqlVersionHelp
     {
         public static SqlCodeRepository[] sqlCodeRepositorys { get; private set; }
- 
 
-        static List<IDataProvider> dataProviders = new List<IDataProvider>();
+
+        static readonly List<IDataProvider> dataProviders = new List<IDataProvider>();
 
         #region static Init
         public static SqlDbContext CreateDbContext()
@@ -56,9 +59,9 @@ namespace App.Module.Sqler.Logical.SqlVersion
                     .Select(name => new SqlCodeRepository(name))
                     .ToArray();
             }
-            else 
+            else
             {
-                sqlCodeRepositorys = new SqlCodeRepository[0];
+                sqlCodeRepositorys = Array.Empty<SqlCodeRepository>();
             }
             #endregion
 
@@ -69,7 +72,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
         public static void InitAutoTemp()
         {
             //(x.1)取消注册
-            if (dataProviders.Count>0)
+            if (dataProviders.Count > 0)
             {
                 Vit.AutoTemp.AutoTempHelp.UnRegistDataProvider(dataProviders.ToArray());
                 dataProviders.Clear();

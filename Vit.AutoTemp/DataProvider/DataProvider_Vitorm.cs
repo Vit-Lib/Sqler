@@ -1,19 +1,19 @@
-﻿using Newtonsoft.Json.Linq;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using Newtonsoft.Json.Linq;
+
+using Vit.Core.Module.Serialization;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Db.Module.Schema;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Extensions.Object_Extensions;
+using Vit.Linq;
 using Vit.Linq.ComponentModel;
 using Vit.Linq.Filter.ComponentModel;
-using Vit.Extensions.Linq_Extensions;
-using Vit.Extensions.Json_Extensions;
-using Vit.Core.Module.Serialization;
-using Vit.Extensions.Object_Extensions;
-using Vit.Extensions.Newtonsoft_Extensions;
 
 namespace Vit.AutoTemp.DataProvider
 {
@@ -29,9 +29,9 @@ namespace Vit.AutoTemp.DataProvider
 
         string idField;
         string pidField;
-        Type entityType;
+        readonly Type entityType;
         JObject controllerConfig;
-        Func<DbContext> CreateDbContext;
+        readonly Func<DbContext> CreateDbContext;
 
 
         public DataProvider_Vitorm(string template, Func<DbContext> CreateDbContext, TableSchema tableSchema = null)
@@ -41,7 +41,7 @@ namespace Vit.AutoTemp.DataProvider
 
             entityType = typeof(Model);
 
-            if (tableSchema == null) tableSchema = AutoTempHelp.EntityTypeToTableSchema(entityType);
+            tableSchema ??= AutoTempHelp.EntityTypeToTableSchema(entityType);
             this.tableSchema = tableSchema;
 
 

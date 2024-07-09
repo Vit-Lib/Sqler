@@ -1,21 +1,21 @@
-﻿using App.Module.Sqler.Logical;
+﻿using System.Data;
+using System.Text.RegularExpressions;
+
+using App.Module.Sqler.Logical;
 
 using Sqler.Module.Sqler.Logical.Message;
 
-using System.Data;
-using System.Text.RegularExpressions;
-
 using Vit.Core.Module.Log;
+using Vit.Core.Module.Serialization;
 using Vit.Core.Util;
 using Vit.Core.Util.Common;
 using Vit.Core.Util.ComponentModel.Model;
 using Vit.Db.Util.Data;
-using Vit.Extensions;
-using Vit.Extensions.Object_Serialize_Extensions;
-using Vit.Extensions.Db_Extensions;
 using Vit.Excel;
+using Vit.Extensions;
 using Vit.Extensions.Data;
-using Vit.Core.Module.Serialization;
+using Vit.Extensions.Db_Extensions;
+using Vit.Extensions.Serialize_Extensions;
 
 namespace Sqler.Module.Sqler.Logical.DbPort
 {
@@ -120,7 +120,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             //解析ConnectionString
             if (connectionString.StartsWith("sqler.json::"))
             {
-                connectionString = SqlerHelp.sqlerConfig.GetStringByPath(connectionString.Substring("sqler.json::".Length));
+                connectionString = SqlerHelp.sqlerConfig.GetStringByPath(connectionString["sqler.json::".Length..]);
             }
 
 
@@ -226,10 +226,8 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                     {
                         if (useMemoryCache && connSqlite != null)
                         {
-                            using (var conn = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(outFilePath))
-                            {
-                                connSqlite.BackupTo(conn);
-                            }
+                            using var conn = ConnectionFactory.Sqlite_GetOpenConnectionByFilePath(outFilePath);
+                            connSqlite.BackupTo(conn);
                         }
                     }
                     catch (Exception ex)
@@ -389,39 +387,36 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
                 DataWriter = (dr, tableName) =>
                 {
-                    using (StreamWriter writer = new StreamWriter(outFilePath, true))
+                    using StreamWriter writer = new StreamWriter(outFilePath, true);
+                    writer.NewLine = NewLine;
+
+                    if (isFirstTable)
+                        isFirstTable = false;
+                    else
+                        writer.Write(tableSeparator);
+
+                    SendMsg(EMsgType.Nomal, "           Export data");
+
+                    int importedRowCount = 0;
+                    int FieldCount = dr.FieldCount;
+                    while (dr.Read())
                     {
-                        writer.NewLine = NewLine;
+                        if (importedRowCount != 0)
+                            writer.Write(rowSeparator);
 
-                        if (isFirstTable)
-                            isFirstTable = false;
-                        else
-                            writer.Write(tableSeparator);
-
-                        SendMsg(EMsgType.Nomal, "           Export data");
-
-                        int importedRowCount = 0;
-                        int FieldCount = dr.FieldCount;
-                        while (dr.Read())
+                        for (var i = 0; i < FieldCount; i++)
                         {
-                            if (importedRowCount != 0)
-                                writer.Write(rowSeparator);
+                            if (i != 0)
+                                writer.Write(fieldSeparator);
 
-                            for (var i = 0; i < FieldCount; i++)
-                            {
-                                if (i != 0)
-                                    writer.Write(fieldSeparator);
-
-                                writer.Write(Json.Serialize(dr[i]));
-                            }
-                            importedRowCount++;
+                            writer.Write(Json.Serialize(dr[i]));
                         }
-
-                        importedSumRowCount += importedRowCount;
-
-                        WriteProcess(importedRowCount);
-
+                        importedRowCount++;
                     }
+
+                    importedSumRowCount += importedRowCount;
+
+                    WriteProcess(importedRowCount);
                 };
 
                 #endregion
@@ -447,10 +442,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                     #region (x.x.1)按需构建sql语句
                     if (string.IsNullOrEmpty(sql))
                     {
-                        if (inTableNames == null)
-                        {
-                            inTableNames = conn.GetAllTableName();
-                        }
+                        inTableNames ??= conn.GetAllTableName();
 
                         if (inTableNames.Count == 0)
                         {
@@ -471,10 +463,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
                     }
                     #endregion
 
-                    if (outTableNames == null)
-                    {
-                        outTableNames = inTableNames;
-                    }
+                    outTableNames ??= inTableNames;
 
                     SendMsg(EMsgType.Title, "   sum row count: " + sourceSumRowCount);
                     SendMsg(EMsgType.Title, "   table count  : " + inTableNames?.Count);
@@ -590,7 +579,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
             //解析ConnectionString
             if (connectionString.StartsWith("sqler.json::"))
             {
-                connectionString = SqlerHelp.sqlerConfig.GetStringByPath(connectionString.Substring("sqler.json::".Length));
+                connectionString = SqlerHelp.sqlerConfig.GetStringByPath(connectionString["sqler.json::".Length..]);
             }
 
 
@@ -616,7 +605,7 @@ namespace Sqler.Module.Sqler.Logical.DbPort
 
 
                 #region (x.3)get data from file
-                if (Path.GetExtension(filePath).ToLower().IndexOf(".xls") >= 0)
+                if (Path.GetExtension(filePath).Contains(".xls", StringComparison.OrdinalIgnoreCase))
                 {
                     //excel
 

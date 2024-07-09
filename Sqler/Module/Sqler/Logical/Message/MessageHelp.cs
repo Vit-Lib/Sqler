@@ -1,15 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
-using System.Text;
+﻿using System.Text;
+
 using Vit.Core.Module.Log;
 
 namespace Sqler.Module.Sqler.Logical.Message
 {
     public class MessageHelp
     {
-        
 
-        public static void SendMsg(HttpResponse Response, EMsgType type, String msg, bool writeLogger=true)
+
+        public static void SendMsg(HttpResponse Response, EMsgType type, String msg, bool writeLogger = true)
         {
 
             if (writeLogger)
@@ -45,7 +44,7 @@ namespace Sqler.Module.Sqler.Logical.Message
                         Response.WriteAsync("<br/>" + escapeMsg);
                         break;
                     }
-            }      
+            }
             //Response.Flush();  
 
         }

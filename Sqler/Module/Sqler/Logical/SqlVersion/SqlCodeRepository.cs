@@ -1,15 +1,15 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 
-using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json.Linq;
 
 using Vit.AutoTemp.Repository;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ConfigurationManager;
+using Vit.Extensions.Serialize_Extensions;
 using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Linq;
 using Vit.Linq.ComponentModel;
 using Vit.Linq.Filter.ComponentModel;
-using Vit.Extensions.Linq_Extensions;
-using Vit.Extensions.Json_Extensions;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {
@@ -24,7 +24,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
         {
             this.moduleName = moduleName;
             fileName = moduleName + ".json";
-            dataSource = new JsonFile(SqlerHelp.GetDataFilePath("SqlVersion", fileName));    
+            dataSource = new JsonFile(SqlerHelp.GetDataFilePath("SqlVersion", fileName));
         }
 
         /// <summary>
@@ -34,14 +34,14 @@ namespace App.Module.Sqler.Logical.SqlVersion
         {
             get
             {
-                return dataSource.root["data"]?.Value<JArray>()?.Count??-1;
+                return dataSource.root["data"]?.Value<JArray>()?.Count ?? -1;
             }
         }
 
         /// <summary>
         /// 数据库当前版本
         /// </summary>
-        public int curDbVersion { get=> VersionManage.GetDbCurVersion(moduleName);  }
+        public int curDbVersion { get => VersionManage.GetDbCurVersion(moduleName); }
 
 
         public ApiReturn Delete(SqlCodeModel m)
@@ -58,7 +58,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
         public ApiReturn<SqlCodeModel> GetModel(string id)
         {
             var data = dataSource.root["data"].Value<JArray>();
-            var m= data[int.Parse(id) - 1].Deserialize<SqlCodeModel>();
+            var m = data[int.Parse(id) - 1].Deserialize<SqlCodeModel>();
             return m;
         }
 
@@ -70,7 +70,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
                 dataSource.root["data"] = data = new JArray();
             }
 
-            m.version = data.Count+1;
+            m.version = data.Count + 1;
             m.time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
             data.Add(m.ConvertBySerialize<JToken>());
@@ -84,7 +84,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
         public ApiReturn<SqlCodeModel> Update(SqlCodeModel m)
         {
 
-            if (SqlerHelp.sqlerConfig.GetByPath<bool?>("SqlVersion.Config.SqlCodeEditable") == false) 
+            if (SqlerHelp.sqlerConfig.GetByPath<bool?>("SqlVersion.Config.SqlCodeEditable") == false)
             {
                 throw new Exception("不可修改sql语句");
             }
@@ -147,7 +147,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
         /// <summary>
         /// 操作时间[field:editable=false]
         /// </summary>
-        public string time { get; set; } 
+        public string time { get; set; }
 
 
         /// <summary>

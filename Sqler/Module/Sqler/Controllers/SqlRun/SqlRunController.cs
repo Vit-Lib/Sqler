@@ -1,17 +1,21 @@
 ﻿using System.Data;
 using System.Text;
-using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
+
 using App.Module.Sqler.Logical;
+
+using Microsoft.AspNetCore.Mvc;
+
+using Sqler.Module.Sqler.Logical.DbPort;
+using Sqler.Module.Sqler.Logical.Message;
+
+using Vit.Core.Module.Log;
+using Vit.Core.Module.Serialization;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
-using Sqler.Module.Sqler.Logical.Message;
-using Vit.Core.Module.Log;
-using System.Text.RegularExpressions;
 using Vit.Db.Util.Data;
 using Vit.Extensions.Db_Extensions;
-using Vit.Extensions.Json_Extensions;
-using Sqler.Module.Sqler.Logical.DbPort;
-using Vit.Core.Module.Serialization;
+using Vit.Extensions.Serialize_Extensions;
 
 namespace App.Module.Sqler.Controllers.SqlRun
 {
@@ -38,45 +42,41 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
         static void ExecSql(Action<EMsgType, String> sendMsg, string sqlCode)
         {
-            using (var conn = ConnectionFactory.GetOpenConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config")))
+            using var conn = ConnectionFactory.GetOpenConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config"));
+            using var tran = conn.BeginTransaction();
+            try
             {
-                using (var tran = conn.BeginTransaction())
+                int index = 1;
+                //  GO ，包括空格、制表符、换页符等          
+                //Regex reg = new Regex("/\\*GO\\*/\\s*GO");
+                Regex reg = new Regex("\\sGO\\s");
+                var sqls = reg.Split(sqlCode);
+                foreach (String sql in sqls)
                 {
-                    try
+                    if (String.IsNullOrEmpty(sql.Trim()))
                     {
-                        int index = 1;
-                        //  GO ，包括空格、制表符、换页符等          
-                        //Regex reg = new Regex("/\\*GO\\*/\\s*GO");
-                        Regex reg = new Regex("\\sGO\\s");
-                        var sqls = reg.Split(sqlCode);
-                        foreach (String sql in sqls)
-                        {
-                            if (String.IsNullOrEmpty(sql.Trim()))
-                            {
-                                sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]空语句，无需执行.");
-                            }
-                            else
-                            {
-                                sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]执行sql语句：");
-                                sendMsg(EMsgType.Nomal, sql);
-                                var result = "执行结果:" + conn.Execute(sql, null, tran) + " Lines effected.";
-                                sendMsg(EMsgType.Title, result);
-                            }
-                        }
-                        tran.Commit();
-
-                        sendMsg(EMsgType.Title, "语句执行成功。");
-                        sendMsg(EMsgType.Nomal, "");
-                        sendMsg(EMsgType.Nomal, "");
+                        sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]空语句，无需执行.");
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Logger.Error(ex);
-                        tran.Rollback();
-                        sendMsg(EMsgType.Err, "执行出错，原因：");
-                        sendMsg(EMsgType.Err, ex.GetBaseException().Message);
+                        sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]执行sql语句：");
+                        sendMsg(EMsgType.Nomal, sql);
+                        var result = "执行结果:" + conn.Execute(sql, null, tran) + " Lines effected.";
+                        sendMsg(EMsgType.Title, result);
                     }
                 }
+                tran.Commit();
+
+                sendMsg(EMsgType.Title, "语句执行成功。");
+                sendMsg(EMsgType.Nomal, "");
+                sendMsg(EMsgType.Nomal, "");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                tran.Rollback();
+                sendMsg(EMsgType.Err, "执行出错，原因：");
+                sendMsg(EMsgType.Err, ex.GetBaseException().Message);
             }
 
 
@@ -92,10 +92,8 @@ namespace App.Module.Sqler.Controllers.SqlRun
         {
             if (string.IsNullOrEmpty(sql)) sql = Request.Query["sql"];
 
-            using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config")))
-            {
-                return conn.Execute(sql);
-            }
+            using var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config"));
+            return conn.Execute(sql);
         }
 
         #endregion

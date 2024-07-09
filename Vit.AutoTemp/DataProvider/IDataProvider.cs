@@ -1,6 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Collections.Generic;
 
-using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Linq.ComponentModel;

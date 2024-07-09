@@ -1,17 +1,19 @@
-﻿using Newtonsoft.Json.Linq;
-using Vit.Core.Util.ComponentModel.Data;
-using Vit.Extensions;
-using System.Data;
-using Vit.Core.Util.ComponentModel.SsError;
-using Vit.Core.Module.Log;
-using Vit.Db.Module.Schema;
+﻿using System.Data;
+
+using Newtonsoft.Json.Linq;
+
 using Vit.AutoTemp.DataProvider;
+using Vit.Core.Module.Log;
+using Vit.Core.Module.Serialization;
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ComponentModel.SsError;
+using Vit.Db.Module.Schema;
+using Vit.Extensions;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Linq;
 using Vit.Linq.ComponentModel;
 using Vit.Linq.Filter.ComponentModel;
-using Vit.Extensions.Linq_Extensions;
-using Vit.Extensions.Newtonsoft_Extensions;
-using Vit.Extensions.Json_Extensions;
-using Vit.Core.Module.Serialization;
 
 namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 {
@@ -19,7 +21,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
     {
 
         #region DataSource
-        List<Model> dataSource = getDataSource();
+        readonly List<Model> dataSource = getDataSource();
         static List<Model> getDataSource()
         {
             List<TableSchema> schema = DataEditorHelp.schema;

@@ -1,15 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using App.Module.Sqler.Logical;
+using App.Module.Sqler.Logical.SqlBackup.SqlServerBackup;
+
+using Microsoft.AspNetCore.Mvc;
+
 using Newtonsoft.Json.Linq;
+
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
-using App.Module.Sqler.Logical;
-using App.Module.Sqler.Logical.SqlBackup.SqlServerBackup;
 using Vit.Db.DbMng;
-using Vit.Extensions.Object_Serialize_Extensions;
-using Vit.Linq.ComponentModel;
-using Vit.Extensions.Linq_Extensions;
-using Vit.Extensions.Json_Extensions;
+using Vit.Extensions.Serialize_Extensions;
 using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Linq;
+using Vit.Linq.ComponentModel;
 using Vit.Linq.Filter.ComponentModel;
 
 namespace App.Module.Sqler.Controllers.SqlBackup
@@ -23,7 +26,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
     {
 
         #region BackupFile_GetFileInfos
-        List<BackupFileInfo> BackupFile_GetFileInfos()
+        static List<BackupFileInfo> BackupFile_GetFileInfos()
         {
             List<BackupFileInfo> backupFiles;
 
@@ -58,7 +61,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
                  idField: 'id',
 
-                /* 添加、修改、查看、删除 等权限,可不指定。 默认值均为true  */
+                /* 添加、修改、查看、删除 等权限,可不指定。 默认值均为 true  */
                 'permit':{
                     insert:false,
                     update:true,
@@ -293,17 +296,15 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         [HttpPut("update")]
         public ApiReturn update([FromBody] JObject model)
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-                string fileName = model["id"].ConvertToString();
-                string newFileName = model["fileName"].ConvertToString();
+            using var conn = SqlerHelp.SqlServerBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+            string fileName = model["id"].ConvertToString();
+            string newFileName = model["fileName"].ConvertToString();
 
 
-                string filePathOld = dbMng.BackupFile_GetPathByName(fileName);
-                string filePathNew = dbMng.BackupFile_GetPathByName(newFileName);
-                global::System.IO.File.Move(filePathOld, filePathNew);
-            }
+            string filePathOld = dbMng.BackupFile_GetPathByName(fileName);
+            string filePathNew = dbMng.BackupFile_GetPathByName(newFileName);
+            global::System.IO.File.Move(filePathOld, filePathNew);
             return true;
         }
         #endregion
@@ -317,16 +318,13 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         [HttpDelete("delete")]
         public ApiReturn delete([FromBody] JObject arg)
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-                string fileName = arg["id"].Value<string>();
+            using var conn = SqlerHelp.SqlServerBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+            string fileName = arg["id"].Value<string>();
 
-                var filePath = dbMng.BackupFile_GetPathByName(fileName);
+            var filePath = dbMng.BackupFile_GetPathByName(fileName);
 
-                global::System.IO.File.Delete(filePath);
-
-            }
+            global::System.IO.File.Delete(filePath);
             return true;
         }
         #endregion

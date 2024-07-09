@@ -6,7 +6,7 @@ using Vit.AutoTemp.DataProvider;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Extensions;
-using Vit.Extensions.Object_Serialize_Extensions;
+using Vit.Extensions.Serialize_Extensions;
 using Vit.Linq.ComponentModel;
 using Vit.Linq.Filter.ComponentModel;
 
