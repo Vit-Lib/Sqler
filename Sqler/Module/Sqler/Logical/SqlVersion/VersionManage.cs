@@ -32,7 +32,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
                 }
             }
 
-            Data.Create<sqler_version>();
+            Data.TryCreateTable<sqler_version>();
 
             return true;
         }
