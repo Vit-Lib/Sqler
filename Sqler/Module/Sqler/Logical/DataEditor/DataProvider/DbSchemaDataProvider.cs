@@ -1,15 +1,19 @@
-﻿using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
-using System.Linq;
-using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Extensions;
-using Vit.Linq.Query;
-using System.Data;
-using Vit.Core.Util.ComponentModel.SsError;
-using Vit.Core.Module.Log;
-using Vit.Db.Module.Schema;
+﻿using System.Data;
+
+using Newtonsoft.Json.Linq;
+
 using Vit.AutoTemp.DataProvider;
+using Vit.Core.Module.Log;
+using Vit.Core.Module.Serialization;
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ComponentModel.SsError;
+using Vit.Db.Module.Schema;
+using Vit.Extensions;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Linq;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
 
 namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 {
@@ -17,22 +21,16 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
     {
 
         #region DataSource
-        List<Model> dataSource = getDataSource();
+        readonly List<Model> dataSource = getDataSource();
         static List<Model> getDataSource()
         {
-            List<TableSchema> schema;
+            List<TableSchema> schema = DataEditorHelp.schema;
 
             #region (x.1)从数据库获取表结构
-
-           
-            using (var scope = DataEditorHelp.efDbFactory.CreateDbContext(out var db))
+            var models = schema.SelectMany(table =>
             {
-                schema= (db.GetDbConnection() as IDbConnection).GetSchema();          
-            }
-
-            var models = schema.SelectMany(table => {
-
-                return table.columns.Select(col => {
+                return table.columns.Select(col =>
+                {
                     var m = col.ConvertBySerialize<Model>();
                     m.name = col.column_name;
                     m.id = table.table_name + "." + col.column_name;
@@ -48,8 +46,8 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
             }).ToList();
             #endregion
 
-            #region (x.2)autoTemp.json获取表字段描述           
-            foreach (var table in DataEditorHelp.dataEditorConfig?.Get<JObject>("dbComment") ??new JObject() )
+            #region (x.2)autoTemp.json获取表字段描述
+            foreach (var table in DataEditorHelp.dataEditorConfig?.Get<JObject>("dbComment") ?? new JObject())
             {
                 try
                 {
@@ -63,7 +61,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
                 catch (System.Exception ex)
                 {
                     Logger.Error(ex);
-                }                           
+                }
             }
             #endregion
 
@@ -116,8 +114,8 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
         public ApiReturn getControllerConfig(object sender)
         {
             var data = @"{
-                idField: 'id',               
-                pidField: 'pid',               
+                idField: 'id',
+                pidField: 'pid',
                 treeField: 'name',
 
                 dependency: {
@@ -125,7 +123,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
                     js: []
                 },
  
-                fields: [                  
+                fields: [
                     {  field: 'name', title: 'name', list_width: 200,editable:false },
                     {  field: 'primary_key', title: 'primary_key', list_width: 80,editable:false },
                     {  field: 'autoincrement', title: 'autoincrement', list_width: 100,editable:false },
@@ -138,35 +136,34 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
                     { field: 'name', title: 'name',filterOpt:'Contains' }
                 ]
             }";
-            return new ApiReturn<JObject>(data.Deserialize<JObject>());   
+            return new ApiReturn<JObject>(Json.Deserialize<JObject>(data));
         }
         #endregion
 
 
 
         #region getList
-        public ApiReturn getList(object sender, List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page, JObject arg)
-        {                
+        public ApiReturn getList(object sender, FilterRule filter, IEnumerable<OrderField> sort, PageInfo page, JObject arg)
+        {
 
             var query = dataSource.AsQueryable();
 
             var pageData = query.ToPageData(filter, sort, page);
 
 
-            #region _childrenCount            
-            pageData.rows.ForEach(m =>
+            // _childrenCount
+            pageData.items.ForEach(m =>
             {
                 m._childrenCount = query.Count(child => child.pid == m.id);
             });
-            #endregion
 
-            return new ApiReturn<PageData<Model>> { data = pageData };
+            return new ApiReturn<object> { data = pageData };
         }
         #endregion
 
 
         #region getModel
-        public ApiReturn  getModel(object sender, string id)
+        public ApiReturn getModel(object sender, string id)
         {
             var query = dataSource.AsQueryable();
             var model = query.FirstOrDefault(m => m.id == id);
@@ -176,7 +173,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
         #endregion
 
         #region insert
-        public ApiReturn  insert(object sender, JObject model)
+        public ApiReturn insert(object sender, JObject model)
         {
             return new SsError
             {
@@ -195,7 +192,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 
             if (model_Data != null)
             {
-                #region (x.1)保存                
+                #region (x.1)保存
                 model_Data.user_comment = model_.user_comment;
                 DataEditorHelp.dataEditorConfig.SetByPath(model_.user_comment, "dbComment." + model_Data.id);
                 DataEditorHelp.dataEditorConfig.SaveToFile();
@@ -203,7 +200,7 @@ namespace App.Module.Sqler.Logical.DataEditor.DataProvider
 
 
                 #region (x.2)重新初始化模板
-                DataEditorHelp.InitDataProvider(model_Data.pid);               
+                DataEditorHelp.InitDataProvider(model_Data.pid);
                 #endregion
 
 

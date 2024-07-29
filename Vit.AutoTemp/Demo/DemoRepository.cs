@@ -1,14 +1,17 @@
 ﻿using System.Collections.Generic;
-using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Extensions;
-using Vit.Linq.Query;
 using System.ComponentModel.DataAnnotations;
-using Vit.Core.Util.Common;
 using System.Linq;
-using Vit.Extensions.ObjectExt;
-using Vit.Core.Util.ComponentModel.SsError;
+
 using Vit.AutoTemp.Repository;
+using Vit.Core.Util.Common;
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ComponentModel.SsError;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Extensions.Object_Extensions;
+using Vit.Linq;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
+
 
 namespace Vit.AutoTemp.Demo
 {
@@ -25,7 +28,7 @@ namespace Vit.AutoTemp.Demo
             /// [field:visiable=false]
             /// [controller:permit.delete=false] 
             /// </summary>
-            [Key]      
+            [Key]
             public int id { get; set; }
 
 
@@ -61,7 +64,7 @@ namespace Vit.AutoTemp.Demo
 
 
         #region DataSource
-        static List<Model> dataSource = getDataSource();
+        static readonly List<Model> dataSource = getDataSource();
 
 
         static List<Model> getDataSource()
@@ -83,7 +86,7 @@ namespace Vit.AutoTemp.Demo
             return list;
         }
 
-        
+
         #endregion
 
 
@@ -91,18 +94,18 @@ namespace Vit.AutoTemp.Demo
         {
             if (!int.TryParse(id, out int m_id))
             {
-                return new SsError{  errorMessage = "数据不存在" };           
+                return new SsError { errorMessage = "数据不存在" };
             }
 
             var query = dataSource.AsQueryable();
             var model = query.FirstOrDefault(m => m.id == m_id);
 
-            return model;       
+            return model;
         }
 
 
         public ApiReturn<Model> Update(Model model_)
-        {      
+        {
 
             var model_Data = dataSource.FirstOrDefault(m => m.id == model_.id);
 
@@ -115,11 +118,11 @@ namespace Vit.AutoTemp.Demo
             else
             {
                 return new SsError { errorMessage = "待修改的数据不存在" };
-            }          
+            }
         }
 
         public ApiReturn Delete(Model model)
-        {             
+        {
 
             var model_Data = dataSource.FirstOrDefault(m => m.id == model.id);
 
@@ -134,19 +137,17 @@ namespace Vit.AutoTemp.Demo
             }
         }
 
-        public ApiReturn<PageData<Model>> GetList(List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page)
+        public ApiReturn<PageData<Model>> GetList(FilterRule filter, IEnumerable<OrderField> sort, PageInfo page)
         {
             var query = dataSource.AsQueryable();
 
             var pageData = query.ToPageData(filter, sort, page);
 
-
-            #region _childrenCount            
-            pageData.rows.ForEach(m =>
+            // _childrenCount
+            pageData.items.ForEach(m =>
             {
                 m._childrenCount = query.Count(child => child.pid == m.id);
             });
-            #endregion
 
             return new ApiReturn<PageData<Model>> { data = pageData };
         }
@@ -155,7 +156,7 @@ namespace Vit.AutoTemp.Demo
         {
             var model_ = model.ConvertBySerialize<Model>();
 
-            model_.id = dataSource[dataSource.Count - 1].id + 1;
+            model_.id = dataSource[^1].id + 1;
             dataSource.Add(model_);
 
             return model_;

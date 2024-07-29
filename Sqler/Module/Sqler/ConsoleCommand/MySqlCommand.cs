@@ -1,7 +1,9 @@
 ﻿using App.Module.Sqler.Logical;
+
 using Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup;
+
 using Vit.ConsoleUtil;
-using Vit.Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
 
 namespace App.Module.Sqler.ConsoleCommand
 {
@@ -12,7 +14,7 @@ namespace App.Module.Sqler.ConsoleCommand
         [Command("MySql.CreateDataBase")]
         [Remarks("若数据库不存在，则创建数据库。参数说明：")]
         [Remarks("-ConnStr[--ConnectionString] (可选)数据库连接字符串 例如 \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\"")]
-        [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]       
+        [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]
         [Remarks("示例： MySql.CreateDataBase -ConnStr \"Data Source=.;Database=Db_Dev;UID=sa;PWD=123456;\" ")]
         public static void CreateDataBase(string[] args)
         {
@@ -22,10 +24,10 @@ namespace App.Module.Sqler.ConsoleCommand
             string connStr = ConsoleHelp.GetArg(args, "-ConnStr") ?? ConsoleHelp.GetArg(args, "--ConnectionString");
             if (!string.IsNullOrEmpty(connStr))
             {
-                SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "MySqlBackup", "ConnectionString");                
+                SqlerHelp.sqlerConfig.root.ValueSetByPath(connStr, "SqlBackup", "MySqlBackup", "ConnectionString");
             }
-            #endregion           
-           
+            #endregion
+
 
             MySqlLogical.CreateDataBase();
 
@@ -84,7 +86,7 @@ namespace App.Module.Sqler.ConsoleCommand
             string fileName = ConsoleHelp.GetArg(args, "-fn") ?? ConsoleHelp.GetArg(args, "--fileName");
             string filePath = ConsoleHelp.GetArg(args, "-fp") ?? ConsoleHelp.GetArg(args, "--filePath");
 
-            bool force = (ConsoleHelp.GetArg(args, "-f") ?? ConsoleHelp.GetArg(args, "--force"))!=null;
+            bool force = (ConsoleHelp.GetArg(args, "-f") ?? ConsoleHelp.GetArg(args, "--force")) != null;
 
 
             MySqlLogical.Restore(filePath: filePath, fileName: fileName, force: force);
@@ -122,7 +124,7 @@ namespace App.Module.Sqler.ConsoleCommand
 
             bool useMemoryCache = (ConsoleHelp.GetArg(args, "-c") ?? ConsoleHelp.GetArg(args, "--useMemoryCache")) != "false";
 
-            MySqlLogical.BackupSqler(filePath, fileName,useMemoryCache: useMemoryCache);
+            MySqlLogical.BackupSqler(filePath, fileName, useMemoryCache: useMemoryCache);
 
 
             ConsoleHelp.Log("操作是否成功：");

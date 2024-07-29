@@ -1,30 +1,32 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
-using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Linq.Query;
-using Vit.Extensions;
-using Vit.Core.Util.ComponentModel.SsError;
-using System.Linq;
-using System;
-using App.Module.Sqler.Logical;
+﻿using App.Module.Sqler.Logical;
 using App.Module.Sqler.Logical.SqlBackup.SqlServerBackup;
-using Vit.Db.DbMng.MsSql;
+
+using Microsoft.AspNetCore.Mvc;
+
+using Newtonsoft.Json.Linq;
+
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Db.DbMng;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Linq;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
 
 namespace App.Module.Sqler.Controllers.SqlBackup
 {
     /// <summary>
     /// 
     /// </summary>
-    [Route("sqler/Sqler_SqlBackup_SqlServerBackup")] 
+    [Route("sqler/Sqler_SqlBackup_SqlServerBackup")]
     [ApiController]
     public class SqlServerBackupController : ControllerBase
     {
 
         #region BackupFile_GetFileInfos
-        List<BackupFileInfo> BackupFile_GetFileInfos()
+        static List<BackupFileInfo> BackupFile_GetFileInfos()
         {
             List<BackupFileInfo> backupFiles;
 
@@ -41,7 +43,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
 
-        #region autoTemp      
+        #region autoTemp
 
         #region (x.1) getControllerConfig
         /// <summary>
@@ -51,31 +53,30 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         [HttpGet("getConfig")]
         public ApiReturn getControllerConfig()
         {
-
             var data = @"{
                 dependency: {
                     css: [],
                     js: []
-                },       
+                },
 
-                 idField: 'id',   
+                 idField: 'id',
 
-                /* 添加、修改、查看、删除 等权限,可不指定。 默认值均为true  */
+                /* 添加、修改、查看、删除 等权限,可不指定。 默认值均为 true  */
                 'permit':{
                     insert:false,
                     update:true,
                     show:false,
-                    delete:true                 
+                    delete:true
                 },
 
                 list:{
-                    rowButtons:[                            
+                    rowButtons:[
                         {text:'还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/Restore?fileName={id}'    }     },
-                        {text:'还原本地bak',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/RestoreLocalBak?fileName={id}'    }     }                  
+                        {text:'还原serverBak',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/RestoreServerBak?fileName={id}'    }     }
                     ]
                 },
 
-                fields: [                  
+                fields: [
                     {  'ig-class': 'TextArea', field: 'fileName', title: '文件名', list_width: 400,editable:true },
                     { field: 'size', title: '大小(MB)', list_width: 80,editable:false },
                     { field: 'size_kb', title: '大小(KB)', list_width: 80,editable:false },
@@ -92,27 +93,27 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
             #region (x.1)获取数据库状态
             EDataBaseState dbState;
-            int processCount=0;
+            int processCount = 0;
             using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
             {
                 var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-                dbState =dbMng.GetDataBaseState();
-                if(dbState== EDataBaseState.online) processCount = dbMng.GetProcessCount();
+                dbState = dbMng.GetDataBaseState();
+                if (dbState == EDataBaseState.online) processCount = dbMng.GetProcessCount();
             }
-            #endregion            
+            #endregion
 
 
 
-         
+
             #region (x.2)list.title
-            var title = $"Sql Server备份与还原-- 数据库状态：{ dbState }";
+            var title = $"Sql Server备份与还原-- 数据库状态：{dbState}";
             if (dbState == EDataBaseState.online) title += " -- 连接数：" + processCount;
             controllerConfig["list"]["title"] = title;
             #endregion
 
 
             #region (x.3)list.buttons
-            var buttons =  new JArray();
+            var buttons = new JArray();
             controllerConfig["list"]["buttons"] = buttons;
 
             #region (x.x.1)CreateDataBase
@@ -158,15 +159,15 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
 
-            #region (x.x.6)BackupBak
+            #region (x.x.6) BackupToLocalBak
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
             {
-                var strButton = "{text:'bak备份',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/BackupBak'    }     }";
+                var strButton = "{text:'备份bak',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/BackupToLocalBak'    }     }";
                 buttons.Add(strButton.Deserialize<JObject>());
             }
             #endregion
 
- 
+
 
             #region (x.x.7)BackupSqler
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
@@ -186,10 +187,10 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
 
-            #region (x.x.9)BackupLocalBak
+            #region (x.x.9) BackupToServerBak
             if (Array.IndexOf(new[] { EDataBaseState.online, EDataBaseState.unknow }, dbState) >= 0)
             {
-                var strButton = "{text:'本地bak备份',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/BackupLocalBak'    }     }";
+                var strButton = "{text:'备份bak到server',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_SqlServerBackup/BackupToServerBak'    }     }";
                 buttons.Add(strButton.Deserialize<JObject>());
             }
             #endregion
@@ -227,22 +228,22 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         /// </summary>
         /// <returns></returns>
         [HttpGet("getList")]
-        public ApiReturn getList([FromQuery]string page, [FromQuery]string filter, [FromQuery]string sort, [FromQuery]string arg)
+        public ApiReturn getList([FromQuery] string page, [FromQuery] string filter, [FromQuery] string sort, [FromQuery] string arg)
         {
             try
             {
-                var page_ = page.Deserialize<PageInfo>();
-                var filter_ = filter.Deserialize<List<DataFilter>>() ?? new List<DataFilter>();
-                var sort_ = sort.Deserialize<SortItem[]>();
+                var page_ = page?.Deserialize<PageInfo>();
+                var filter_ = filter.Deserialize<FilterRule>();
+                var sort_ = sort.Deserialize<OrderField[]>();
 
 
-                List<BackupFileInfo> backupFiles= BackupFile_GetFileInfos();
-                
+                List<BackupFileInfo> backupFiles = BackupFile_GetFileInfos();
+
                 var queryable = backupFiles.AsQueryable();
 
-                var pageData = queryable.Where(filter_).Sort(sort_).Select(m => m.ConvertBySerialize<JObject>()).ToPageData(page_);
+                var pageData = queryable.Where(filter_).OrderBy(sort_).Select(m => m.ConvertBySerialize<JObject>()).ToPageData(page_);
 
-                pageData.rows.ForEach(model =>
+                pageData.items.ForEach(model =>
                 {
                     model["id"] = model["fileName"];
                     float size = model["size"].Value<float>();
@@ -267,13 +268,13 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         /// </summary>
         /// <returns></returns>
         [HttpGet("getModel")]
-        public ApiReturn<object> getModel([FromQuery]string id)
+        public ApiReturn<object> getModel([FromQuery] string id)
         {
             try
             {
                 List<BackupFileInfo> backupFiles = BackupFile_GetFileInfos();
 
-                var model = backupFiles.AsQueryable().Where(m=>m.fileName==id).FirstOrDefault()?.ConvertBySerialize<JObject>();
+                var model = backupFiles.AsQueryable().Where(m => m.fileName == id).FirstOrDefault()?.ConvertBySerialize<JObject>();
                 model["id"] = model["fileName"];
                 float size = model["size"].Value<float>();
                 model["size_kb"] = (size * 1024).ToString("f2");
@@ -293,19 +294,17 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         /// </summary>
         /// <returns></returns>
         [HttpPut("update")]
-        public ApiReturn update([FromBody]JObject model)
+        public ApiReturn update([FromBody] JObject model)
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-                string fileName= model["id"].ConvertToString();
-                string newFileName = model["fileName"].ConvertToString();
+            using var conn = SqlerHelp.SqlServerBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+            string fileName = model["id"].ConvertToString();
+            string newFileName = model["fileName"].ConvertToString();
 
 
-                string filePathOld = dbMng.BackupFile_GetPathByName(fileName);
-                string filePathNew = dbMng.BackupFile_GetPathByName(newFileName);
-                global::System.IO.File.Move(filePathOld, filePathNew);
-            }
+            string filePathOld = dbMng.BackupFile_GetPathByName(fileName);
+            string filePathNew = dbMng.BackupFile_GetPathByName(newFileName);
+            global::System.IO.File.Move(filePathOld, filePathNew);
             return true;
         }
         #endregion
@@ -317,18 +316,15 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         /// </summary>
         /// <returns></returns>
         [HttpDelete("delete")]
-        public ApiReturn delete([FromBody]JObject arg)
+        public ApiReturn delete([FromBody] JObject arg)
         {
-            using (var conn = SqlerHelp.SqlServerBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
-                string fileName = arg["id"].Value<string>();
+            using var conn = SqlerHelp.SqlServerBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
+            string fileName = arg["id"].Value<string>();
 
-                var filePath = dbMng.BackupFile_GetPathByName(fileName);
+            var filePath = dbMng.BackupFile_GetPathByName(fileName);
 
-                global::System.IO.File.Delete(filePath);
-          
-            }
+            global::System.IO.File.Delete(filePath);
             return true;
         }
         #endregion
@@ -343,7 +339,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         ///             强关所有连接
         ///             备份、还原
         ///             
-        #region (x.1) CreateDataBase        
+        #region (x.1) CreateDataBase
 
         [HttpPost("CreateDataBase")]
         public ApiReturn CreateDataBase()
@@ -354,7 +350,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         #endregion
 
 
-        #region (x.2) DropDataBase        
+        #region (x.2) DropDataBase
 
         [HttpPost("DropDataBase")]
         public ApiReturn DropDataBase()
@@ -366,7 +362,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
 
-        #region (x.3) AttachDataBase        
+        #region (x.3) AttachDataBase
 
         [HttpPost("AttachDataBase")]
         public ApiReturn AttachDataBase()
@@ -399,7 +395,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
         #region (x.6) Restore
         [HttpPost("Restore")]
-        public ApiReturn Restore([FromQuery]string fileName)
+        public ApiReturn Restore([FromQuery] string fileName)
         {
             SqlServerLogical.Restore(fileName: fileName);
             return new ApiReturn();
@@ -409,27 +405,36 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
         #region (x.7) RestoreLocalBak
-        [HttpPost("RestoreLocalBak")]
-        public ApiReturn RestoreLocalBak([FromQuery]string fileName)
+        [HttpPost("RestoreServerBak")]
+        public ApiReturn RestoreServerBak([FromQuery] string fileName)
         {
-            SqlServerLogical.RestoreLocalBak(fileName: fileName);
+            SqlServerLogical.RestoreServerBak(fileName: fileName);
             return new ApiReturn();
         }
         #endregion
 
 
 
-        #region (x.8) BackupBak
-        [HttpPost("BackupBak")]
-        public ApiReturn BackupBak()
+        #region (x.8) BackupToLocalBak
+        [HttpPost("BackupToLocalBak")]
+        public ApiReturn BackupToLocalBak()
         {
-            SqlServerLogical.BackupBak();
+            SqlServerLogical.BackupToLocalBak();
+            return new ApiReturn();
+        }
+        #endregion
+
+        #region (x.9) BackupToServerBak
+        [HttpPost("BackupToServerBak")]
+        public ApiReturn BackupToServerBak()
+        {
+            SqlServerLogical.BackupToServerBak();
             return new ApiReturn();
         }
         #endregion
 
 
-        #region (x.9) BackupSqler
+        #region (x.10) BackupSqler
         [HttpPost("BackupSqler")]
         public ApiReturn BackupSqler()
         {
@@ -439,7 +444,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         #endregion
 
 
-        #region (x.9) BackupSqler_NoMemoryCache
+        #region (x.11) BackupSqler_NoMemoryCache
         [HttpPost("BackupSqler_NoMemoryCache")]
         public ApiReturn BackupSqler_NoMemoryCache()
         {
@@ -450,18 +455,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
 
-        #region (x.10) BackupLocalBak
-        [HttpPost("BackupLocalBak")]
-        public ApiReturn BackupLocalBak()
-        {
-            SqlServerLogical.BackupLocalBak();
-            return new ApiReturn();
-        }
-        #endregion
-
-
-
-        #region (x.11) 下载建库脚本
+        #region (x.12) 下载建库脚本
         [HttpGet("CreateDataBaseSql")]
         public IActionResult CreateDataBaseSql()
         {
@@ -471,7 +465,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
                 var dbMng = SqlerHelp.SqlServerBackup_CreateDbMng(conn);
 
                 sql = dbMng.BuildCreateDataBaseSql();
-            }            
+            }
             var bytes = sql.StringToBytes();
             return File(bytes, "text/plain", "CreateDataBase.sql");
         }

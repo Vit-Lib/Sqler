@@ -1,41 +1,63 @@
-﻿using Newtonsoft.Json.Linq;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
+using Newtonsoft.Json.Linq;
+
 using Vit.AutoTemp.DataProvider;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.XmlComment;
 using Vit.Db.Module.Schema;
 using Vit.Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Extensions.Serialize_Extensions;
 
 namespace Vit.AutoTemp
 {
     public class AutoTempHelp
     {
 
-        #region EfEntityToTableSchema 
-
-        public static TableSchema EfEntityToTableSchema(Type type)
+        #region CreateDataProvider
+        public static IDataProvider_Vitorm CreateDataProvider(string template, Type entityType, Func<global::Vitorm.DbContext> CreateDbContext, TableSchema tableSchema = null)
         {
-            TableSchema tableSchema = new TableSchema { table_name=type.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.TableAttribute>()?.Name   , columns = new List<ColumnSchema>() };
+            return CreateDataProviderMethod.MakeGenericMethod(entityType).Invoke(null, new object[] { template, CreateDbContext, tableSchema }) as IDataProvider_Vitorm;
+        }
+
+        public static DataProvider_Vitorm<Model, global::Vitorm.DbContext> CreateDataProvider<Model>
+            (string template, Func<global::Vitorm.DbContext> CreateDbContext, TableSchema tableSchema = null)
+            where Model : class
+        {
+            return new DataProvider_Vitorm<Model, global::Vitorm.DbContext>(template, CreateDbContext, tableSchema);
+        }
+        static readonly System.Reflection.MethodInfo CreateDataProviderMethod =
+            new Func<string, Func<global::Vitorm.DbContext>, TableSchema, DataProvider_Vitorm<object, global::Vitorm.DbContext>>
+            (CreateDataProvider<object>)
+            .Method.GetGenericMethodDefinition();
+
+        #endregion
+
+
+        #region EntityTypeToTableSchema 
+
+        public static TableSchema EntityTypeToTableSchema(Type entityType)
+        {
+            TableSchema tableSchema = new TableSchema { table_name = entityType.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.TableAttribute>()?.Name, columns = new List<ColumnSchema>() };
 
             using (var xmlMng = new XmlCommentMng())
             {
                 xmlMng.AddBin();
-                var xmlHelp = xmlMng.GetXmlHelp(type);
+                var xmlHelp = xmlMng.GetXmlHelp(entityType);
 
-                foreach (var field in type.GetProperties())
+                foreach (var field in entityType.GetProperties())
                 {
                     tableSchema.columns.Add(new ColumnSchema
                     {
                         column_name = field.Name,
                         primary_key = (field.GetCustomAttribute<KeyAttribute>() != null) ? 1 : 0,
-                        column_comment = xmlHelp.Property_GetSummary(field),
+                        column_comment = xmlHelp?.Property_GetSummary(field),
                         column_clr_type = field.ReflectedType
                     });
                 }
@@ -46,23 +68,23 @@ namespace Vit.AutoTemp
 
 
         #region BuildControllerConfigByTable
-        public static JObject BuildControllerConfigByType(Type type)
+        public static JObject BuildControllerConfigByEntityType(Type entityType)
         {
-            return BuildControllerConfigByTable(EfEntityToTableSchema(type));
+            return BuildControllerConfigByTable(EntityTypeToTableSchema(entityType));
         }
         public static JObject BuildControllerConfigByTable(TableSchema tableInfo)
         {
 
             #region SplitStringTo2
-            void SplitStringTo2(string oriString,string splitString,out string part1,out string part2)
-            { 
+            void SplitStringTo2(string oriString, string splitString, out string part1, out string part2)
+            {
                 int splitIndex = oriString.IndexOf(splitString);
                 if (splitIndex >= 0)
                 {
-                    part1 = oriString.Substring(0, splitIndex);
-                    part2 = oriString.Substring(splitIndex + splitString.Length);
+                    part1 = oriString[..splitIndex];
+                    part2 = oriString[(splitIndex + splitString.Length)..];
                 }
-                else 
+                else
                 {
                     part1 = oriString;
                     part2 = null;
@@ -95,7 +117,7 @@ namespace Vit.AutoTemp
                 }
 
                 var field = new JObject();
-              
+
                 field["field"] = column.column_name;
                 field["list_width"] = 200;
 
@@ -114,10 +136,10 @@ namespace Vit.AutoTemp
                         string key, value;
 
                         #region (x.x.1)获取key value 用户配置信息
-                        var comm = item.Value.Substring(1, item.Value.Length - 2);                       
+                        var comm = item.Value[1..^1];
 
-                        SplitStringTo2(comm,":",out key,out value);
-                        value = value?.Replace("\\x5B", "[").Replace("\\x5D", "]");                         
+                        SplitStringTo2(comm, ":", out key, out value);
+                        value = value?.Replace("\\x5B", "[").Replace("\\x5D", "]");
                         if (string.IsNullOrWhiteSpace(key)) continue;
                         #endregion                       
 
@@ -130,7 +152,7 @@ namespace Vit.AutoTemp
                 #endregion
 
                 //fieldIgnore
-                if ((comment ?? "").Contains("[fieldIgnore]")) 
+                if ((comment ?? "").Contains("[fieldIgnore]"))
                 {
                     continue;
                 }
@@ -166,7 +188,7 @@ namespace Vit.AutoTemp
                 }
                 #endregion
 
-            
+
 
                 #region Method BuildFieldConfigFromComment
                 void BuildFieldConfigFromComment(string key, string value)
@@ -237,13 +259,13 @@ namespace Vit.AutoTemp
                     {
                         try
                         {
-                            SplitStringTo2(value, "=", out var part1, out var part2);                           
+                            SplitStringTo2(value, "=", out var part1, out var part2);
                             object jsonValue;
                             try
                             {
                                 jsonValue = part2?.Deserialize<object>();
                             }
-                            catch 
+                            catch
                             {
                                 jsonValue = part2;
                             }
@@ -253,7 +275,7 @@ namespace Vit.AutoTemp
                         {
                             Logger.Error(ex);
                         }
-                        return;                   
+                        return;
                     }
                     #endregion
 

@@ -1,5 +1,5 @@
 ﻿# sqler说明书-docker
-> 源码地址： https://github.com/serset/sqler  
+> 源码地址： https://github.com/VitLibs/Sqler  
 > 注： 在容器中  sqler = dotnet /root/app/Sqler.dll  
 
 ---------------------------------
@@ -387,3 +387,82 @@ docker cp SqlerData sqler:/root/app/SqlerData/
 
 
 
+http://localhost:4570/sqler/index.html
+
+----------------
+Sqler
+SqlRun
+SqlBackup	
+SqlVersion
+DataEditor
+SqlStation
+DataImport
+
+-------------------------------------------------------------------- 
+(x.1)SqlRun
+	(x.x.1)SqlRun配置
+	(x.x.2)SqlRun 
+
+-------------------------------------------------------------------- 
+(x.2)SqlServer备份还原
+	(x.x.1)SqlServer备份还原配置
+	(x.x.2)SqlServer备份还原
+
+--------------------------------------------------------------------
+(x.3)MySql备份还原
+	(x.x.1)MySql备份还原配置
+	(x.x.2)MySql备份还原
+
+
+--------------------------------------------------------------------
+DbPort
+(x.4)导入导出工具
+
+--------------------------------------------------------------------
+(x.5)SqlVersion
+	(x.x.1)SqlVersion配置
+	(x.x.2)模块管理 
+	(x.x.3)升级记录		
+--------------------------------------------------------------------
+(x.6)DataEditor
+	(x.x.1)DataEditor配置
+	(x.x.2)Schema
+	(x.x.3)DataEditor
+--------------------------------------------------------------------
+(x.7)SqlStation
+
+
+
+
+
+
+
+# 菜单demo:
+``` json
+[
+{    
+    "attributes": {
+        "url": ""
+    },
+    "text": "<img mid='10' />SqlRun",
+    "iconCls": "icon-null",
+    "children": [
+        {           
+            "attributes": {
+                "url": "/autoTemp/Scripts/autoTemp/item.html?apiRoute=/autoTemp/data/Sqler_SqlRun_Config/{action}&mode=update&id=1"
+            },
+            "text": "<img  mid='10_1' />SqlRun配置",
+            "iconCls": "icon-null"
+        },
+        {          
+            "attributes": {
+                "url": "/sqler/SqlRun/index.html"
+            },
+            "text": "<img  mid='10_2' />SqlRun",
+            "iconCls": "icon-null"
+        }
+    ]
+}
+]
+
+```

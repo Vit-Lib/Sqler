@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Extensions;
-using Vit.Linq.Query;
-using Vit.Core.Util.ConfigurationManager;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
+﻿using System.ComponentModel.DataAnnotations;
+
 using Vit.AutoTemp.Repository;
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ConfigurationManager;
+using Vit.Linq;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
 
 namespace App.Module.Sqler.Logical.SqlVersion
 {
@@ -15,8 +13,8 @@ namespace App.Module.Sqler.Logical.SqlVersion
     #region SqlVersionModuleRepository
     public class ModuleRepository : IRepository<SqlVersionModuleModel>
     {
-        SqlVersionModuleModel[] moduleModels;
-        public ModuleRepository(SqlVersionModuleModel[] moduleModels )
+        readonly SqlVersionModuleModel[] moduleModels;
+        public ModuleRepository(SqlVersionModuleModel[] moduleModels)
         {
             this.moduleModels = moduleModels;
         }
@@ -29,18 +27,18 @@ namespace App.Module.Sqler.Logical.SqlVersion
             return true;
         }
 
-        public ApiReturn<PageData<SqlVersionModuleModel>> GetList(List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page)
+        public ApiReturn<PageData<SqlVersionModuleModel>> GetList(FilterRule filter, IEnumerable<OrderField> sort, PageInfo page)
         {
-            var query = moduleModels.AsQueryable();            
- 
-            return  query.ToPageData(filter, sort,page);   
+            var query = moduleModels.AsQueryable();
+
+            return query.ToPageData(filter, sort, page);
         }
 
         public ApiReturn<SqlVersionModuleModel> GetModel(string id)
         {
-            var query = moduleModels.AsQueryable(); 
- 
-            return query.FirstOrDefault(m=>m.id==id);
+            var query = moduleModels.AsQueryable();
+
+            return query.FirstOrDefault(m => m.id == id);
         }
 
         public ApiReturn<SqlVersionModuleModel> Insert(SqlVersionModuleModel m)
@@ -55,18 +53,18 @@ namespace App.Module.Sqler.Logical.SqlVersion
         {
             var query = moduleModels.AsQueryable();
 
-            var mFromDb= query.FirstOrDefault(m_ => m_.id == m.id);
-            
+            var mFromDb = query.FirstOrDefault(m_ => m_.id == m.id);
 
-            FileInfo fi = new FileInfo(SqlerHelp.GetDataFilePath("SqlVersion", mFromDb.fileName));  
-            fi.MoveTo(SqlerHelp.GetDataFilePath("SqlVersion", m.fileName ));
+
+            FileInfo fi = new FileInfo(SqlerHelp.GetDataFilePath("SqlVersion", mFromDb.fileName));
+            fi.MoveTo(SqlerHelp.GetDataFilePath("SqlVersion", m.fileName));
 
             SqlVersionHelp.InitEnvironmentAndAutoTemp();
             return m;
         }
 
 
-    
+
     }
     #endregion
 
@@ -82,7 +80,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
         {
             this.repository = rep;
             //id = ""+this.GetHashCode();
-            fileName = rep.fileName;            
+            fileName = rep.fileName;
         }
 
         /// <summary>
@@ -110,7 +108,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
         /// 
         /// </summary>
         [Key]
-        public string id { get; set; }  
+        public string id { get; set; }
 
 
         /// <summary>
@@ -121,7 +119,7 @@ namespace App.Module.Sqler.Logical.SqlVersion
         /// <summary>
         /// 最高版本[field:editable=false]
         /// </summary>
-        public int lastVersion { get => repository?.lastVersion??-1; }
+        public int lastVersion { get => repository?.lastVersion ?? -1; }
 
 
         /// <summary>

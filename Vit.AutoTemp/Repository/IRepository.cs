@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Linq.Query;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
+
 
 namespace Vit.AutoTemp.Repository
 {
@@ -10,7 +11,7 @@ namespace Vit.AutoTemp.Repository
     {
         ApiReturn Delete(T m);
 
-        ApiReturn<PageData<T>> GetList(List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page);
+        ApiReturn<PageData<T>> GetList(FilterRule filter, IEnumerable<OrderField> sort, PageInfo page);
 
         ApiReturn<T> GetModel(string id);
 

@@ -1,8 +1,7 @@
 ﻿using App.Module.Sqler.Logical.DataEditor;
-using MySql.Data.MySqlClient;
-using System;
-using System.IO;
-using System.Threading.Tasks;
+
+using MySqlConnector;
+
 using Vit.Core.Module.Log;
 using Vit.Core.Util.Common;
 using Vit.Core.Util.ConfigurationManager;
@@ -10,6 +9,7 @@ using Vit.Db.DbMng;
 using Vit.Db.DbMng.MsSql;
 using Vit.Db.Util.Data;
 using Vit.Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
 
 
 namespace App.Module.Sqler.Logical
@@ -17,9 +17,9 @@ namespace App.Module.Sqler.Logical
     public class SqlerHelp
     {
 
-         
 
-        #region (Member.1)DataPath        
+
+        #region (Member.1)DataPath
 
         /// <summary>
         /// Data文件夹绝对路径。
@@ -35,11 +35,11 @@ namespace App.Module.Sqler.Logical
 
 
         /// <summary>
-        /// (Member.2)
+        /// Data/sqler.json
         /// </summary>
         public static JsonFile sqlerConfig { get; private set; }
 
-        #region (Member.3)SqlServerBackup     
+        #region (Member.3)SqlServerBackup
 
         public static string SqlServer_FormatConnectionString(string oriConnStr)
         {
@@ -47,16 +47,16 @@ namespace App.Module.Sqler.Logical
             return "persist security info=true;" + oriConnStr;
         }
 
-        public static System.Data.SqlClient.SqlConnection SqlServerBackup_CreateDbConnection() 
-        {           
-            var ConnectionString =sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString");
+        public static Microsoft.Data.SqlClient.SqlConnection SqlServerBackup_CreateDbConnection()
+        {
+            var ConnectionString = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.ConnectionString");
             ConnectionString = SqlServer_FormatConnectionString(ConnectionString);
             return ConnectionFactory.MsSql_GetConnection(ConnectionString);
         }
 
 
 
-        public static MsSqlDbMng SqlServerBackup_CreateDbMng(System.Data.SqlClient.SqlConnection conn)
+        public static MsSqlDbMng SqlServerBackup_CreateDbMng(Microsoft.Data.SqlClient.SqlConnection conn)
         {
             var BackupPath = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.BackupPath");
             if (string.IsNullOrWhiteSpace(BackupPath))
@@ -65,7 +65,7 @@ namespace App.Module.Sqler.Logical
             }
 
             string MdfPath = sqlerConfig.GetStringByPath("SqlBackup.SqlServerBackup.MdfPath");
-            if (!string.IsNullOrEmpty(MdfPath)) 
+            if (!string.IsNullOrEmpty(MdfPath))
             {
                 MdfPath = CommonHelp.GetAbsPath(MdfPath);
             }
@@ -82,7 +82,7 @@ namespace App.Module.Sqler.Logical
 
         #region (Member.4)MySqlBackup     
 
-        public static string MySql_FormatConnectionString(string oriConnStr) 
+        public static string MySql_FormatConnectionString(string oriConnStr)
         {
             //确保连接字符串包含 "AllowLoadLocalInfile=true;"（用以批量导入数据）
 
@@ -119,7 +119,7 @@ namespace App.Module.Sqler.Logical
                 if (string.IsNullOrWhiteSpace(BackupPath))
                 {
                     BackupPath = GetDataFilePath("MySqlBackup");
-                }            
+                }
 
                 return BackupPath;
             }
@@ -132,21 +132,21 @@ namespace App.Module.Sqler.Logical
 
 
 
-        #region InitEnvironment      
+        #region InitEnvironment
 
-        public static void InitEnvironment(string dataDirectoryPath ,string[]args)
+        public static void InitEnvironment(string dataDirectoryPath, string[] args)
         {
             Logger.Info("[Sqler]init ...");
 
-            #region (x.1)DataPath
+            #region #1 DataPath
 
-            //(x.x.1)from appsettings.json
+            // #1.1 from appsettings.json
             if (string.IsNullOrWhiteSpace(dataDirectoryPath))
             {
-                dataDirectoryPath = Vit.Core.Util.ConfigurationManager.ConfigurationManager.Instance.GetStringByPath("Sqler.DataPath");
+                dataDirectoryPath = Appsettings.json.GetStringByPath("Sqler.DataPath");
             }
 
-            //(x.x.2)默认
+            // #1.2 from Data
             if (string.IsNullOrWhiteSpace(dataDirectoryPath))
             {
                 dataDirectoryPath = "Data";
@@ -165,11 +165,11 @@ namespace App.Module.Sqler.Logical
             #endregion
 
 
-            // (x.2)init sqlerConfig        
+            // #2 init sqlerConfig
             sqlerConfig = new JsonFile(GetDataFilePath("sqler.json"));
 
 
-            #region (x.3)--set path=value
+            #region #3 --set path=value
             {
                 for (var i = 1; i < args.Length; i++)
                 {
@@ -181,8 +181,8 @@ namespace App.Module.Sqler.Logical
                             var ei = str?.IndexOf('=') ?? -1;
                             if (ei < 1) continue;
 
-                            var path = str.Substring(0, ei);
-                            var value = str.Substring(ei + 1);
+                            var path = str[..ei];
+                            var value = str[(ei + 1)..];
 
                             sqlerConfig.root.ValueSetByPath(value, path.Split('.'));
                         }
@@ -193,8 +193,8 @@ namespace App.Module.Sqler.Logical
             #endregion
 
 
-            //(x.4)
-            SqlVersion.SqlVersionHelp.InitEnvironment();
+            // #4
+            //SqlVersion.SqlVersionHelp.InitEnvironment();
 
 
             Logger.Info("[Sqler]inited!");
@@ -206,20 +206,21 @@ namespace App.Module.Sqler.Logical
         public static void InitAutoTemp()
         {
             Logger.Info("[Sqler.AutoTemp]init ...");
-            #region AutoTemp SqlRun
+
+            #region init SqlRun
             {
-                //config
                 Vit.AutoTemp.AutoTempHelp.RegistDataProvider(
                     new global::App.Module.Sqler.Logical.SqlRun.ConfigRepository().ToDataProvider("Sqler_SqlRun_Config"));
             }
             #endregion
 
 
-            #region AutoTemp DataEditor
+            #region init DataEditor
             {
-                Task.Run(()=>{
+                Task.Run(() =>
+                {
 
-                    Logger.Info("[Sqler.AutoTemp][DataEditor]init ...");
+                    Logger.Info("[Sqler.AutoTemp][DataEditor] init ...");
 
                     //RegistDataProvider
                     Vit.AutoTemp.AutoTempHelp.RegistDataProvider(
@@ -227,38 +228,38 @@ namespace App.Module.Sqler.Logical
 
 
                     //init
-                    if (!DataEditorHelp.Init()) 
+                    if (!DataEditorHelp.Init())
                     {
-                        Logger.Info("[Sqler.AutoTemp][DataEditor] not config Database Connnection,not inited.");
+                        Logger.Info("[Sqler.AutoTemp][DataEditor] not config Database Connection, not inited.");
                         return;
                     }
-                   
 
-                    Logger.Info("[Sqler.AutoTemp][DataEditor]init succeed!");                 
+
+                    Logger.Info("[Sqler.AutoTemp][DataEditor] init succeed!");
                 });
             }
             #endregion
 
-            #region AutoTemp SqlBackup
+            #region init SqlBackup
             {
                 //config
-                Vit.AutoTemp.AutoTempHelp.RegistDataProvider( 
+                Vit.AutoTemp.AutoTempHelp.RegistDataProvider(
                     new global::App.Module.Sqler.Logical.SqlBackup.SqlServerBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_SqlServerBackup_Config"));
 
                 Vit.AutoTemp.AutoTempHelp.RegistDataProvider(
                    new global::App.Module.Sqler.Logical.SqlBackup.MySqlBackup.ConfigRepository().ToDataProvider("Sqler_SqlBackup_MySqlBackup_Config"));
 
-                Logger.Info("[Sqler.AutoTemp]inited SqlBackup!");
+                Logger.Info("[Sqler.AutoTemp] inited SqlBackup!");
             }
             #endregion
 
 
-            // SqlVersion
-            SqlVersion.SqlVersionHelp.InitAutoTemp();
-            Logger.Info("[Sqler.AutoTemp]inited SqlVersion!");
+            // init SqlVersion
+            SqlVersion.SqlVersionHelp.InitEnvironmentAndAutoTemp();
+            Logger.Info("[Sqler.AutoTemp] inited SqlVersion!");
 
 
-            Logger.Info("[Sqler.AutoTemp]init succeed!");
+            Logger.Info("[Sqler.AutoTemp] init succeed!");
 
         }
         #endregion
@@ -267,12 +268,12 @@ namespace App.Module.Sqler.Logical
 
 
 
-  
-
-         
 
 
- 
+
+
+
+
 
     }
 }

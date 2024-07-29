@@ -4,13 +4,11 @@
  * 版本：v1
  * 时间：2020-04-08
  * 作者：lith
- * 邮箱：serset@yeah.net
+ * 邮箱：LithWang@outlook.com
  * 说明： 
  * ========================================================================
 */
 #endregion
-
-using System;
 
 namespace Vit.ConsoleUtil
 {

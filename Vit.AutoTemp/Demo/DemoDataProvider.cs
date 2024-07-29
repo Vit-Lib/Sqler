@@ -1,13 +1,18 @@
-﻿using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Extensions;
-using Vit.Linq.Query;
-using Vit.Extensions.ObjectExt;
-using Vit.Core.Util.Common;
+
+using Newtonsoft.Json.Linq;
+
 using Vit.AutoTemp.DataProvider;
+using Vit.Core.Util.Common;
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Extensions.Object_Extensions;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Linq;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
 
 namespace Vit.AutoTemp.Demo
 {
@@ -15,7 +20,7 @@ namespace Vit.AutoTemp.Demo
     {
 
         #region DataSource
-        static List<Model> dataSource = getDataSource();
+        static readonly List<Model> dataSource = getDataSource();
 
 
         static List<Model> getDataSource()
@@ -59,7 +64,7 @@ namespace Vit.AutoTemp.Demo
 
         #region getConfig
         public ApiReturn getControllerConfig(object sender)
-        {         
+        {
 
             var data = @"{
 
@@ -77,7 +82,7 @@ namespace Vit.AutoTemp.Demo
                 },
 
                 idField: 'id',               
-                " + (isTree?@"treeField: 'name',":"") + @"
+                " + (isTree ? @"treeField: 'name'," : "") + @"
                 rootPidValue:'0',   
 
                 list:{
@@ -106,26 +111,26 @@ namespace Vit.AutoTemp.Demo
                     { field: 'random', title: 'random' }
                 ]
             }";
-            return new ApiReturn<JObject>(data.Deserialize<JObject>());   
+            return new ApiReturn<JObject>(data.Deserialize<JObject>());
         }
         #endregion
 
 
 
         #region getList
-        public ApiReturn getList(object sender, List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page, JObject arg)
-        { 
+        public ApiReturn getList(object sender, FilterRule filter, IEnumerable<OrderField> sort, PageInfo page, JObject arg)
+        {
             var query = dataSource.AsQueryable();
 
             var pageData = query.ToPageData(filter, sort, page);
 
 
-            #region _childrenCount            
-            pageData.rows.ForEach(m =>
+            // childrenCount
+            pageData.items.ForEach(m =>
             {
                 m._childrenCount = query.Count(child => child.pid == m.id);
             });
-            #endregion
+
 
             return new ApiReturn<PageData<Model>> { data = pageData };
         }
@@ -133,7 +138,7 @@ namespace Vit.AutoTemp.Demo
 
 
         #region getModel
-        public ApiReturn  getModel(object sender, string id)
+        public ApiReturn getModel(object sender, string id)
         {
             if (!int.TryParse(id, out int m_id))
             {
@@ -154,11 +159,11 @@ namespace Vit.AutoTemp.Demo
         #endregion
 
         #region insert
-        public ApiReturn  insert(object sender, JObject model)
+        public ApiReturn insert(object sender, JObject model)
         {
             var model_ = model.ConvertBySerialize<Model>();
 
-            model_.id = dataSource[dataSource.Count - 1].id + 1;
+            model_.id = dataSource[^1].id + 1;
             dataSource.Add(model_);
 
             return new ApiReturn<Model>(model_);

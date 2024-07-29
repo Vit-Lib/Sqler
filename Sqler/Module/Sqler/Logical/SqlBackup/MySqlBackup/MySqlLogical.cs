@@ -1,5 +1,5 @@
 ﻿using App.Module.Sqler.Logical;
-using System;
+
 using Vit.Core.Module.Log;
 
 namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
@@ -10,18 +10,16 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
         ///  所有操作： 创建、删除
         ///             远程备份、远程还原
         ///          
-        
+
 
         #region (x.1) CreateDataBase         
         public static void CreateDataBase()
         {
-            using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);               
+            using var conn = SqlerHelp.MySqlBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
 
-                dbMng.CreateDataBase();
-                Logger.Info("Sqler-CreateDataBase");
-            }
+            dbMng.CreateDataBase();
+            Logger.Info("Sqler-CreateDataBase");
         }
         #endregion
 
@@ -29,13 +27,11 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
         #region (x.2) DropDataBase
         public static void DropDataBase()
         {
-            using (var conn = SqlerHelp.MySqlBackup_CreateDbConnection())
-            {
-                var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
+            using var conn = SqlerHelp.MySqlBackup_CreateDbConnection();
+            var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
 
-                dbMng.DropDataBase();
-                Logger.Info("[Sqler]MsDbMng-DropDataBase");
-            }
+            dbMng.DropDataBase();
+            Logger.Info("[Sqler]MsDbMng-DropDataBase");
 
         }
         #endregion
@@ -57,7 +53,7 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
                     filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }
 
-                filePath = dbMng.BackupSqler(filePath, useMemoryCache: useMemoryCache);  
+                filePath = dbMng.BackupSqler(filePath, useMemoryCache: useMemoryCache);
             }
 
             var span = (DateTime.Now - startTime);
@@ -76,7 +72,7 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
         /// <param name="filePath"></param>
         /// <param name="fileName"></param>
         /// <param name="force">若数据库已经存在，是否仍然还原</param>
-        public static void Restore(string filePath = null, string fileName = null,bool force=true)
+        public static void Restore(string filePath = null, string fileName = null, bool force = true)
         {
             Logger.Info("[Sqler]MySqlDbMng 还原数据库...");
             var startTime = DateTime.Now;
@@ -90,16 +86,16 @@ namespace Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup
                     filePath = dbMng.BackupFile_GetPathByName(fileName);
                 }
 
-                if (!force) 
+                if (!force)
                 {
-                    if (dbMng.GetDataBaseState()==Vit.Db.DbMng.EDataBaseState.online) 
+                    if (dbMng.GetDataBaseState() == Vit.Db.DbMng.EDataBaseState.online)
                     {
                         Logger.Info("[Sqler]MySqlDbMng 已取消。数据库已经存在，且没有指定强制还原参数。");
                         return;
                     }
                 }
 
-                dbMng.Restore(filePath); 
+                dbMng.Restore(filePath);
             }
 
             var span = (DateTime.Now - startTime);

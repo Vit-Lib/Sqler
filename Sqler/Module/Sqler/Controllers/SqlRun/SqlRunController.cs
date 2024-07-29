@@ -1,18 +1,21 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Text;
-using Dapper;
-using Microsoft.AspNetCore.Mvc;
+using System.Text.RegularExpressions;
+
 using App.Module.Sqler.Logical;
+
+using Microsoft.AspNetCore.Mvc;
+
+using Sqler.Module.Sqler.Logical.DbPort;
+using Sqler.Module.Sqler.Logical.Message;
+
+using Vit.Core.Module.Log;
+using Vit.Core.Module.Serialization;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Core.Util.ComponentModel.SsError;
-using Vit.Extensions;
-using Sqler.Module.Sqler.Logical.Message;
-using Sqler.Module.Sqler.Logical.DbPort;
-using System.Collections.Generic;
-using Vit.Core.Module.Log;
-using System.Text.RegularExpressions;
 using Vit.Db.Util.Data;
+using Vit.Extensions.Db_Extensions;
+using Vit.Extensions.Serialize_Extensions;
 
 namespace App.Module.Sqler.Controllers.SqlRun
 {
@@ -28,7 +31,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
         [HttpPost("ExecuteOnline")]
         [HttpGet("ExecuteOnline")]
-        public void ExecuteOnline([FromForm]string sql)
+        public void ExecuteOnline([FromForm] string sql)
         {
             if (string.IsNullOrEmpty(sql)) sql = Request.Query["sql"];
 
@@ -37,50 +40,46 @@ namespace App.Module.Sqler.Controllers.SqlRun
             ExecSql(SendMsg, sql);
         }
 
-        static void ExecSql( Action<EMsgType, String> sendMsg,string sqlCode)
+        static void ExecSql(Action<EMsgType, String> sendMsg, string sqlCode)
         {
-            using (var conn = ConnectionFactory.GetOpenConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config")))
-            {               
-                using (var tran = conn.BeginTransaction())
+            using var conn = ConnectionFactory.GetOpenConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config"));
+            using var tran = conn.BeginTransaction();
+            try
+            {
+                int index = 1;
+                //  GO ，包括空格、制表符、换页符等          
+                //Regex reg = new Regex("/\\*GO\\*/\\s*GO");
+                Regex reg = new Regex("\\sGO\\s");
+                var sqls = reg.Split(sqlCode);
+                foreach (String sql in sqls)
                 {
-                    try
+                    if (String.IsNullOrEmpty(sql.Trim()))
                     {
-                        int index = 1;
-                        //  GO ，包括空格、制表符、换页符等          
-                        //Regex reg = new Regex("/\\*GO\\*/\\s*GO");
-                        Regex reg = new Regex("\\sGO\\s");
-                        var sqls = reg.Split(sqlCode);
-                        foreach (String sql in sqls)
-                        {
-                            if (String.IsNullOrEmpty(sql.Trim()))
-                            {
-                                sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]空语句，无需执行.");
-                            }
-                            else
-                            {
-                                sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]执行sql语句：");
-                                sendMsg(EMsgType.Nomal, sql);
-                                var result = "执行结果:" + conn.Execute(sql, null, tran) + " Lines effected.";
-                                sendMsg(EMsgType.Title, result);
-                            }
-                        }
-                        tran.Commit();
-
-                        sendMsg(EMsgType.Title, "语句执行成功。");
-                        sendMsg(EMsgType.Nomal, "");
-                        sendMsg(EMsgType.Nomal, "");                 
+                        sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]空语句，无需执行.");
                     }
-                    catch (Exception ex)
+                    else
                     {
-                        Logger.Error(ex);
-                        tran.Rollback();
-                        sendMsg(EMsgType.Err, "执行出错，原因：");
-                        sendMsg(EMsgType.Err, ex.GetBaseException().Message);                 
+                        sendMsg(EMsgType.Title, $"[{(index++)}/{sqls.Length}]执行sql语句：");
+                        sendMsg(EMsgType.Nomal, sql);
+                        var result = "执行结果:" + conn.Execute(sql, null, tran) + " Lines effected.";
+                        sendMsg(EMsgType.Title, result);
                     }
                 }
+                tran.Commit();
+
+                sendMsg(EMsgType.Title, "语句执行成功。");
+                sendMsg(EMsgType.Nomal, "");
+                sendMsg(EMsgType.Nomal, "");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex);
+                tran.Rollback();
+                sendMsg(EMsgType.Err, "执行出错，原因：");
+                sendMsg(EMsgType.Err, ex.GetBaseException().Message);
             }
 
-         
+
         }
 
         #endregion
@@ -89,14 +88,12 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
         [HttpPost("Execute")]
         [HttpGet("Export")]
-        public ApiReturn<int> Execute([FromForm]string sql)
+        public ApiReturn<int> Execute([FromForm] string sql)
         {
             if (string.IsNullOrEmpty(sql)) sql = Request.Query["sql"];
 
-            using (var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config")))
-            {
-                return conn.Execute(sql);
-            }
+            using var conn = ConnectionFactory.GetConnection(SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config"));
+            return conn.Execute(sql);
         }
 
         #endregion
@@ -105,7 +102,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
         #region ExecuteDataSet
 
         [HttpPost("ExecuteDataSet")]
-        public ApiReturn<object> ExecuteDataSet([FromForm]string sql)
+        public ApiReturn<object> ExecuteDataSet([FromForm] string sql)
         {
             try
             {
@@ -120,7 +117,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
                 var sqlRunConfig = DbPortLogical.GetSqlRunConfig(sql);
                 if (sqlRunConfig.TryGetValue("tableNames", out var value))
                 {
-                    var tableNames = value.Deserialize<List<string>>();
+                    var tableNames = Json.Deserialize<List<string>>(value);
                     for (var t = 0; t < tableNames.Count && t < ds.Tables.Count; t++)
                     {
                         ds.Tables[t].TableName = tableNames[t];
@@ -216,7 +213,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
         [HttpPost("Export")]
         [HttpGet("Export")]
-        public void Export([FromForm]string sql, [FromForm]string exportFileType)
+        public void Export([FromForm] string sql, [FromForm] string exportFileType)
         {
             if (string.IsNullOrEmpty(sql)) sql = Request.Query["sql"];
             if (string.IsNullOrEmpty(exportFileType)) exportFileType = Request.Query["exportFileType"];
@@ -225,7 +222,7 @@ namespace App.Module.Sqler.Controllers.SqlRun
 
             var connInfo = SqlerHelp.sqlerConfig.GetByPath<Vit.Db.Util.Data.ConnectionInfo>("SqlRun.Config");
 
-            DbPortLogical.Export(SendMsg, connInfo.type, connInfo.ConnectionString, exportFileType, sql:sql);
+            DbPortLogical.Export(SendMsg, connInfo.type, connInfo.connectionString, exportFileType, sql: sql);
         }
         #endregion
 
@@ -247,8 +244,8 @@ namespace App.Module.Sqler.Controllers.SqlRun
 </SqlRunConfig>
 */
 
-";           
-       
+";
+
             DataBaseStructBuilder += Vit.Db.DbMng.MsSql.MsSqlDbMng.DataBaseStructBuilder;
             var bytes = DataBaseStructBuilder.StringToBytes();
             return File(bytes, "text/plain", "CreateDataBase.sql");

@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using App.Module.Sqler.Logical.SqlVersion;
+
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System;
-using Microsoft.AspNetCore.Http;
-using App.Module.Sqler.Logical.SqlVersion;
+
 using Sqler.Module.Sqler.Logical.Message;
 
 namespace App.Module.Sqler.Controllers.SqlVersion
@@ -29,11 +27,11 @@ namespace App.Module.Sqler.Controllers.SqlVersion
         /// </summary>
         /// <returns></returns>
         [HttpGet("upgrade")]
-        public void Upgrade([FromQuery]string module,[FromQuery]int version)
+        public void Upgrade([FromQuery] string module, [FromQuery] int version)
         {
 
             Response.ContentType = "text/html;charset=utf-8";
-    
+
             VersionManage.UpgradeToVersion(module, SendMsg, version);
         }
 
@@ -47,15 +45,15 @@ namespace App.Module.Sqler.Controllers.SqlVersion
         public void OneKeyUpgrade()
         {
 
-            Response.ContentType = "text/html;charset=utf-8";           
+            Response.ContentType = "text/html;charset=utf-8";
 
-           
-            foreach (var sqlCodeRes in SqlVersionHelp.sqlCodeRepositorys) 
-            {          
+
+            foreach (var sqlCodeRes in SqlVersionHelp.sqlCodeRepositorys)
+            {
                 VersionManage.UpgradeToVersion(sqlCodeRes.moduleName, SendMsg);
-            } 
+            }
         }
- 
+
         #endregion
 
 
@@ -69,32 +67,32 @@ namespace App.Module.Sqler.Controllers.SqlVersion
         /// </summary>
         /// <returns></returns>
         [HttpGet("download")]
-        public void DownloadSql([FromQuery]string module)
+        public void DownloadSql([FromQuery] string module)
         {
 
             Response.ContentType = "text/file;charset=utf-8";
             //Response.AppendHeader("Content-Disposition", "attachment;filename=" + HttpUtility.UrlEncode(responseFileName, Encoding.UTF8));
-            Response.Headers.Add("Content-Disposition", "attachment;filename=sqler("+DateTime.Now.ToString("yyyy-MM-dd")+").sql");
+            Response.Headers.Add("Content-Disposition", "attachment;filename=sqler(" + DateTime.Now.ToString("yyyy-MM-dd") + ").sql");
 
-            Action<String> sendMsg = (String msg) =>
+            void sendMsg(String msg)
             {
                 Response.WriteAsync(msg + "\r\n");
-            };
+            }
 
-            var query = SqlVersionHelp.sqlCodeRepositorys.AsQueryable();           
-        
-            if (!string.IsNullOrEmpty(module)) 
+            var query = SqlVersionHelp.sqlCodeRepositorys.AsQueryable();
+
+            if (!string.IsNullOrEmpty(module))
             {
                 query = query.Where(m => m.moduleName == module);
             }
- 
+
             var repositorys = query.ToList();
 
             foreach (var repository in repositorys)
             {
                 sendMsg("---------------------------------------------------------------------------");
 
-                sendMsg("-- module: "+ repository.moduleName );
+                sendMsg("-- module: " + repository.moduleName);
 
                 var codes = (repository.dataSource.GetByPath<List<SqlCodeModel>>("data"));
                 if (codes == null) continue;
@@ -104,7 +102,7 @@ namespace App.Module.Sqler.Controllers.SqlVersion
                 foreach (var code in codes)
                 {
                     sendMsg("---------------------------------");
-                    sendMsg("-- version: " + code.version +"  time:" + code.time );
+                    sendMsg("-- version: " + code.version + "  time:" + code.time);
                     if (!String.IsNullOrWhiteSpace(code.comment))
                     {
                         sendMsg("\r\n/* ");
@@ -114,7 +112,7 @@ namespace App.Module.Sqler.Controllers.SqlVersion
                     sendMsg(code.code?.Replace("\n", "\r\n"));
                 }
                 #endregion
-            } 
+            }
         }
         #endregion
 

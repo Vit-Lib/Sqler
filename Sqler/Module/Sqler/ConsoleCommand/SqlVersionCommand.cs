@@ -1,9 +1,11 @@
 ﻿using App.Module.Sqler.Logical.SqlVersion;
+
 using Sqler.Module.Sqler.Logical.Message;
-using System;
+
 using Vit.ConsoleUtil;
 using Vit.Core.Util.ComponentModel.Data;
 using Vit.Extensions;
+using Vit.Extensions.Serialize_Extensions;
 
 namespace App.Module.Sqler.ConsoleCommand
 {
@@ -12,15 +14,15 @@ namespace App.Module.Sqler.ConsoleCommand
 
         #region OneKeyUpgrade
         [Command("SqlVersion.OneKeyUpgrade")]
-        [Remarks("一键升级数据库（所有模块）。参数说明：")]     
+        [Remarks("一键升级数据库（所有模块）。参数说明：")]
         [Remarks("--DataPath (可选)Data文件夹的路径。可为相对或绝对路径，默认：\"Data\"")]
         [Remarks("示例： SqlVersion.OneKeyUpgrade")]
         public static void OneKeyUpgrade(string[] args)
         {
-            Action<EMsgType, String> sendMsg = (type,msg) =>
+            static void sendMsg(EMsgType type, string msg)
             {
-                ConsoleHelp.Log(msg); 
-            };
+                ConsoleHelp.Log(msg);
+            }
 
 
             ApiReturn<int> apiRet = new ApiReturn<int>(0);
@@ -30,7 +32,7 @@ namespace App.Module.Sqler.ConsoleCommand
                 var curRet = VersionManage.UpgradeToVersion(sqlCodeRes.moduleName, sendMsg);
 
                 apiRet.data += curRet.data;
-                if (!curRet.success) 
+                if (!curRet.success)
                 {
                     apiRet.error = curRet.error;
                     apiRet.success = false;
@@ -57,7 +59,7 @@ namespace App.Module.Sqler.ConsoleCommand
                 int curVersion = VersionManage.GetDbCurVersion(moduleName);
                 int lastVersion = sqlCodeRes.lastVersion;
 
-                ConsoleHelp.Out("模块： " + moduleName+ "\t当前版本： " + curVersion+ "\t最新版本： " + lastVersion);               
+                ConsoleHelp.Out("模块： " + moduleName + "\t当前版本： " + curVersion + "\t最新版本： " + lastVersion);
             }
             ConsoleHelp.Log("---------------");
         }

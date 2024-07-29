@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+
+    <!-- easyui -->
+    <link rel="stylesheet" type="text/css" href="../jquery-easyui/themes/gray/easyui.css" />
+    <link rel="stylesheet" type="text/css" href="../jquery-easyui/themes/icon.css" />
+
+    <script type="text/javascript" src="../jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../jquery-easyui/jquery.easyui.min.js"></script> 
+
+    <script type="text/javascript" src="ui.EasyTab.js"></script>
+    <style type="text/css">
+        .luEasyTab div div div {
+            overflow: hidden;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var tabs;
+        function resizeTab() {
+            var jqElem = $(window);
+            var jqTab = tabs.jqElem;
+            jqTab.tabs('resize', {
+                width: jqElem.width() - 15,
+                height: jqElem.height() - jqTab.offset().top - 10
+            });
+        }
+
+      
+        $(function () {
+            tabs = new ui.EasyTab($('#qw_tabs'), { tools: '#tab-tools', border: false });
+
+            $(window).resize(resizeTab);
+            resizeTab();
+
+            tabs.addTabWithContent('首页', '首页', { closable: false });
+            tabs.addTabWithContent('首页1', '首页1cccc');
+            tabs.addTabWithContent('首页2', '首页2cccc', { onClose: function () { alert('close me'); } });
+            tabs.addTabWithContent('首页3', '首页3cccc', { closable: false });
+
+            tabs.addTab('baidu', 'http://www.baidu.com');
+        });
+
+    </script>
+</head>
+<body>
+
+    <table style="width:100%">
+        <tr>
+            <td>
+                <div id="dvMenu"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div>
+                    <div id="qw_tabs">
+                    </div>
+                    <div id="tab-tools">
+                        <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-undo'" onclick="javascript: tabs.switchTab(-1);"></a>
+                        <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-reload'" onclick="javascript: tabs.curTabRefresh();"></a>
+                        <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-redo'" onclick="javascript: tabs.switchTab(1);"></a>
+                        <a href="#" class="easyui-linkbutton" data-options="plain:true,iconCls:'icon-cancel'" onclick="javascript: tabs.closeAllTabs();"></a>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

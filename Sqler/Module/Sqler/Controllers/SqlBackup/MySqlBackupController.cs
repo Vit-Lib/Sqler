@@ -1,30 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using App.Module.Sqler.Logical;
+
 using Microsoft.AspNetCore.Mvc;
+
 using Newtonsoft.Json.Linq;
-using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Linq.Query;
-using Vit.Extensions;
-using Vit.Core.Util.ComponentModel.SsError;
-using System.Linq;
-using System;
-using App.Module.Sqler.Logical;
-using System.IO;
+
 using Sqler.Module.Sqler.Logical.SqlBackup.MySqlBackup;
+
+using Vit.Core.Module.Serialization;
+using Vit.Core.Util.ComponentModel.Data;
+using Vit.Core.Util.ComponentModel.SsError;
 using Vit.Db.DbMng;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Linq;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
 
 namespace App.Module.Sqler.Controllers.SqlBackup
 {
     /// <summary>
     /// 
     /// </summary>
-    [Route("sqler/Sqler_SqlBackup_MySqlBackup")] 
+    [Route("sqler/Sqler_SqlBackup_MySqlBackup")]
     [ApiController]
     public class MySqlBackupController : ControllerBase
     {
 
         #region BackupFile_GetFileInfos
-        List<BackupFileInfo> BackupFile_GetFileInfos() 
+        static List<BackupFileInfo> BackupFile_GetFileInfos()
         {
             List<BackupFileInfo> backupFiles;
 
@@ -32,7 +36,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             {
                 var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
                 backupFiles = dbMng.BackupFile_GetFileInfos();
-            } 
+            }
             return backupFiles;
         }
 
@@ -40,7 +44,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
 
 
-        #region autoTemp      
+        #region autoTemp
 
         #region (x.1) getControllerConfig
         /// <summary>
@@ -59,16 +63,16 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
                  idField: 'id',   
 
-                /* 添加、修改、查看、删除 等权限,可不指定。 默认值均为true  */
+                /* 添加、修改、查看、删除 等权限,可不指定。 默认值均为 true  */
                 'permit':{
                     insert:false,
                     update:true,
                     show:false,
-                    delete:true                 
+                    delete:true
                 },
 
                 list:{
-                    rowButtons:[                          
+                    rowButtons:[
                             {text:'还原',  ajax:{ type:'POST',url:'/sqler/Sqler_SqlBackup_MySqlBackup/Restore?fileName={id}'    }     }
                     ]
                 },
@@ -97,18 +101,18 @@ namespace App.Module.Sqler.Controllers.SqlBackup
                 dbState = dbMng.GetDataBaseState();
                 if (dbState == EDataBaseState.online) processCount = dbMng.GetProcessCount();
             }
-            #endregion 
-      
+            #endregion
+
 
             #region (x.2)list.title
-            var title = $"MySql备份与还原-- 数据库状态：{ dbState }";
+            var title = $"MySql备份与还原-- 数据库状态：{dbState}";
             if (dbState == EDataBaseState.online) title += " -- 连接数：" + processCount;
             controllerConfig["list"]["title"] = title;
             #endregion
 
 
             #region (x.3)list.buttons
-            var buttons =  new JArray();
+            var buttons = new JArray();
             controllerConfig["list"]["buttons"] = buttons;
 
             #region (x.x.1)CreateDataBase
@@ -179,24 +183,24 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         /// </summary>
         /// <returns></returns>
         [HttpGet("getList")]
-        public ApiReturn getList([FromQuery]string page, [FromQuery]string filter, [FromQuery]string sort, [FromQuery]string arg)
+        public ApiReturn getList([FromQuery] string page, [FromQuery] string filter, [FromQuery] string sort, [FromQuery] string arg)
         {
             try
             {
-                //(x.1)获取所有backupFiles
-                List<BackupFileInfo> backupFiles= BackupFile_GetFileInfos(); 
+                //(x.1)获取所有 backupFiles
+                List<BackupFileInfo> backupFiles = BackupFile_GetFileInfos();
 
 
                 //(x.2)条件筛选
-                var page_ = page.Deserialize<PageInfo>();
-                var filter_ = filter.Deserialize<List<DataFilter>>() ?? new List<DataFilter>();
-                var sort_ = sort.Deserialize<SortItem[]>();
+                var page_ = Json.Deserialize<PageInfo>(page);
+                var filter_ = Json.Deserialize<FilterRule>(filter);
+                var sort_ = Json.Deserialize<OrderField[]>(sort);
 
                 var queryable = backupFiles.AsQueryable();
 
-                var pageData = queryable.Where(filter_).Sort(sort_).Select(m => m.ConvertBySerialize<JObject>()).ToPageData(page_);
+                var pageData = queryable.Where(filter_).OrderBy(sort_).Select(m => m.ConvertBySerialize<JObject>()).ToPageData(page_);
 
-                pageData.rows.ForEach(model =>
+                pageData.items.ForEach(model =>
                 {
                     model["id"] = model["fileName"];
                     float size = model["size"].Value<float>();
@@ -221,13 +225,13 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         /// </summary>
         /// <returns></returns>
         [HttpGet("getModel")]
-        public ApiReturn<object> getModel([FromQuery]string id)
+        public ApiReturn<object> getModel([FromQuery] string id)
         {
             try
             {
                 List<BackupFileInfo> backupFiles = BackupFile_GetFileInfos();
 
-                var model = backupFiles.AsQueryable().Where(m=>m.fileName==id).FirstOrDefault()?.ConvertBySerialize<JObject>();
+                var model = backupFiles.AsQueryable().Where(m => m.fileName == id).FirstOrDefault()?.ConvertBySerialize<JObject>();
                 model["id"] = model["fileName"];
                 float size = model["size"].Value<float>();
                 model["size_kb"] = (size * 1024).ToString("f2");
@@ -247,14 +251,14 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         /// </summary>
         /// <returns></returns>
         [HttpPut("update")]
-        public ApiReturn update([FromBody]JObject model)
+        public ApiReturn update([FromBody] JObject model)
         {
             string sourceFileName = Path.Combine(SqlerHelp.MySqlBackup_BackupPath, model["id"].ConvertToString());
             string destFileName = Path.Combine(SqlerHelp.MySqlBackup_BackupPath, model["fileName"].ConvertToString());
 
             global::System.IO.File.Move(sourceFileName, destFileName);
 
-          
+
             return true;
         }
         #endregion
@@ -266,10 +270,10 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         /// </summary>
         /// <returns></returns>
         [HttpDelete("delete")]
-        public ApiReturn delete([FromBody]JObject model)
+        public ApiReturn delete([FromBody] JObject model)
         {
             string sourceFileName = Path.Combine(SqlerHelp.MySqlBackup_BackupPath, model["id"].ConvertToString());
-            global::System.IO.File.Delete(sourceFileName);            
+            global::System.IO.File.Delete(sourceFileName);
             return true;
         }
         #endregion
@@ -313,7 +317,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
         [HttpPost("BackupSqler")]
         public ApiReturn BackupSqler()
         {
-            MySqlLogical.BackupSqler(useMemoryCache:true);
+            MySqlLogical.BackupSqler(useMemoryCache: true);
             return new ApiReturn();
         }
         #endregion
@@ -335,7 +339,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
 
         #region (x.9) Restore
         [HttpPost("Restore")]
-        public ApiReturn Restore([FromQuery]string fileName)
+        public ApiReturn Restore([FromQuery] string fileName)
         {
             MySqlLogical.Restore(fileName: fileName);
             return new ApiReturn();
@@ -354,7 +358,7 @@ namespace App.Module.Sqler.Controllers.SqlBackup
             {
                 var dbMng = SqlerHelp.MySqlBackup_CreateDbMng(conn);
 
-                sql=dbMng.BuildCreateDataBaseSql();              
+                sql = dbMng.BuildCreateDataBaseSql();
             }
             var bytes = sql.StringToBytes();
             return File(bytes, "text/plain", "CreateDataBase.sql");

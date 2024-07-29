@@ -1,15 +1,14 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 using Vit.AutoTemp.Repository;
 using Vit.Core.Util.ComponentModel.Data;
-using Vit.Core.Util.ComponentModel.Query;
-using Vit.Extensions;
-using Vit.Linq.Query;
+using Vit.Extensions.Serialize_Extensions;
+using Vit.Extensions.Newtonsoft_Extensions;
+using Vit.Linq.ComponentModel;
+using Vit.Linq.Filter.ComponentModel;
 
 namespace App.Module.Sqler.Logical.DataEditor
 {
@@ -17,48 +16,38 @@ namespace App.Module.Sqler.Logical.DataEditor
     #region ConfigRepository
     public class ConfigRepository : IRepository<Model>
     {
-        public ConfigRepository()
-        {
-        }
 
         public ApiReturn<Model> GetModel(string id)
         {
-            var m = DataEditorHelp.dataEditorConfig.GetByPath<Model>("Db") ?? new Model();
+            var m = DataEditorHelp.dataEditorConfig.GetByPath<Model>("Vitorm") ?? new Model();
 
             m.menu = SqlerHelp.sqlerConfig.GetByPath<JToken>("menu")?.ToString();
 
-            return m ;
+            return m;
         }
 
 
         public ApiReturn<Model> Update(Model m)
         {
-            var data = DataEditorHelp.dataEditorConfig.root.JTokenGetByPath("Db");
+            var data = DataEditorHelp.dataEditorConfig.root.JTokenGetByPath("Vitorm");
             data.Replace(m.ConvertBySerialize<JToken>());
             DataEditorHelp.dataEditorConfig.SaveToFile();
 
             DataEditorHelp.Init();
 
-            SqlerHelp.sqlerConfig.root["menu"]=(m.menu?.ConvertBySerialize<JToken>());
+            SqlerHelp.sqlerConfig.root["menu"] = (m.menu?.ConvertBySerialize<JToken>());
             SqlerHelp.sqlerConfig.SaveToFile();
 
             return m;
         }
 
-        public ApiReturn Delete(Model m)
+        public ApiReturn<PageData<Model>> GetList(FilterRule filter, IEnumerable<OrderField> sort, PageInfo page)
         {
-            throw new System.NotImplementedException();
+            return new PageData<Model>(page) { totalCount = 1, items = new() { GetModel(null).data } };
         }
 
-        public ApiReturn<PageData<Model>> GetList(List<DataFilter> filter, IEnumerable<SortItem> sort, PageInfo page)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public ApiReturn<Model> Insert(Model m)
-        {
-            throw new System.NotImplementedException();
-        }
+        public ApiReturn Delete(Model m) => throw new System.NotImplementedException();
+        public ApiReturn<Model> Insert(Model m) => throw new System.NotImplementedException();
 
     }
     #endregion
@@ -81,13 +70,18 @@ namespace App.Module.Sqler.Logical.DataEditor
         /// <summary>
         /// 数据库类型
         /// </summary>
-        public String type { get; set; }
+        public String provider { get; set; }
+
+        /// <summary>
+        /// dll文件
+        /// </summary>
+        public String assemblyFile { get; set; }
 
 
         /// <summary>
         /// 连接字符串[field:ig-class=TextArea]
         /// </summary>
-        public String ConnectionString { get; set; }
+        public String connectionString { get; set; }
 
 
 
@@ -98,7 +92,7 @@ namespace App.Module.Sqler.Logical.DataEditor
         public string menu { get; set; }
 
 
-     
+
 
     }
 

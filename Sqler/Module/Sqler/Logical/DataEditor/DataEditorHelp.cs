@@ -1,35 +1,32 @@
-﻿using App.Module.AutoTemp.Controllers;
-using App.Module.Sqler.Logical.DataEditor.DataProvider;
+﻿using App.Module.Sqler.Logical.DataEditor.DataProvider;
 
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
+using Vit.AutoTemp;
 using Vit.AutoTemp.DataProvider;
-using Vit.AutoTemp.DataProvider.Ef;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.ConfigurationManager;
 using Vit.Db.Module.Schema;
 using Vit.Extensions;
-using Vit.Orm.EntityFramework;
-using Vit.Orm.EntityFramework.Dynamic;
+using Vit.Extensions.Db_Extensions;
+
+using Vitorm;
+using Vitorm.EntityGenerate;
+using Vitorm.Sql;
 
 namespace App.Module.Sqler.Logical.DataEditor
 {
     public class DataEditorHelp
     {
-
+        const string entityNamespace = "Sqler.DataEditor";
         #region static Init
-        static IEnumerable<IDataProvider> dataProviders =null;
+        static IEnumerable<IDataProvider> dataProviders = null;
 
+        public static DbContext CreateDbContext() => Data.DataProvider(entityNamespace).CreateDbContext();
+        public static SqlDbContext CreateSqlDbContext() => CreateDbContext() as SqlDbContext;
         public static bool Init()
         {
 
-            //(x.1)取消注册
-            if (dataProviders!=null)
+            // #1 unregister DataProvider
+            if (dataProviders != null)
             {
                 Vit.AutoTemp.AutoTempHelp.UnRegistDataProvider(dataProviders.ToArray());
                 dataProviders = null;
@@ -37,17 +34,22 @@ namespace App.Module.Sqler.Logical.DataEditor
 
 
 
-            //(x.2) init conn
+            // #2 init config of Vitorm.Data 
             {
-                var connInfo = dataEditorConfig.GetByPath<Vit.Orm.EntityFramework.ConnectionInfo>("Db");
+                // dataSourceConfig
+                var dataSourceConfig = dataEditorConfig.GetByPath<Dictionary<string, object>>("Vitorm");
+                dataSourceConfig["namespace"] = entityNamespace;
 
+                var moduleLabel = "configBy_SqlerDataEditor";
+                dataSourceConfig[moduleLabel] = true;
 
-                if (connInfo == null || string.IsNullOrEmpty(connInfo.type) || string.IsNullOrEmpty(connInfo.ConnectionString))
+                Data.ClearDataSource(provider => provider.dataSourceConfig.ContainsKey(moduleLabel));
+                var success = Data.AddDataSource(dataSourceConfig);
+
+                if (!success)
                 {
                     return false;
                 }
-
-                efDbFactory = new DbContextFactory<AutoMapDbContext>().Init(connInfo);
             }
 
 
@@ -56,14 +58,14 @@ namespace App.Module.Sqler.Logical.DataEditor
                 //DbData
                 try
                 {
-                    var provideArray = CreateEfDataProviderFromDb();
+                    var provideArray = CreateDataProviderFromDb();
                     dataProviders = provideArray;
                     Vit.AutoTemp.AutoTempHelp.RegistDataProvider(provideArray);
                 }
                 catch (System.Exception ex)
                 {
                     Logger.Error(ex);
-                }                
+                }
             }
 
             {
@@ -75,77 +77,63 @@ namespace App.Module.Sqler.Logical.DataEditor
                 catch (System.Exception ex)
                 {
                     Logger.Error(ex);
-                }               
+                }
             }
 
             return true;
 
         }
         #endregion
- 
+
         public static readonly JsonFile dataEditorConfig = new JsonFile(SqlerHelp.GetDataFilePath("sqler.DataEditor.json"));
 
 
-        public static DbContextFactory<AutoMapDbContext> efDbFactory { get; private set; }
 
-
-        #region dataProviderMap       
+        #region dataProviderMap
 
         public static void InitDataProvider(string tableName)
         {
-            var dataProvider = Vit.AutoTemp.AutoTempHelp.GetDataProvider("Sqler_DataEditor_Db_" + tableName) as EfDataProvider;
+            var dataProvider = Vit.AutoTemp.AutoTempHelp.GetDataProvider("Sqler_DataEditor_Db_" + tableName) as IDataProvider_Vitorm;
             InitDataProvider(dataProvider);
         }
-        public static void InitDataProvider(EfDataProvider dataProvider)
-        {           
+        public static void InitDataProvider(IDataProvider_Vitorm dataProvider)
+        {
             if (dataProvider == null) return;
 
             var tableInfo = dataProvider.tableSchema;
             #region getComment from json config
-            tableInfo.columns.ForEach(col => {
-
-                var column_comment = DataEditorHelp.dataEditorConfig.GetStringByPath("dbComment." + tableInfo.table_name + "." + col.column_name);
-                if (!string.IsNullOrEmpty(column_comment)) col.column_comment = column_comment;
-            });
+            tableInfo.columns.ForEach(
+                col =>
+                {
+                    var column_comment = DataEditorHelp.dataEditorConfig.GetStringByPath("dbComment." + tableInfo.table_name + "." + col.column_name);
+                    if (!string.IsNullOrEmpty(column_comment)) col.column_comment = column_comment;
+                }
+            );
             #endregion
 
 
-            dataProvider.Init();         
+            dataProvider.Init();
         }
         #endregion
 
 
-        #region CreateEfDataProviderFromDb
-
-        static IDataProvider[] CreateEfDataProviderFromDb()
+        #region CreateDataProviderFromDb
+        public static List<TableSchema> schema { get; private set; }
+        static IDataProvider[] CreateDataProviderFromDb()
         {
-            List<TableSchema> schema;
-            Dictionary<string, Type> entityMap;
-            using (var scope = DataEditorHelp.efDbFactory.CreateDbContext(out var db))
-            {
-                //先调用，确保已经映射实体
-                entityMap = db.GetEntityTypeMap();
-
-                schema = db.AutoGeneratedEntity_schema;
-            }
-             
-
-            Func<(IServiceScope, DbContext)> CreateDbContext = () =>
-            {
-                var scope = DataEditorHelp.efDbFactory.CreateDbContext(out var context);   
-                return (scope, context);
-            };
+            using var dbContext = CreateSqlDbContext();
+            var dbConn = dbContext.dbConnection;
+            schema = dbConn.GetSchema();
 
             return schema.Select((tableSchema) =>
-            {
-                var template = "Sqler_DataEditor_Db_" + tableSchema.table_name;
-                var dataProvider = new EfDataProvider(template, tableSchema, entityMap[tableSchema.table_name], CreateDbContext);
-                InitDataProvider(dataProvider);
-                return dataProvider;
-            }
+                {
+                    var template = "Sqler_DataEditor_Db_" + tableSchema.table_name;
+                    var entity = EntityHelp.GenerateEntityBySchema(tableSchema, entityNamespace);
+                    var dataProvider = AutoTempHelp.CreateDataProvider(template, entity, CreateDbContext, tableSchema);
+                    InitDataProvider(dataProvider);
+                    return dataProvider;
+                }
             ).ToArray();
-
-
         }
 
         #endregion
