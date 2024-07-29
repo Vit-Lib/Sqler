@@ -5,11 +5,11 @@ using Vit.AutoTemp.DataProvider;
 using Vit.Core.Module.Log;
 using Vit.Core.Util.ConfigurationManager;
 using Vit.Db.Module.Schema;
-using Vit.DynamicCompile.EntityGenerate;
 using Vit.Extensions;
 using Vit.Extensions.Db_Extensions;
 
 using Vitorm;
+using Vitorm.EntityGenerate;
 using Vitorm.Sql;
 
 namespace App.Module.Sqler.Logical.DataEditor
@@ -25,7 +25,7 @@ namespace App.Module.Sqler.Logical.DataEditor
         public static bool Init()
         {
 
-            // #1 unregist DataProvider
+            // #1 unregister DataProvider
             if (dataProviders != null)
             {
                 Vit.AutoTemp.AutoTempHelp.UnRegistDataProvider(dataProviders.ToArray());

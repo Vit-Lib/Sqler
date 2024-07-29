@@ -5,7 +5,12 @@ VisualStudioVersion = 17.1.32113.165
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sqler", "Sqler\Sqler.csproj", "{15FA4B65-9F9E-41A9-A41F-BA5E4160D05A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vit.AutoTemp", "Vit.AutoTemp\Vit.AutoTemp.csproj", "{537F663E-B0EC-4C9B-9E11-AD83317F727C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Vit.AutoTemp", "Vit.AutoTemp\Vit.AutoTemp.csproj", "{537F663E-B0EC-4C9B-9E11-AD83317F727C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{F0F7B3BD-9155-4120-80DB-95388EC15EF0}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

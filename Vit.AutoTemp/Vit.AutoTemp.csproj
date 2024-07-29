@@ -5,18 +5,16 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Description>https://github.com/serset/AutoTemp</Description>
+        <Description>https://github.com/VitLibs/Sqler</Description>
     </PropertyGroup>
 
     <PropertyGroup>
-        <DocumentationFile>bin\Debug\netstandard2.0\Vit.AutoTemp.xml</DocumentationFile>
+        <DocumentationFile>bin\Debug\netstandard2.1\Vit.AutoTemp.xml</DocumentationFile>
     </PropertyGroup>
 
-
     <ItemGroup>
-        <ProjectReference Include="..\..\Vit.Db\src\Vit.Db\Vit.Db\Vit.Db.csproj" />
-        <ProjectReference Include="..\..\VitormLib\Vitorm\src\Vitorm\Vitorm.csproj" />
+        <PackageReference Include="Vit.Db" Version="3.0.0" />
+        <PackageReference Include="Vitorm" Version="2.0.2" />
     </ItemGroup>
-
 
 </Project>

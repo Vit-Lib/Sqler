@@ -2,7 +2,7 @@
  * Date   : 2020-08-31
  * Version: 2.0.3
  * author : Lith
- * email  : serset@yeah.net
+ * email  : LithWang@outlook.com
 
  */
 ; (function (theme) {

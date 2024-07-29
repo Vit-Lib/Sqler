@@ -1,10 +1,10 @@
 {
-  /* 数据库设置 */
-  "Db": {
-    /* 数据库类型，可为  mysql mssql sqlite */
-    "//type": "sqlite",
-    /* 连接字符串 */
-    "ConnectionString": "data source=Data\\db.sqlite"
+  /* Database config */
+  "Vitorm": {
+    "provider": "Vitorm.MySql.DataProvider",
+    "assemblyFile": "Vitorm.MySql.dll",
+
+    "connectionString": "Data Source=localhost;Port=3306;Database=dev-orm;SslMode=none;User Id=root;Password=123456;CharSet=utf8;allowPublicKeyRetrieval=true;"
   },
 
   "dbComment": {

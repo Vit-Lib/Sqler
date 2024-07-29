@@ -3,7 +3,7 @@
  * Date   : 2020-02-19
  * Version: 2.0
  * author : Lith
- * email  : serset@yeah.net
+ * email  : LithWang@outlook.com
  */
 ; (function (scope) {
 
